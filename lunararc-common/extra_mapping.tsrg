@@ -1,0 +1,10 @@
+net/minecraft/network/protocol/login/custom/CustomQueryPayload net/minecraft/network/protocol/login/custom/CustomQueryPayload
+	write (Lnet/minecraft/network/FriendlyByteBuf;)V m_294761_
+net/minecraft/network/protocol/login/custom/CustomQueryAnswerPayload net/minecraft/network/protocol/login/custom/CustomQueryAnswerPayload
+	write (Lnet/minecraft/network/FriendlyByteBuf;)V m_294761_
+net/minecraft/network/protocol/login/custom/DiscardedQueryPayload net/minecraft/network/protocol/login/custom/DiscardedQueryPayload
+	write (Lnet/minecraft/network/FriendlyByteBuf;)V m_294761_
+net/minecraft/network/protocol/login/custom/DiscardedQueryAnswerPayload net/minecraft/network/protocol/login/custom/DiscardedQueryAnswerPayload
+	write (Lnet/minecraft/network/FriendlyByteBuf;)V m_294761_
+net/minecraftforge/network/ForgePayload net/minecraftforge/network/ForgePayload
+	write (Lnet/minecraft/network/FriendlyByteBuf;)V m_294761_

@@ -1,0 +1,13 @@
+accessWidener v2 named
+
+# ServerLoginPacketListenerImpl - Velocity forwarding hooks
+accessible field net/minecraft/server/network/ServerLoginPacketListenerImpl state Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;
+accessible field net/minecraft/server/network/ServerLoginPacketListenerImpl authenticatedProfile Lcom/mojang/authlib/GameProfile;
+accessible field net/minecraft/server/network/ServerLoginPacketListenerImpl connection Lnet/minecraft/network/Connection;
+mutable field net/minecraft/server/network/ServerLoginPacketListenerImpl state Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;
+mutable field net/minecraft/server/network/ServerLoginPacketListenerImpl authenticatedProfile Lcom/mojang/authlib/GameProfile;
+accessible class net/minecraft/server/network/ServerLoginPacketListenerImpl$State
+
+# Connection - expose address field for real IP injection
+accessible field net/minecraft/network/Connection address Ljava/net/SocketAddress;
+mutable field net/minecraft/network/Connection address Ljava/net/SocketAddress;

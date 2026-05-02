@@ -1,0 +1,40 @@
+plugins {
+    id 'architectury-plugin'
+    id 'dev.architectury.loom'
+}
+
+architectury {
+    platformSetupLoomIde()
+    loader("quilt")
+}
+
+loom {
+    silentMojangMappingsLicense()
+    accessWidenerPath = project(':lunararc-common').file("src/main/resources/lunararc.accesswidener")
+}
+
+configurations {
+    common
+    shadowCommon
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentQuilt.extendsFrom common
+}
+
+dependencies {
+    minecraft libs.minecraft
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${libs.versions.minecraft.get()}:${libs.versions.parchment.get()}@zip")
+    }
+
+    // Quilt Loader
+    modImplementation libs.quilt.loader
+
+    // Architectury transformation logic
+    common(project(path: ":lunararc-common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":lunararc-common", configuration: "transformProductionQuilt")) { transitive false }
+
+    implementation project(':lunararc-api')
+    implementation libs.paper.api
+}

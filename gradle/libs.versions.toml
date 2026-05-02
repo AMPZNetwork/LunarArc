@@ -1,0 +1,28 @@
+[versions]
+# plugins
+architectury-loom = "1.9-SNAPSHOT"
+
+# common
+minecraft = "1.21.1"
+neoforge = "21.1.228"
+forge = "52.1.14"
+fabric-loader = "0.19.2"
+quilt-loader = "0.26.3"
+paper-api = "1.21.1-R0.1-SNAPSHOT"
+paper-build = "133"
+# Find latest build at https://papermc.io/downloads/paper
+mixin = "0.8.5"
+parchment = "2024.11.17"
+
+[libraries]
+neoforge = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge" }
+paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper-api" }
+quilt-loader = { group = "org.quiltmc", name = "quilt-loader", version.ref = "quilt-loader" }
+loom = { module = "dev.architectury:architectury-loom", version.ref = "architectury-loom" }
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+parchment = { module = "org.parchmentmc.data:parchment-1.21.1", version.ref = "parchment" }
+
+[plugins]
+architectury = { id = "architectury-plugin", version = "3.4.164" }
+loom = { id = "dev.architectury.loom", version.ref = "architectury-loom" }
