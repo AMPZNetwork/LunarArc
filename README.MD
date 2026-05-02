@@ -4,7 +4,7 @@ An experimental PaperMC server bridge built to unify the modding ecosystem. Whil
 
 [![Downloads count](https://img.shields.io/github/downloads/AMPZNetwork/LunarArc/total?style=flat-square)](https://arclight.izzel.io/)  ![License](https://img.shields.io/github/license/AMPZNetwork/LunarArc?style=flat-square)
 
-![Logo](.githublunararclogo.jpg)
+![Logo](.github/lunararclogo.jpg
 
 ## Installing
 
