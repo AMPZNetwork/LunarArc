@@ -1,9 +1,13 @@
 ![Logo](.github/lunararclogo.jpg)
 
-[![Downloads count](https://img.shields.io/github/downloads/AMPZNetwork/LunarArc/total?style=flat-square)](https://arclight.izzel.io/)  ![License](https://img.shields.io/github/license/AMPZNetwork/LunarArc?style=flat-square) ![GitHub forks](https://img.shields.io/github/forks/AMPZNetwork/LunarArc?style=flat-square&logo=github)
+[![Downloads count](https://img.shields.io/github/downloads/AMPZNetwork/LunarArc/total?style=for-the-badge)](https://lunararc.ampznetwork.com)  ![License](https://img.shields.io/github/license/AMPZNetwork/LunarArc?style=for-the-badge) ![GitHub forks](https://img.shields.io/github/forks/AMPZNetwork/LunarArc?style=for-the-badge&logo=github)
 
 
 An experimental PaperMC server bridge built to unify the modding ecosystem. While many hybrid servers exist, few successfully unify the PaperMC core with diverse mod loaders; **LunarArc** aims to fill that gap by providing seamless support for **Fabric**, **Quilt**, **Forge**, and **NeoForge** mods on a high performance Paper foundation.
+
+|        Release        |  Forge  | NeoForge |  Fabric  |  QuiltMC  | Status |                                                                                                                                              Build                                                           
+|:--------------------:|:-------:|:--------:|:--------:|:--------:|:------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Trial Zenith (1.21.1) | 52.1.14 |21.1.228 |  0.19.2  |  2.29.3  | ACTIVE | [![1.21.1 Status](https://img.shields.io/github/actions/workflow/status/AMPZNetwork/LunarArc/gradle.yml?branch=Trial-Zenith&style=for-the-badge)](https://github.com/AMPZNetwork/LunarArc/actions?query=branch%3ATrial-Zenith) |
 
 ## Installing
 
