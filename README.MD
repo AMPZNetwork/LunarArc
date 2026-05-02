@@ -24,11 +24,11 @@ This project is licensed under [GPL v3](LICENSE).
 
 ## Sponsor
 
-[![](.githubbisecthosting.webp)](https://bisecthosting.com/AMPZ)
+[![](.github/bisecthosting.webp)](https://bisecthosting.com/AMPZ)
 
 Get 25% off hosting server with promocode AMPZ at [BisectHosting](https://bisecthosting.com/AMPZ).
 
-[![](httpswww.yourkit.comimagesyklogo.png)](httpswww.yourkit.com)
+[![](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com)
 
 YourKit supports open source projects with innovative and intelligent tools for monitoring and profiling Java and .NET
 applications. YourKit is the creator of a href=httpswww.yourkit.comjavaprofilerYourKit Java Profilera,
