@@ -31,6 +31,6 @@ Get 25% off hosting server with promocode AMPZ at [BisectHosting](https://bisect
 [![](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com)
 
 YourKit supports open source projects with innovative and intelligent tools for monitoring and profiling Java and .NET
-applications. YourKit is the creator of a href=httpswww.yourkit.comjavaprofilerYourKit Java Profilera,
-a href=httpswww.yourkit.com.netprofilerYourKit .NET Profilera,
-and a href=httpswww.yourkit.comyoumonitorYourKit YouMonitora.
+applications. YourKit is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>,
+<a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
+and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
