@@ -1,5 +1,7 @@
 ![Logo](.github/lunararclogo.jpg)
 
+# LunarArc
+
 [![Downloads count](https://img.shields.io/github/downloads/AMPZNetwork/LunarArc/total?style=for-the-badge)](https://lunararc.ampznetwork.com)  ![License](https://img.shields.io/github/license/AMPZNetwork/LunarArc?style=for-the-badge) ![GitHub forks](https://img.shields.io/github/forks/AMPZNetwork/LunarArc?style=for-the-badge&logo=github)
 
 
@@ -19,7 +21,7 @@ Read our document for more information.
 
 ## Support
 
-Discord Server [Inivte Link](discord.ampznetwork.com) 
+Discord Server [Inivte Link](https://discord.gg/JDP3CMfBef) 
 
 ## License
 
