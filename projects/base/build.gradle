@@ -1,0 +1,51 @@
+plugins {
+    id 'architectury-plugin'
+    id 'dev.architectury.loom'
+}
+
+architectury {
+    common(rootProject.ext.supportedPlatforms)
+}
+
+loom {
+    silentMojangMappingsLicense()
+    mixin {
+        defaultRefmapName = "mixins.lunararc.common.refmap.json"
+    }
+}
+
+dependencies {
+    minecraft libs.minecraft
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${libs.versions.minecraft.get()}:${libs.versions.parchment.get()}@zip")
+    }
+    
+    implementation project(':api')
+    implementation project(':i18n')
+    
+    // Paper API & Libraries - We use compileOnly to avoid shading them.
+    // The LunarArc Launcher will handle providing these via the libraries folder.
+    compileOnly libs.paper.api
+    compileOnly 'org.joml:joml:1.10.5'
+    compileOnly 'org.apache.logging.log4j:log4j-api:2.20.0'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.12'
+    
+    // ModLoader dependencies
+    compileOnly 'org.spongepowered:mixin:0.8.7'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.4.1'
+
+    // Slf4j for logging
+    compileOnly 'org.slf4j:slf4j-api:2.0.9'
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+// No custom jar manifest needed for base

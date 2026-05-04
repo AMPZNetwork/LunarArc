@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: io.ampznetwork.lunararc.launcher.Launcher
+LunarArc-Platform: forge
+

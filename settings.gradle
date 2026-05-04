@@ -11,11 +11,27 @@ pluginManagement {
 
 rootProject.name = 'LunarArc'
 
-include 'lunararc-api'
-include 'lunararc-common'
-include 'lunararc-neoforge'
-include 'lunararc-forge'
-include 'lunararc-fabric'
-include 'lunararc-quilt'
-include 'lunararc-i18n'
+include 'api'
+project(':api').projectDir = file('projects/api')
+
+include 'base'
+project(':base').projectDir = file('projects/base')
+
+include 'core'
+project(':core').projectDir = file('projects/core')
+
+include 'launcher'
+project(':launcher').projectDir = file('projects/launcher')
+
+include 'i18n'
+project(':i18n').projectDir = file('projects/i18n')
+
 include 'bootstrap'
+
+// Platform Loaders
+include 'forge'
+project(':forge').projectDir = file('projects/loaders/forge')
+include 'fabric'
+project(':fabric').projectDir = file('projects/loaders/fabric')
+include 'quilt'
+project(':quilt').projectDir = file('projects/loaders/quilt')

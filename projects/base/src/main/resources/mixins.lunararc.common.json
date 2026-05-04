@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.ampznetwork.lunararc.common.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "mixins.lunararc.common.refmap.json",
+  "mixins": [
+    "core.server.MinecraftServerMixin",
+    "core.server.MinecraftServerAccessor",
+    "core.server.ServerLoginPacketListenerMixin",
+    "core.server.PlayerListMixin",
+    "core.server.ServerGamePacketListenerImplMixin",
+    "core.server.ServerPlayerGameModeMixin",
+    "core.network.ConnectionAccessor",
+    "core.command.CommandsMixin",
+    "core.world.LevelMixin",
+    "core.world.LevelEntityMixin",
+    "mod.util.VelocityForwardQueryMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

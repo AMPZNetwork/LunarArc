@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "lunararc",
+  "version": "1.0.0",
+  "name": "LunarArc",
+  "description": "LunarArc Hybrid Server Core",
+  "authors": [
+    "Ampz Network"
+  ],
+  "contact": {
+    "homepage": "https://lunararc.net",
+    "sources": "https://github.com/AmpzNetwork/LunarArc"
+  },
+  "license": "GPL-3.0-only",
+  "icon": "assets/lunararc/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "io.ampznetwork.lunararc.fabric.LunarArcFabric"
+    ]
+  },
+  "mixins": [
+    "mixins.lunararc.common.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.22",
+    "minecraft": ">=1.21.1",
+    "java": ">=21"
+  }
+}

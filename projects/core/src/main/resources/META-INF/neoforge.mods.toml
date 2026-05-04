@@ -1,0 +1,16 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="Apache-2.0"
+
+[[mods]]
+modId="lunararc"
+version="1.0.0"
+displayName="LunarArc"
+authors="Ampz Network"
+description="LunarArc Hybrid Server Core"
+
+[[mixins]]
+config="mixins.lunararc.common.json"
+
+[[mixins]]
+config="mixins.lunararc.neoforge.json"

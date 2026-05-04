@@ -1,7 +1,8 @@
+import java.nio.file.Files
 plugins {
     alias(libs.plugins.architectury) apply false
     alias(libs.plugins.loom) apply false
-    id 'com.gradleup.shadow' version '8.3.0' apply false
+    id 'com.gradleup.shadow' version '8.3.5' apply false
 }
 
 allprojects {
@@ -43,16 +44,54 @@ allprojects {
             languageVersion = JavaLanguageVersion.of(21)
         }
     }
+
+    ext {
+        paperDir = project.rootProject.file(".gradle/paper")
+        paperServerJar = paperDir.toPath().resolve("paper-server-${libs.versions.minecraft.get()}-${libs.versions.paper.build.get()}.jar").toFile()
+    }
+}
+
+tasks.register('setupPaperServer') {
+    outputs.file(project.ext.paperServerJar)
+    doLast {
+        if (!project.ext.paperServerJar.exists()) {
+            project.ext.paperDir.mkdirs()
+            def mcVersion = libs.versions.minecraft.get()
+            def build = libs.versions.paper.build.get()
+            def url = "https://api.papermc.io/v2/projects/paper/versions/${mcVersion}/builds/${build}/downloads/paper-${mcVersion}-${build}.jar"
+            def paperBundler = project.ext.paperDir.toPath().resolve("paper-bundler.jar").toFile()
+            
+            println "Downloading Paper bundler..."
+            paperBundler.withOutputStream { out ->
+                new URL(url).withInputStream { it.transferTo(out) }
+            }
+            
+            println "Extracting paper-server from bundler..."
+            def jar = new java.util.jar.JarFile(paperBundler)
+            def entry = jar.stream().filter({ e -> e.name.startsWith("META-INF/versions/") && e.name.endsWith(".jar") }).findFirst().orElse(null)
+            if (entry != null) {
+                project.ext.paperServerJar.withOutputStream { out ->
+                    jar.getInputStream(entry).transferTo(out)
+                }
+                println "Paper server implementation ready at ${project.ext.paperServerJar}"
+            } else {
+                // Fallback for non-bundled jars or different versions
+                Files.copy(paperBundler.toPath(), project.ext.paperServerJar.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                println "Paper jar used directly as implementation."
+            }
+            paperBundler.delete()
+        }
+    }
 }
 
 jar.enabled = false
 
 tasks.register('collect', Copy) {
     destinationDir = file('build/libs')
-    from project(':bootstrap').tasks.named('neoforgeJar').map { it.outputs }
-    from project(':bootstrap').tasks.named('forgeJar').map { it.outputs }
-    from project(':bootstrap').tasks.named('fabricJar').map { it.outputs }
-    from project(':bootstrap').tasks.named('quiltJar').map { it.outputs }
+    from project(':bootstrap').tasks.named('neoforgeJar')
+    from project(':bootstrap').tasks.named('forgeJar')
+    from project(':bootstrap').tasks.named('fabricJar')
+    from project(':bootstrap').tasks.named('quiltJar')
 }
 
 def gitBranch() {
@@ -70,11 +109,14 @@ def gitBranch() {
     }
 }
 
-// Note: UploadFilesTask would need to be implemented or imported
-// For now we will just keep the structure
-tasks.register('uploadFiles') {
-    dependsOn(tasks.collect)
-    doLast {
-        println "Uploading version ${project.version}-${project.ext.gitHash} from branch ${gitBranch()}"
+abstract class UploadFilesTask extends DefaultTask {
+    @TaskAction
+    void upload() {
+        println "Uploading version ${project.version}-${project.ext.gitHash} from branch ${project.gitBranch()}"
+        // Add actual upload logic here (e.g., FTP, S3, etc.)
     }
+}
+
+tasks.register('uploadFiles', UploadFilesTask) {
+    dependsOn(tasks.collect)
 }

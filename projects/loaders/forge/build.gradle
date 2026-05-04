@@ -1,0 +1,33 @@
+plugins {
+    id 'architectury-plugin'
+    id 'dev.architectury.loom'
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+loom {
+    silentMojangMappingsLicense()
+    accessWidenerPath = project(':base').file("src/main/resources/lunararc.accesswidener")
+    forge {
+        mixinConfigs = ["mixins.lunararc.common.json"]
+    }
+}
+
+dependencies {
+    minecraft libs.minecraft
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${libs.versions.minecraft.get()}:${libs.versions.parchment.get()}@zip")
+    }
+    forge "net.minecraftforge:forge:${libs.versions.minecraft.get()}-${libs.versions.forge.get()}"
+    implementation project(':base')
+    implementation project(':api')
+    implementation libs.paper.api
+}
+
+ 
+remapJar.enabled = false
+ 

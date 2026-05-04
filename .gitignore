@@ -1,9 +1,71 @@
+# Gradle
 .gradle/
-/.settings/
 build/
-bin/
-/.project
-.idea
+.architectury-transformer/
+lunararc-launcher/
+server_javap.txt
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+
+# Build Artifacts
+*.jar
+*.war
+*.ear
+!gradle-wrapper.jar
+
+# Log Files
 *.log
-run_*/
-run
+logs/
+
+# Local/Secrets
+*.properties
+!lunararc-launcher.properties
+.env
+.env.*
+
+# Paper/Minecraft Runtime (If generated locally)
+run/
+.gradle/paper/
+paper-server-*.jar
+cache/
+usercache.json
+eula.txt
+server.properties
+whitelist.json
+ops.json
+banned-ips.json
+banned-players.json
+world/
+plugins/
+mods/
+config/
+defaultconfigs/
+scripts/
+kubejs/
+patchouli_books/
+logs/
+crash-reports/
+debug/
+screenshots/
+resourcepacks/
+shaderpacks/
+saves/
+stats/
+advancements/
+datapacks/

@@ -1,30 +1,42 @@
-name: Build LunarArc
+# This workflow will build a Java project with Gradle
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Build
 
 on:
+  workflow_dispatch: 
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches:
+      - '**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          # This single line handles all the Gradle caching automatically!
           cache: gradle
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew collect
+
+      - name: Build
+        run: ./gradlew cleanBuild build collect --no-daemon --stacktrace
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: LunarArc-Builds
+          name: LunarArc-Build-${{ github.ref_name }}-run${{ github.run_number }}
           path: build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.ampznetwork.lunararc.neoforge.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "permission.PermissionAPIMixin",
+    "plugin.SimplePluginManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
