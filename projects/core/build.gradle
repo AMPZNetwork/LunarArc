@@ -24,3 +24,15 @@ dependencies {
     implementation project(':api')
     implementation libs.paper.api
 }
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "project_name", rootProject.name
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand(
+                version: project.version,
+                project_name: rootProject.name
+        )
+    }
+}

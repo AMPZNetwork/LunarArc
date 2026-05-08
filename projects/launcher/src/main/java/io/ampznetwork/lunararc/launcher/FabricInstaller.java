@@ -7,40 +7,51 @@ import java.nio.file.Paths;
 public class FabricInstaller {
     public static void install(Path workingDir, java.util.Properties versions) throws Exception {
         System.out.println("Installing Fabric...");
-        Path installerJar = Paths.get("fabric-installer.jar");
         Path fabricServerJar = workingDir.resolve("fabric-server-launch.jar");
         Path minecraftServerJar = workingDir.resolve("server.jar");
-        
-        String mcVersion = versions.getProperty("minecraft", "1.21.1");
-        String fabricVersion = versions.getProperty("fabric", "0.16.0");
-        String installerVersion = versions.getProperty("fabricInstaller", "0.11.2");
-        
-        String installerUrl = String.format("https://maven.fabricmc.net/net/fabricmc/fabric-installer/%s/fabric-installer-%s.jar", installerVersion, installerVersion);
-        
-        if (!Files.exists(fabricServerJar) || !Files.exists(minecraftServerJar)) {
+        Path versionSentinel = workingDir.resolve(".lunararc-fabric-version");
+
+        String mcVersion = LauncherUtils.requireVersion(versions, "minecraft");
+        String fabricVersion = LauncherUtils.requireVersion(versions, "fabric");
+        String installerVersion = LauncherUtils.requireVersion(versions, "fabricInstaller");
+
+        Path installerJar = Paths.get("fabric-" + mcVersion + "-" + fabricVersion + "-installer.jar");
+
+        String installerUrl = String.format(
+                "https://maven.fabricmc.net/net/fabricmc/fabric-installer/%s/fabric-installer-%s.jar", installerVersion,
+                installerVersion);
+
+        String combinedVersion = fabricVersion + ":" + installerVersion;
+        boolean needsInstall = !Files.exists(fabricServerJar) || !Files.exists(minecraftServerJar);
+
+        if (!needsInstall && Files.exists(versionSentinel)) {
+            String installedVersion = Files.readString(versionSentinel).trim();
+            if (!installedVersion.equals(combinedVersion)) {
+                needsInstall = true;
+            }
+        }
+
+        if (needsInstall) {
             System.out.println("Fabric or Minecraft server JAR missing. Starting installation...");
             if (!Files.exists(installerJar)) {
                 Downloader.download(installerUrl, installerJar);
             }
-            
-            System.out.println("Running Fabric installer for version " + mcVersion + " (Loader: " + fabricVersion + ")...");
+
+            System.out.println(
+                    "Running Fabric installer for version " + mcVersion + " (Loader: " + fabricVersion + ")...");
             ProcessBuilder pb = new ProcessBuilder(
-                LauncherUtils.getJavaExecutable(), "-jar", installerJar.toAbsolutePath().toString(), "server", 
-                "-mcversion", mcVersion, "-loader", fabricVersion, "-downloadMinecraft"
-            );
+                    LauncherUtils.getJavaExecutable(), "-jar", installerJar.toAbsolutePath().toString(), "server",
+                    "-mcversion", mcVersion, "-loader", fabricVersion, "-downloadMinecraft");
             pb.inheritIO();
             Process process = pb.start();
             int exitCode = process.waitFor();
-            
+
             if (exitCode != 0) {
                 System.err.println("Fabric installer failed with exit code: " + exitCode);
                 return;
             }
 
-            // Sometimes the installer creates 'fabric-server-launch.jar' which is just a tiny wrapper.
-            // We want to ensure 'server.jar' exists because Fabric knot needs it.
             if (!Files.exists(minecraftServerJar)) {
-                // Check if it was named minecraft_server.X.X.X.jar
                 Path altJar = workingDir.resolve("minecraft_server." + mcVersion + ".jar");
                 if (Files.exists(altJar)) {
                     Files.move(altJar, minecraftServerJar);
@@ -48,8 +59,9 @@ public class FabricInstaller {
             }
 
             System.out.println("Fabric installation complete!");
+            Files.writeString(versionSentinel, combinedVersion);
         }
-        
+
         System.out.println("Fabric ready.");
         FabricLauncher.launch(workingDir);
     }

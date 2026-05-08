@@ -1,5 +1,6 @@
 package io.ampznetwork.lunararc.launcher;
 
+import io.ampznetwork.lunararc.i18n.TranslationManager;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,26 +14,30 @@ import java.util.Scanner;
  * sequence.
  */
 public class Launcher {
-    private static final String VERSION = "1.0.0-SNAPSHOT";
-
     public static void main(String[] args) {
         try {
-            ConsoleUI.printLogo();
+            Properties versions = loadProperties("lunararc-launcher.properties");
+            String minecraftVersion = versions.getProperty("minecraft", "unknown");
+            String projectVersion = versions.getProperty("version", "unknown");
+            String buildName = versions.getProperty("buildname", "unknown");
             
-            ConsoleUI.printStep("Initializing system components...");
+            ConsoleUI.printLogo(minecraftVersion);
+            
+            // Check for updates
+            UpdateChecker.check(projectVersion, buildName);
+
+            ConsoleUI.printStep("step.initializing");
             LibraryExtractor.extractLibraries();
 
             Path workingDir = Paths.get("").toAbsolutePath();
             Path lunararcDir = workingDir.resolve(".lunararc");
             if (!Files.exists(lunararcDir)) {
-                ConsoleUI.printStep("Creating working directory: " + lunararcDir.getFileName());
+                ConsoleUI.printStep("step.creating_dir", lunararcDir.getFileName());
                 Files.createDirectories(lunararcDir);
             }
 
-            Properties versions = loadProperties("lunararc-launcher.properties");
-            
             // Platform persistence logic
-            Path configPath = workingDir.resolve("lunararc.properties");
+            Path configPath = workingDir.resolve("lunararc.conf");
             Properties config = new Properties();
             String choice = "";
             
@@ -44,13 +49,13 @@ public class Launcher {
             }
 
             if (choice == null || choice.isEmpty()) {
-                System.out.println(ConsoleUI.PURPLE + ConsoleUI.BOLD + "Available Platforms:" + ConsoleUI.RESET);
-                System.out.println(ConsoleUI.WHITE + "  1) " + ConsoleUI.CYAN + "NeoForge" + ConsoleUI.WHITE + " (1.21.1) " + ConsoleUI.RESET + ConsoleUI.ITALIC + "[Recommended]" + ConsoleUI.RESET);
-                System.out.println(ConsoleUI.WHITE + "  2) " + ConsoleUI.CYAN + "Forge" + ConsoleUI.WHITE + "    (1.21.1)");
-                System.out.println(ConsoleUI.WHITE + "  3) " + ConsoleUI.CYAN + "Fabric" + ConsoleUI.WHITE + "   (1.21.1)");
-                System.out.println(ConsoleUI.WHITE + "  4) " + ConsoleUI.CYAN + "Quilt" + ConsoleUI.WHITE + "    (1.21.1)");
+                System.out.println(TranslationManager.get("platform.select_header"));
+                System.out.println(TranslationManager.get("platform.neoforge", minecraftVersion));
+                System.out.println(TranslationManager.get("platform.forge", minecraftVersion));
+                System.out.println(TranslationManager.get("platform.fabric", minecraftVersion));
+                System.out.println(TranslationManager.get("platform.quilt", minecraftVersion));
                 System.out.println();
-                System.out.print(ConsoleUI.YELLOW + "Select platform ID > " + ConsoleUI.RESET);
+                System.out.print(TranslationManager.get("platform.select_prompt"));
 
                 Scanner scanner = new Scanner(System.in);
                 choice = scanner.nextLine();
@@ -60,13 +65,13 @@ public class Launcher {
                     config.store(out, "LunarArc Server Configuration");
                 }
             } else {
-                ConsoleUI.printStep("Auto-Selecting platform: " + choice + " from " + configPath.getFileName());
+                ConsoleUI.printStep("step.auto_selecting", choice, configPath.getFileName());
             }
 
             // Clean mod folder logic (Baked-in strategy)
             Path modsDir = Paths.get("mods");
             if (Files.exists(modsDir)) {
-                ConsoleUI.printStep("Cleaning previous LunarArc core files...");
+                ConsoleUI.printStep("step.cleaning_mods");
                 Files.list(modsDir)
                         .filter(p -> p.getFileName().toString().toLowerCase().contains("lunararc"))
                         .forEach(p -> {
@@ -90,7 +95,7 @@ public class Launcher {
             }
 
             if (!platformName.isEmpty()) {
-                ConsoleUI.printStep("Deploying core bridge for " + ConsoleUI.CYAN + platformName + ConsoleUI.RESET + "...");
+                ConsoleUI.printStep("step.deploying_bridge", platformName);
                 Path destPath = modsDir.resolve(".lunararc-" + platformName + ".jar");
                 Files.copy(selfPath, destPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 destPath.toFile().deleteOnExit();
@@ -114,12 +119,12 @@ public class Launcher {
                     QuiltInstaller.install(lunararcDir, versions);
                     break;
                 default:
-                    ConsoleUI.printError("Invalid selection. Aborting.");
+                    ConsoleUI.printError("error.invalid_selection");
                     break;
             }
 
         } catch (Exception e) {
-            ConsoleUI.printError("Critical failure in boot sequence:");
+            ConsoleUI.printError("error.critical_failure");
             e.printStackTrace();
         }
     }

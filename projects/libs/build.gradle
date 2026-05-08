@@ -1,0 +1,148 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.ow2.asm:asm:9.7'
+        classpath 'org.ow2.asm:asm-commons:9.7'
+    }
+}
+
+plugins {
+    id 'java-library'
+}
+
+group = 'io.ampznetwork.lunararc'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    relocateDeps
+}
+
+dependencies {
+    relocateDeps libs.asm
+    relocateDeps libs.asm.commons
+    relocateDeps libs.gson
+    relocateDeps libs.adventure.api
+    relocateDeps libs.adventure.text.minimessage
+    relocateDeps libs.adventure.text.serializer.gson
+    relocateDeps libs.adventure.text.serializer.legacy
+    relocateDeps libs.adventure.text.serializer.plain
+    relocateDeps libs.snakeyaml
+    relocateDeps libs.fastutil
+    relocateDeps libs.log4j.api
+    relocateDeps libs.json.simple
+    
+    api libs.fastutil
+
+    // Export relocated classes for downstream modules
+    api files("build/relocated") {
+        builtBy "manualRelocate"
+    }
+}
+
+task extractDeps {
+    inputs.files configurations.relocateDeps
+    outputs.dir "build/extracted"
+    doLast {
+        def targetDir = file("build/extracted")
+        targetDir.deleteDir()
+        configurations.relocateDeps.each { file ->
+            if (file.name.endsWith(".jar")) {
+                copy {
+                    from zipTree(file)
+                    into "build/extracted"
+                    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+                    exclude "META-INF/**"
+                    exclude "module-info.class"
+                    exclude "it/unimi/dsi/fastutil/**"
+                }
+            }
+        }
+    }
+}
+
+import org.objectweb.asm.*
+import org.objectweb.asm.commons.*
+
+task manualRelocate {
+    dependsOn extractDeps
+    inputs.dir "build/extracted"
+    outputs.dir "build/relocated"
+    doLast {
+        def sourceDir = file("build/extracted")
+        def targetDir = file("build/relocated")
+        targetDir.deleteDir()
+        
+        def remapper = new Remapper() {
+            @Override
+            String map(String internalName) {
+                if (internalName == null) return null
+                if (internalName.startsWith("org/objectweb/asm/")) {
+                    return internalName.replace("org/objectweb/asm/", "io/ampznetwork/lunararc/libs/asm/")
+                }
+                if (internalName.startsWith("com/google/gson/")) {
+                    return internalName.replace("com/google/gson/", "io/ampznetwork/lunararc/libs/gson/")
+                }
+                if (internalName.startsWith("net/kyori/adventure/")) {
+                    return internalName.replace("net/kyori/adventure/", "io/ampznetwork/lunararc/libs/adventure/")
+                }
+                if (internalName.startsWith("net/kyori/examination/")) {
+                    return internalName.replace("net/kyori/examination/", "io/ampznetwork/lunararc/libs/examination/")
+                }
+                if (internalName.startsWith("org/yaml/snakeyaml/")) {
+                    return internalName.replace("org/yaml/snakeyaml/", "io/ampznetwork/lunararc/libs/snakeyaml/")
+                }
+                if (internalName.startsWith("org/apache/logging/log4j/")) {
+                    return internalName.replace("org/apache/logging/log4j/", "io/ampznetwork/lunararc/libs/log4j/")
+                }
+                if (internalName.startsWith("org/json/simple/")) {
+                    return internalName.replace("org/json/simple/", "io/ampznetwork/lunararc/libs/json/simple/")
+                }
+                return internalName
+            }
+        }
+        
+        def total = 0
+        def count = 0
+        fileTree(sourceDir).each { if (it.name.endsWith(".class")) total++ }
+        
+        fileTree(sourceDir).each { classFile ->
+            if (classFile.name.endsWith(".class")) {
+                try {
+                    count++
+                    if (count % 1000 == 0) println "Relocating ${count}/${total}..."
+                    
+                    def bytes = classFile.readBytes()
+                    def reader = new ClassReader(bytes)
+                    def writer = new ClassWriter(0)
+                    def visitor = new ClassRemapper(writer, remapper)
+                    reader.accept(visitor, ClassReader.EXPAND_FRAMES)
+                    
+                    def className = reader.className
+                    def relocatedName = remapper.map(className)
+                    def outputFile = new File(targetDir, relocatedName + ".class")
+                    outputFile.parentFile.mkdirs()
+                    outputFile.bytes = writer.toByteArray()
+                } catch (Exception e) {
+                    println "FAILED to relocate ${classFile}: ${e.message}"
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java { srcDirs = [] }
+        output.dir("build/relocated", builtBy: "manualRelocate")
+    }
+}
+
+jar {
+    from("build/relocated")
+    dependsOn manualRelocate
+}

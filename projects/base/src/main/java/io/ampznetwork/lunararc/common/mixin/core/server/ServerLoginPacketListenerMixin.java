@@ -23,6 +23,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -32,17 +34,34 @@ import java.util.concurrent.ThreadLocalRandom;
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacketListenerBridge {
 
-    @Shadow @Final MinecraftServer server;
+    @Shadow
+    @Final
+    MinecraftServer server;
 
-    @Shadow private GameProfile authenticatedProfile;
-    @Shadow public Connection connection;
-    @Shadow public abstract void disconnect(Component reason);
+    @Shadow
+    private GameProfile authenticatedProfile;
+    @Shadow
+    public Connection connection;
 
-    /** Unique transaction ID we generate for our Velocity query. -1 means not sent yet. */
-    @Unique private int lunararc$velocityLoginId = -1;
+    @Shadow
+    public abstract void disconnect(Component reason);
 
     /**
-     * After the vanilla handleHello sends the encryption request (or skips it in offline mode),
+     * Unique transaction ID we generate for our Velocity query. -1 means not sent
+     * yet.
+     */
+    @Unique
+    private int lunararc$velocityLoginId = -1;
+
+    @Unique
+    private static final Logger lunararc$logger = LoggerFactory.getLogger("LunarArc");
+
+    @Unique
+    private boolean lunararc$preLoginCompleted = false;
+
+    /**
+     * After the vanilla handleHello sends the encryption request (or skips it in
+     * offline mode),
      * inject a Velocity player_info query if Velocity forwarding is enabled.
      * We inject at RETURN so vanilla logic has already validated state.
      */
@@ -52,17 +71,17 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
             this.lunararc$velocityLoginId = ThreadLocalRandom.current().nextInt();
             this.connection.send(new ClientboundCustomQueryPacket(
                     this.lunararc$velocityLoginId,
-                    (net.minecraft.network.protocol.login.custom.CustomQueryPayload) (Object) VelocitySupport.createPacket()
-            ));
+                    java.util.Objects.requireNonNull((net.minecraft.network.protocol.login.custom.CustomQueryPayload) (Object) VelocitySupport.createPacket())));
             ci.cancel();
             return;
         }
 
-        // Offline mode support (if server.usesAuthentication() is false)
         if (!this.server.usesAuthentication()) {
             Util.backgroundExecutor().execute(() -> {
                 try {
-                    GameProfile offlineProfile = new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + packet.name()).getBytes(java.nio.charset.StandardCharsets.UTF_8)), packet.name());
+                    GameProfile offlineProfile = new GameProfile(UUID.nameUUIDFromBytes(
+                            ("OfflinePlayer:" + packet.name()).getBytes(java.nio.charset.StandardCharsets.UTF_8)),
+                            packet.name());
                     this.lunararc$preLogin(offlineProfile);
                 } catch (Exception e) {
                     this.disconnect(Component.literal("Failed to verify offline player"));
@@ -72,17 +91,16 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
             ci.cancel();
         }
     }
+
     /**
      * Verify the HMAC signature and inject the real player IP and profile.
      */
-    @Inject(
-        method = "handleCustomQueryPacket",
-        cancellable = true,
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;disconnect(Lnet/minecraft/network/chat/Component;)V")
-    )
+    @Inject(method = "handleCustomQueryPacket", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;disconnect(Lnet/minecraft/network/chat/Component;)V"))
     private void lunararc$handleVelocityResponse(ServerboundCustomQueryAnswerPacket packet, CallbackInfo ci) {
-        if (!LunarArcConfig.isVelocityEnabled()) return;
-        if (packet.transactionId() != this.lunararc$velocityLoginId) return;
+        if (!LunarArcConfig.isVelocityEnabled())
+            return;
+        if (packet.transactionId() != this.lunararc$velocityLoginId)
+            return;
 
         var rawPayload = packet.payload();
         if (rawPayload == null) {
@@ -92,11 +110,11 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
         }
 
         // Re-serialize the payload into a FriendlyByteBuf for parsing
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(java.util.Objects.requireNonNull(io.netty.buffer.Unpooled.buffer()));
         rawPayload.write(buf);
 
         if (!VelocitySupport.checkIntegrity(buf, LunarArcConfig.getVelocitySecret())) {
-            System.err.println("[LunarArc] Velocity forwarding integrity check failed! Verify velocity.secret.");
+            lunararc$logger.error("Velocity forwarding integrity check failed! Verify velocity.secret.");
             this.disconnect(Component.literal("Unable to verify player details (Velocity integrity failed)."));
             ci.cancel();
             return;
@@ -113,11 +131,12 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
             port = isa.getPort();
         }
 
-        ((io.ampznetwork.lunararc.common.mixin.core.network.ConnectionAccessor) this.connection).setAddress(new InetSocketAddress(VelocitySupport.readAddress(buf), port));
+        ((io.ampznetwork.lunararc.common.mixin.core.network.ConnectionAccessor) this.connection)
+                .setAddress(new InetSocketAddress(VelocitySupport.readAddress(buf), port));
         this.authenticatedProfile = VelocitySupport.createProfile(buf);
 
-        System.out.println("[LunarArc] Velocity forwarded: " + this.authenticatedProfile.getName()
-                + " @ " + ((io.ampznetwork.lunararc.common.mixin.core.network.ConnectionAccessor) this.connection).getAddress());
+        lunararc$logger.info("Velocity forwarded: {} @ {}", this.authenticatedProfile.getName(),
+                ((io.ampznetwork.lunararc.common.mixin.core.network.ConnectionAccessor) this.connection).getAddress());
 
         // Proceed with login logic (AsyncPlayerPreLoginEvent)
         Util.backgroundExecutor().execute(() -> {
@@ -144,7 +163,8 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
             InetAddress address = ((InetSocketAddress) connection.getRemoteAddress()).getAddress();
             UUID uniqueId = profile.getId();
 
-            // Constructor: AsyncPlayerPreLoginEvent(String name, InetAddress ipAddress, UUID uniqueId)
+            // Constructor: AsyncPlayerPreLoginEvent(String name, InetAddress ipAddress,
+            // UUID uniqueId)
             Object asyncEvent = eventClass.getConstructor(String.class, InetAddress.class, UUID.class)
                     .newInstance(playerName, address, uniqueId);
 
@@ -162,13 +182,13 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
         } catch (ClassNotFoundException e) {
             // Bukkit not present, proceed normally
         } catch (Exception e) {
-            System.err.println("[LunarArc] Error calling AsyncPlayerPreLoginEvent: " + e.getMessage());
-            e.printStackTrace();
+            lunararc$logger.error("Error calling AsyncPlayerPreLoginEvent", e);
         }
 
         // Proceed to vanilla verification
         ((MinecraftServerBridge) this.server).lunararc$queueTask(() -> {
             try {
+                this.lunararc$preLoginCompleted = true;
                 this.startClientVerification(profile);
             } catch (Exception e) {
                 this.disconnect(Component.literal("Error starting client verification"));
@@ -177,33 +197,32 @@ public abstract class ServerLoginPacketListenerMixin implements ServerLoginPacke
         });
     }
 
-    @Shadow abstract void startClientVerification(GameProfile profile);
+    @Shadow
+    abstract void startClientVerification(GameProfile profile);
 
     /**
      * Inject into handleKey to intercept online-mode login after authentication.
-     * In vanilla, handleKey starts an authentication thread. We want to catch the RESULT of that.
-     * However, it's easier to inject into the method that is called AFTER successful auth.
+     * In vanilla, handleKey starts an authentication thread. We want to catch the
+     * RESULT of that.
+     * However, it's easier to inject into the method that is called AFTER
+     * successful auth.
      * In 1.21.1, that is startClientVerification(GameProfile).
      */
     @Inject(method = "startClientVerification", at = @At("HEAD"), cancellable = true)
     private void lunararc$onStartClientVerification(GameProfile profile, CallbackInfo ci) {
         // If we are already in our custom login flow, let it proceed
-        if (Boolean.TRUE.equals(lunararc$inCustomLoginFlow.get())) return;
+        if (this.lunararc$preLoginCompleted)
+            return;
 
         // Start our custom flow
-        lunararc$inCustomLoginFlow.set(true);
         Util.backgroundExecutor().execute(() -> {
             try {
                 this.lunararc$preLogin(profile);
             } catch (Exception e) {
                 this.disconnect(Component.literal("Error during pre-login event"));
                 e.printStackTrace();
-            } finally {
-                lunararc$inCustomLoginFlow.remove();
             }
         });
         ci.cancel();
     }
-
-    @Unique private static final ThreadLocal<Boolean> lunararc$inCustomLoginFlow = new ThreadLocal<>();
 }

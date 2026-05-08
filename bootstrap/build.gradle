@@ -1,5 +1,5 @@
 plugins {
-    id 'com.gradleup.shadow'
+    id 'com.github.johnrengelman.shadow'
 }
 
 dependencies {
@@ -15,8 +15,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     // Paper API (Required for hybrid bridge)
-    implementation 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+    implementation libs.paper.api
     implementation 'net.md-5:bungeecord-chat:1.20-R0.2'
+    implementation libs.sqlite.jdbc
+    implementation project(':libs')
 }
 
 java {
@@ -25,7 +27,7 @@ java {
     }
 }
 
-def versionsFile = file("src/main/resources/.lunararc/lunararc-launcher.properties")
+def versionsFile = file("src/main/resources/lunararc-launcher.properties")
 
 tasks.register("generateVersions") {
     doLast {
@@ -33,6 +35,7 @@ tasks.register("generateVersions") {
         def props = new Properties()
 
         props.setProperty("projectName", rootProject.name)
+        props.setProperty("version", libs.versions.project.version.get())
         props.setProperty("minecraft", libs.versions.minecraft.get())
         props.setProperty("neoforge", libs.versions.neoforge.get())
         props.setProperty("forge", libs.versions.forge.get())
@@ -41,7 +44,9 @@ tasks.register("generateVersions") {
         props.setProperty("quilt", libs.versions.quilt.loader.get())
         props.setProperty("quiltInstaller", libs.versions.quilt.installer.get())
         props.setProperty("paperBuild", libs.versions.paper.build.get())
-        props.setProperty("buildName", project.findProperty("lunararcBuildName") ?: "Unknown")
+        props.setProperty("paperApi", libs.versions.paper.api.get())
+        props.setProperty("dataVersion", libs.versions.data.version.get())
+        props.setProperty("buildName", libs.versions.build.name.get())
         props.setProperty("javaVersion", project.java.toolchain.languageVersion.get().toString())
         props.setProperty("buildDate", new java.text.SimpleDateFormat("dd-MM-yyyy--HH:mm").format(new Date()))
 
@@ -61,10 +66,20 @@ jar {
 }
 
 def createFatJar(String platform) {
-    return tasks.register("${platform}Jar", Jar) {
-        archiveBaseName.set("lunararc-${platform}")
+    return tasks.register("${platform}Jar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+        archiveBaseName.set("${rootProject.name.toLowerCase(java.util.Locale.ROOT).replaceAll('[^a-z0-9._-]+', '-')}-${platform}")
         archiveClassifier.set("all")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        // ASM relocation is now handled by the :libs project to avoid Shadow scanner crashes
+
+        dependencies {
+            exclude(project(':launcher'))
+            exclude(project(':api'))
+            exclude(project(':core'))
+            exclude(project(':base'))
+            exclude(project(':i18n'))
+        }
 
         def subprojectPath = (platform == 'neoforge') ? ":core" : ":${platform}"
         def subproject = project(subprojectPath)
@@ -83,9 +98,11 @@ def createFatJar(String platform) {
         dependsOn commonJarTask
         dependsOn jarTask
 
+        // Use the output directly instead of zipTree if possible, or filter aggressively
         from(zipTree(commonJarTask.outputs.files.singleFile)) {
             include 'io/ampznetwork/lunararc/**'
             include 'io/papermc/paper/**'
+            include 'org/bukkit/**'
             include 'META-INF/mixins.*.json'
         }
 
@@ -100,14 +117,33 @@ def createFatJar(String platform) {
         from project(':launcher').sourceSets.main.output
         from project(':api').sourceSets.main.output
         from project(':i18n').sourceSets.main.output
+        from project(':libs').file('build/relocated')
         from project(':base').sourceSets.main.resources
         from subproject.sourceSets.main.resources
         from sourceSets.main.resources
 
-        // Bundling logic for runtime dependencies (Soft Bridge approach)
         project.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             def id = artifact.moduleVersion.id
-            if (id.group != 'io.ampznetwork.lunararc') {
+            if (id.group != 'io.ampznetwork.lunararc' || id.name == 'libs') {
+                // EXCLUDE common platform libraries to avoid split package issues with NeoForge/Minecraft
+                boolean isProvidedByPlatform = id.group.startsWith('org.apache.commons') || 
+                                              id.group.startsWith('org.apache.maven') ||
+                                              id.group.startsWith('org.codehaus.plexus') ||
+                                              id.group.startsWith('org.apache.logging') ||
+                                              id.group.startsWith('org.slf4j') ||
+                                              id.group.startsWith('com.google.guava') ||
+                                              id.group.startsWith('com.google.code.findbugs') ||
+                                              id.group.startsWith('com.google.errorprone') ||
+                                              id.group.startsWith('org.checkerframework') ||
+                                              id.group.startsWith('com.mojang') ||
+                                              id.group.startsWith('it.unimi.dsi') ||
+                                              id.group.startsWith('org.joml') ||
+                                              id.group.startsWith('com.google.code.gson') ||
+                                              id.group.startsWith('org.ow2.asm') ||
+                                              id.group.startsWith('net.minecraft');
+                
+                if (isProvidedByPlatform && id.group != 'io.ampznetwork.lunararc') return;
+
                 // EXCLUDE loaders from other platforms to avoid Mixin duplication and conflicts
                 if (platform == 'neoforge' && (id.group == 'net.fabricmc' || id.group == 'org.quiltmc')) return;
                 if (platform == 'fabric' && (id.group == 'net.neoforged' || id.group == 'org.quiltmc')) return;
@@ -117,14 +153,19 @@ def createFatJar(String platform) {
                 boolean isRequiredFlatten = (id.group == 'io.papermc.paper' && id.name == 'paper-api') || 
                                            id.group.startsWith('net.kyori') ||
                                            id.group.contains('net.md-5') ||
-                                           (id.group == 'org.yaml' && id.name == 'snakeyaml');
-                                if (isRequiredFlatten) {
+                                           (id.group == 'org.yaml' && id.name == 'snakeyaml') ||
+                                           (id.group == 'org.xerial' && id.name == 'sqlite-jdbc') ||
+                                           (id.group == 'io.ampznetwork.lunararc' && id.name == 'libs');
+                if (isRequiredFlatten) {
                     // Flatten these into the root so they are visible to the mod classloader
                     from(zipTree(artifact.file)) {
                         exclude 'META-INF/MANIFEST.MF'
                         exclude 'META-INF/*.SF'
                         exclude 'META-INF/*.DSA'
                         exclude 'META-INF/*.RSA'
+                        exclude 'org/bukkit/plugin/java/JavaPlugin.class'
+                        exclude 'org/bukkit/plugin/java/JavaPlugin$*.class'
+                        exclude 'org/bukkit/plugin/SimplePluginManager.class'
                     }
                 } else {
                     // Filter out conflicting libraries but keep everything else in subfolder for launcher
@@ -143,9 +184,7 @@ def createFatJar(String platform) {
         exclude 'META-INF/*.DSA'
         exclude 'META-INF/*.RSA'
 
-        // Exclude only conflicting ModLauncher services
-        exclude 'META-INF/services/cpw.mods.modlauncher.api.ITransformationService'
-        exclude 'META-INF/services/cpw.mods.modlauncher.serviceapi.ILaunchPluginService'
+        mergeServiceFiles()
 
         manifest {
             attributes(

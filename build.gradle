@@ -9,7 +9,7 @@ allprojects {
     apply plugin: 'java'
     
     group = 'io.ampznetwork.lunararc'
-    version = '1.0.0-SNAPSHOT'
+    version = libs.versions.project.version.get()
     
     def getGitHash = { ->
         try {
@@ -29,6 +29,7 @@ allprojects {
     ext {
         gitHash = getGitHash()
         supportedPlatforms = ['neoforge', 'forge', 'fabric', 'quilt']
+        buildName = libs.versions.build.name.get()
     }
 
     repositories {
@@ -36,7 +37,6 @@ allprojects {
         maven { url 'https://maven.neoforged.net/releases' }
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.spongepowered.org/maven' }
-        maven { url 'https://maven.izzel.io/releases' }
     }
     
     java {
@@ -51,6 +51,33 @@ allprojects {
     }
 }
 
+// Task to generate launcher properties from libs.versions.toml
+tasks.register('generateLauncherProperties') {
+    def propsFile = project(':launcher').file('src/main/resources/lunararc-launcher.properties')
+    outputs.file(propsFile)
+    doLast {
+        propsFile.parentFile.mkdirs()
+        def props = new Properties()
+        props.setProperty('version', libs.versions.project.version.get())
+        props.setProperty('buildname', libs.versions.build.name.get())
+        props.setProperty('minecraft', libs.versions.minecraft.get())
+        props.setProperty('neoforge', libs.versions.neoforge.get())
+        props.setProperty('forge', libs.versions.forge.get())
+        props.setProperty('fabric', libs.versions.fabric.loader.get())
+        props.setProperty('fabricInstaller', libs.versions.fabric.installer.get())
+        props.setProperty('quilt', libs.versions.quilt.loader.get())
+        props.setProperty('quiltInstaller', libs.versions.quilt.installer.get())
+        
+        propsFile.withOutputStream { out ->
+            props.store(out, "LunarArc Launcher Properties (Auto-generated)")
+        }
+    }
+}
+
+project(':launcher').tasks.named('processResources') {
+    dependsOn(rootProject.tasks.named('generateLauncherProperties'))
+}
+
 tasks.register('setupPaperServer') {
     outputs.file(project.ext.paperServerJar)
     doLast {
@@ -63,7 +90,7 @@ tasks.register('setupPaperServer') {
             
             println "Downloading Paper bundler..."
             paperBundler.withOutputStream { out ->
-                new URL(url).withInputStream { it.transferTo(out) }
+                URI.create(url).toURL().withInputStream { it.transferTo(out) }
             }
             
             println "Extracting paper-server from bundler..."

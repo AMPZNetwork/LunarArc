@@ -1,7 +1,6 @@
 package io.ampznetwork.lunararc.common.mixin.core.server;
 
 import io.ampznetwork.lunararc.common.LunarArcPlatform;
-import io.ampznetwork.lunararc.common.stubs.org.bukkit.craftbukkit.v1_21_R1.CraftPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
@@ -19,54 +18,65 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerPlayerGameMode.class)
 public abstract class ServerPlayerGameModeMixin {
 
-    @Shadow @Final protected ServerPlayer player;
+    @Shadow
+    @Final
+    protected ServerPlayer player;
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
-    private void lunararc$onUseItemOn(ServerPlayer player, Level level, ItemStack stack, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
-        try {
-            Object craftServer = LunarArcPlatform.getServer();
-            if (craftServer == null) return;
+    private void lunararc$onUseItemOn(ServerPlayer player, Level level, net.minecraft.world.item.ItemStack stack, InteractionHand hand,
+            BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        io.ampznetwork.lunararc.common.server.LunarArcContext.setCurrentPlayer(player);
+        
+        org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.v1_21_R1.event.CraftEventFactory.callPlayerInteractEvent(
+            player, 
+            org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, 
+            hitResult.getBlockPos(), 
+            hitResult.getDirection(), 
+            stack
+        );
 
-            Class<?> eventClass = Class.forName("org.bukkit.event.player.PlayerInteractEvent");
-            Class<?> actionClass = Class.forName("org.bukkit.event.block.Action");
-            Object bukkitPlayer = new CraftPlayer(this.player);
-            Object action = actionClass.getField("RIGHT_CLICK_BLOCK").get(null);
-
-            // PlayerInteractEvent(Player who, Action action, ItemStack item, Block block, BlockFace face)
-            Object event = eventClass.getConstructor(Class.forName("org.bukkit.entity.Player"), actionClass, Class.forName("org.bukkit.inventory.ItemStack"), Class.forName("org.bukkit.block.Block"), Class.forName("org.bukkit.block.BlockFace"))
-                    .newInstance(bukkitPlayer, action, null, null, null);
-
-            Object pm = craftServer.getClass().getMethod("getPluginManager").invoke(craftServer);
-            pm.getClass().getMethod("callEvent", Class.forName("org.bukkit.event.Event")).invoke(pm, event);
-            
-            Boolean isCancelled = (Boolean) eventClass.getMethod("isCancelled").invoke(event);
-            if (isCancelled) {
-                cir.setReturnValue(InteractionResult.FAIL);
-            }
-        } catch (Throwable ignored) {}
+        if (event != null && event.isCancelled()) {
+            cir.setReturnValue(InteractionResult.FAIL);
+        }
     }
 
     @Inject(method = "useItem", at = @At("HEAD"), cancellable = true)
-    private void lunararc$onUseItem(ServerPlayer player, Level level, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        try {
-            Object craftServer = LunarArcPlatform.getServer();
-            if (craftServer == null) return;
+    private void lunararc$onUseItem(ServerPlayer player, Level level, net.minecraft.world.item.ItemStack stack, InteractionHand hand,
+            CallbackInfoReturnable<InteractionResult> cir) {
+        io.ampznetwork.lunararc.common.server.LunarArcContext.setCurrentPlayer(player);
+        
+        org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.v1_21_R1.event.CraftEventFactory.callPlayerInteractEvent(
+            player, 
+            org.bukkit.event.block.Action.RIGHT_CLICK_AIR, 
+            null, 
+            null, 
+            stack
+        );
 
-            Class<?> eventClass = Class.forName("org.bukkit.event.player.PlayerInteractEvent");
-            Class<?> actionClass = Class.forName("org.bukkit.event.block.Action");
-            Object bukkitPlayer = new CraftPlayer(this.player);
-            Object action = actionClass.getField("RIGHT_CLICK_AIR").get(null);
+        if (event != null && event.isCancelled()) {
+            cir.setReturnValue(InteractionResult.FAIL);
+        }
+    }
 
-            Object event = eventClass.getConstructor(Class.forName("org.bukkit.entity.Player"), actionClass, Class.forName("org.bukkit.inventory.ItemStack"), Class.forName("org.bukkit.block.Block"), Class.forName("org.bukkit.block.BlockFace"))
-                    .newInstance(bukkitPlayer, action, null, null, null);
+    @Inject(method = "useItemOn", at = @At("RETURN"))
+    private void lunararc$afterUseItemOn(ServerPlayer player, Level level, net.minecraft.world.item.ItemStack stack, InteractionHand hand,
+            BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        io.ampznetwork.lunararc.common.server.LunarArcContext.clear();
+    }
 
-            Object pm = craftServer.getClass().getMethod("getPluginManager").invoke(craftServer);
-            pm.getClass().getMethod("callEvent", Class.forName("org.bukkit.event.Event")).invoke(pm, event);
-            
-            Boolean isCancelled = (Boolean) eventClass.getMethod("isCancelled").invoke(event);
-            if (isCancelled) {
-                cir.setReturnValue(InteractionResult.FAIL);
-            }
-        } catch (Throwable ignored) {}
+    @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true)
+    private void lunararc$onDestroyBlock(net.minecraft.core.BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+        org.bukkit.event.block.BlockBreakEvent event = org.bukkit.craftbukkit.v1_21_R1.event.CraftEventFactory.callBlockBreakEvent(player.serverLevel(), pos, player);
+        if (event.isCancelled()) {
+            // Force block update to client to fix ghost blocks
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket(player.serverLevel(), pos));
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "useItem", at = @At("RETURN"))
+    private void lunararc$afterUseItem(ServerPlayer player, Level level, net.minecraft.world.item.ItemStack stack, InteractionHand hand,
+            CallbackInfoReturnable<InteractionResult> cir) {
+        io.ampznetwork.lunararc.common.server.LunarArcContext.clear();
     }
 }

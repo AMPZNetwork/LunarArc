@@ -38,6 +38,10 @@ dependencies {
 
     // Slf4j for logging
     compileOnly 'org.slf4j:slf4j-api:2.0.9'
+
+    implementation files("../libs/build/libs/libs-0.0.1-ALPHA.jar") {
+        builtBy ":libs:jar"
+    }
 }
 
 processResources {

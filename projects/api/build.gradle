@@ -1,3 +1,21 @@
+plugins {
+    alias(libs.plugins.architectury)
+    alias(libs.plugins.loom)
+    id 'java'
+}
+
+architectury {
+    common(rootProject.ext.supportedPlatforms)
+}
+
+loom {
+    silentMojangMappingsLicense()
+}
+
 dependencies {
+    minecraft libs.minecraft
+    mappings loom.layered() {
+        officialMojangMappings()
+    }
     compileOnly libs.paper.api
 }

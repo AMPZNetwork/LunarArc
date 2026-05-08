@@ -7,15 +7,22 @@
   "mixins": [
     "core.server.MinecraftServerMixin",
     "core.server.MinecraftServerAccessor",
+    "core.server.PlayerListAccessor",
     "core.server.ServerLoginPacketListenerMixin",
     "core.server.PlayerListMixin",
     "core.server.ServerGamePacketListenerImplMixin",
     "core.server.ServerPlayerGameModeMixin",
     "core.network.ConnectionAccessor",
     "core.command.CommandsMixin",
+    "core.command.CommandsAccessor",
     "core.world.LevelMixin",
     "core.world.LevelEntityMixin",
-    "mod.util.VelocityForwardQueryMixin"
+    "core.entity.EntityMixin",
+    "core.entity.LivingEntityMixin",
+    "core.item.BlockItemMixin",
+    "mod.util.VelocityForwardQueryMixin",
+    "bukkit.MaterialMixin",
+    "api.RegistryAccessMixin"
   ],
   "injectors": {
     "defaultRequire": 1

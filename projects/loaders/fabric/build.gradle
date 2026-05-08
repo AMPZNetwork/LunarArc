@@ -24,3 +24,19 @@ dependencies {
     implementation project(':api')
     implementation libs.paper.api
 }
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "project_name", rootProject.name
+    inputs.property "minecraft", libs.versions.minecraft.get()
+    inputs.property "fabric_loader", libs.versions.fabric.loader.get()
+
+    filesMatching("fabric.mod.json") {
+        expand(
+                version: project.version,
+                project_name: rootProject.name,
+                minecraft: libs.versions.minecraft.get(),
+                fabric_loader: libs.versions.fabric.loader.get()
+        )
+    }
+}

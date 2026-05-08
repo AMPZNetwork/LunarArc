@@ -11,3 +11,11 @@ accessible class net/minecraft/server/network/ServerLoginPacketListenerImpl$Stat
 # Connection - expose address field for real IP injection
 accessible field net/minecraft/network/Connection address Ljava/net/SocketAddress;
 mutable field net/minecraft/network/Connection address Ljava/net/SocketAddress;
+
+# Entity - expose fields for Bukkit API
+accessible field net/minecraft/world/entity/Entity portalCooldown I
+mutable field net/minecraft/world/entity/Entity portalCooldown I
+accessible field net/minecraft/world/entity/Entity remainingFireTicks I
+mutable field net/minecraft/world/entity/Entity remainingFireTicks I
+accessible method net/minecraft/world/entity/Entity hasGlowingTag ()Z
+accessible method net/minecraft/world/entity/Entity isEyeInFluid (Lnet/minecraft/tags/TagKey;)Z

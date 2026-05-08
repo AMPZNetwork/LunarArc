@@ -27,6 +27,8 @@ include 'i18n'
 project(':i18n').projectDir = file('projects/i18n')
 
 include 'bootstrap'
+include 'libs'
+project(':libs').projectDir = file('projects/libs')
 
 // Platform Loaders
 include 'forge'

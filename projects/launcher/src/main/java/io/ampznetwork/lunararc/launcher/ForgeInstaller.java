@@ -7,10 +7,10 @@ import java.nio.file.Paths;
 public class ForgeInstaller {
     public static void install(Path workingDir, java.util.Properties versions) throws Exception {
         System.out.println("Installing Forge...");
-        Path installerJar = Paths.get("forge-installer.jar");
 
-        String mcVersion = versions.getProperty("minecraft", "1.21.1");
-        String forgeVersion = versions.getProperty("forge", "52.1.14");
+        String mcVersion = LauncherUtils.requireVersion(versions, "minecraft");
+        String forgeVersion = LauncherUtils.requireVersion(versions, "forge");
+        Path installerJar = Paths.get("forge-" + mcVersion + "-" + forgeVersion + "-installer.jar");
         String url = String.format(
                 "https://maven.minecraftforge.net/net/minecraftforge/forge/%s-%s/forge-%s-%s-installer.jar", mcVersion,
                 forgeVersion, mcVersion, forgeVersion);
@@ -20,12 +20,13 @@ public class ForgeInstaller {
         }
 
         Path libDir = Paths.get("libraries");
+        Path versionSentinel = libDir.resolve(".lunararc-forge-version");
         boolean needsInstall = true;
-        if (Files.exists(libDir)) {
-            try (var stream = Files.walk(libDir)) {
-                if (stream.anyMatch(p -> p.getFileName().toString().equals("win_args.txt"))) {
-                    needsInstall = false;
-                }
+
+        if (Files.exists(versionSentinel)) {
+            String installedVersion = Files.readString(versionSentinel).trim();
+            if (installedVersion.equals(forgeVersion)) {
+                needsInstall = false;
             }
         }
 
@@ -33,7 +34,7 @@ public class ForgeInstaller {
             System.out.println("Running Forge installer (this may take a few minutes)...");
 
             ProcessBuilder pb = new ProcessBuilder(
-                    "java", "-jar", installerJar.toAbsolutePath().toString(), "--installServer");
+                    LauncherUtils.getJavaExecutable(), "-jar", installerJar.toAbsolutePath().toString(), "--installServer");
             pb.inheritIO();
             Process process = pb.start();
             int exitCode = process.waitFor();
@@ -43,8 +44,8 @@ public class ForgeInstaller {
                 System.err.println(exitCode);
                 return;
             }
-            System.out.println("Forge installation complete! You may now safely delete "
-                    + installerJar.getFileName().toString() + ".");
+            System.out.println("Forge installation complete!");
+            Files.writeString(versionSentinel, forgeVersion);
         }
 
         System.out.println("Forge libraries ready.");

@@ -3,6 +3,8 @@
 architectury-loom = "1.14.473"
 
 # common
+project-version = "0.0.1-ALPHA"
+build-name = "Trial Zenith"
 minecraft = "1.21.1"
 neoforge = "21.1.228"
 forge = "52.1.14"
@@ -14,9 +16,15 @@ quilt-installer = "0.9.2"
 # loader
 paper-api = "1.21.1-R0.1-SNAPSHOT"
 paper-build = "133"
+data-version = "3953"
 # Find latest build at https://papermc.io/downloads/paper
 mixin = "0.8.5"
+sqlite = "3.46.0.0"
 parchment = "2024.11.17"
+asm = "9.7"
+adventure = "4.17.0"
+snakeyaml = "2.2"
+fastutil = "8.5.12"
 
 [libraries]
 neoforge = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge" }
@@ -25,7 +33,19 @@ quilt-loader = { group = "org.quiltmc", name = "quilt-loader", version.ref = "qu
 loom = { module = "dev.architectury:architectury-loom", version.ref = "architectury-loom" }
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
-parchment = { module = "org.parchmentmc.data:parchment-1.21.1", version.ref = "parchment" }
+sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlite" }
+asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+asm-commons = { group = "org.ow2.asm", name = "asm-commons", version.ref = "asm" }
+gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
+adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
+adventure-text-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
+adventure-text-serializer-gson = { group = "net.kyori", name = "adventure-text-serializer-gson", version.ref = "adventure" }
+adventure-text-serializer-legacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
+adventure-text-serializer-plain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure" }
+snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
+fastutil = { group = "it.unimi.dsi", name = "fastutil", version.ref = "fastutil" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version = "2.20.0" }
+json-simple = { group = "com.googlecode.json-simple", name = "json-simple", version = "1.1.1" }
 
 [plugins]
 architectury = { id = "architectury-plugin", version = "3.4.164" }

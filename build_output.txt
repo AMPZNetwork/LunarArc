@@ -1,0 +1,502 @@
+
+> Configure project :api
+Architect Plugin: 3.4.164
+Architectury Loom: 1.14.473
+This version of Architectury Loom is in beta! Please report any issues you encounter: https://github.com/architectury/architectury-loom/issues
+
+> Configure project :base
+The mixin annotation is no longer enabled by default, you should remove any loom.mixin configuration. If you wish to continue to use the mixin AP you can set useLegacyMixinAp = true.
+
+> Task :libs:extractDeps UP-TO-DATE
+> Task :libs:manualRelocate UP-TO-DATE
+> Task :libs:compileJava NO-SOURCE
+> Task :libs:processResources NO-SOURCE
+> Task :libs:classes UP-TO-DATE
+> Task :libs:jar UP-TO-DATE
+> Task :i18n:compileJava UP-TO-DATE
+> Task :api:compileJava UP-TO-DATE
+
+> Task :base:compileJava FAILED
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:1074: warning: [removal] getDataPackManager() in Server has been deprecated and marked for removal
+    public @Nullable org.bukkit.packs.DataPackManager getDataPackManager() {
+                                                      ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:250: warning: [removal] PluginsCommand in org.bukkit.command.defaults has been deprecated and marked for removal
+        commandMap.register("bukkit", new org.bukkit.command.defaults.PluginsCommand("plugins"));
+                                                                     ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:1074: warning: [removal] DataPackManager in org.bukkit.packs has been deprecated and marked for removal
+    public @Nullable org.bukkit.packs.DataPackManager getDataPackManager() {
+                                     ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:1074: warning: [removal] DataPackManager in org.bukkit.packs has been deprecated and marked for removal
+    public @Nullable org.bukkit.packs.DataPackManager getDataPackManager() {
+                                     ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:1074: warning: [removal] DataPackManager in org.bukkit.packs has been deprecated and marked for removal
+    public @Nullable org.bukkit.packs.DataPackManager getDataPackManager() {
+                                     ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:38: warning: [removal] registerInterface(Class<? extends PluginLoader>) in PluginManager has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends PluginLoader> loader) {
+                ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:38: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends PluginLoader> loader) {
+                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:38: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends PluginLoader> loader) {
+                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:38: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends PluginLoader> loader) {
+                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:39: warning: [removal] registerInterface(Class<? extends PluginLoader>) in PluginManager has been deprecated and marked for removal
+        if (paperPluginManager != null) paperPluginManager.registerInterface(loader);
+                                                          ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:72: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:78: error: cannot find symbol
+        if (paperPluginManager instanceof PaperPluginManagerImpl paper) {
+                                          ^
+  symbol:   class PaperPluginManagerImpl
+  location: class SimplePluginManager
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:614: warning: [removal] Spigot in World has been deprecated and marked for removal
+    public @NotNull org.bukkit.World.Spigot spigot() {
+                                    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:614: warning: [removal] Spigot in World has been deprecated and marked for removal
+    public @NotNull org.bukkit.World.Spigot spigot() {
+                                    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:614: warning: [removal] Spigot in World has been deprecated and marked for removal
+    public @NotNull org.bukkit.World.Spigot spigot() {
+                                    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:615: warning: [removal] Spigot in World has been deprecated and marked for removal
+        return new org.bukkit.World.Spigot();
+                                   ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:1151: warning: [removal] MaterialData in org.bukkit.material has been deprecated and marked for removal
+            @NotNull org.bukkit.material.MaterialData data) {
+                                        ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:1151: warning: [removal] MaterialData in org.bukkit.material has been deprecated and marked for removal
+            @NotNull org.bukkit.material.MaterialData data) {
+                                        ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:1151: warning: [removal] MaterialData in org.bukkit.material has been deprecated and marked for removal
+            @NotNull org.bukkit.material.MaterialData data) {
+                                        ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcPluginLoader.java:22: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+public class LunarArcPluginLoader implements PluginLoader {
+                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcPluginLoader.java:22: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+public class LunarArcPluginLoader implements PluginLoader {
+                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcPluginLoader.java:22: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+public class LunarArcPluginLoader implements PluginLoader {
+                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:132: warning: [removal] getPluginLoader() in Plugin has been deprecated and marked for removal
+    public final @NotNull PluginLoader getPluginLoader() {
+                                       ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:33: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    protected PluginLoader loader;
+              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:33: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    protected PluginLoader loader;
+              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:33: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    protected PluginLoader loader;
+              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:132: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public final @NotNull PluginLoader getPluginLoader() {
+                          ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:132: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public final @NotNull PluginLoader getPluginLoader() {
+                          ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:132: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public final @NotNull PluginLoader getPluginLoader() {
+                          ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:191: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+        this.loader = (PluginLoader) java.lang.reflect.Proxy.newProxyInstance(
+                       ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:193: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+                new Class<?>[]{PluginLoader.class},
+                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:192: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+                PluginLoader.class.getClassLoader(),
+                ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcRegistryAccess.java:33: warning: [removal] <T>getRegistry(Class<T>) in RegistryAccess has been deprecated and marked for removal
+    public <T extends Keyed> @NotNull Registry<T> getRegistry(@NotNull Class<T> type) {
+                                                  ^
+  where T is a type-variable:
+    T extends Keyed declared in method <T>getRegistry(Class<T>)
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcRegistryAccess.java:35: warning: [removal] <T>getRegistry(Class<T>) in RegistryAccess has been deprecated and marked for removal
+            return parent.getRegistry(type);
+                         ^
+  where T is a type-variable:
+    T extends Keyed declared in method <T>getRegistry(Class<T>)
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:67: warning: [removal] registerInterface(Class<? extends PluginLoader>) in PluginManager has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends org.bukkit.plugin.PluginLoader> loader) {
+                ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:67: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends org.bukkit.plugin.PluginLoader> loader) {
+                                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:67: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends org.bukkit.plugin.PluginLoader> loader) {
+                                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:67: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+    public void registerInterface(@NotNull Class<? extends org.bukkit.plugin.PluginLoader> loader) {
+                                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:166: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftEntity.java:381: warning: [removal] setLastDamageCause(EntityDamageEvent) in Entity has been deprecated and marked for removal
+    public void setLastDamageCause(@Nullable org.bukkit.event.entity.EntityDamageEvent cause) {
+                ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:432: warning: [removal] getResourcePackHash() in Player has been deprecated and marked for removal
+    @Override public String getResourcePackHash() { return null; }
+                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:496: warning: [removal] setWindowProperty(Property,int) in HumanEntity has been deprecated and marked for removal
+    @Override public boolean setWindowProperty(InventoryView.Property prop, int value) { return false; }
+                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:454: warning: [removal] getCategory() in LivingEntity has been deprecated and marked for removal
+    @Override public EntityCategory getCategory() { return EntityCategory.NONE; }
+                                    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:668: warning: [removal] setItemInUseTicks(int) in LivingEntity has been deprecated and marked for removal
+    @Override public void setItemInUseTicks(int ticks) {}
+                          ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:667: warning: [removal] getItemInUseTicks() in LivingEntity has been deprecated and marked for removal
+    @Override public int getItemInUseTicks() { return 0; }
+                         ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:626: warning: [removal] getItemInUse() in LivingEntity has been deprecated and marked for removal
+    @Override public ItemStack getItemInUse() { return CraftItemStack.asBukkitCopy(player.getUseItem()); }
+                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] getTargetEntityInfo(int,boolean) in LivingEntity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] getTargetBlockInfo(int,FluidMode) in LivingEntity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] getTargetBlockInfo(int) in LivingEntity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] getTargetBlockFace(int,FluidMode) in LivingEntity has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] getTargetBlock(int,FluidMode) in LivingEntity has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                     ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                                               ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:448: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+        RayTraceResult result = rayTraceBlocks(distance, fluidMode == com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.ALWAYS ? FluidCollisionMode.ALWAYS : FluidCollisionMode.NEVER);
+                                                                                                   ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:448: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+        RayTraceResult result = rayTraceBlocks(distance, fluidMode == com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.ALWAYS ? FluidCollisionMode.ALWAYS : FluidCollisionMode.NEVER);
+                                                                                                                   ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                                              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                                              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                                              ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:496: warning: [removal] Property in InventoryView has been deprecated and marked for removal
+    @Override public boolean setWindowProperty(InventoryView.Property prop, int value) { return false; }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:496: warning: [removal] Property in InventoryView has been deprecated and marked for removal
+    @Override public boolean setWindowProperty(InventoryView.Property prop, int value) { return false; }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:496: warning: [removal] Property in InventoryView has been deprecated and marked for removal
+    @Override public boolean setWindowProperty(InventoryView.Property prop, int value) { return false; }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                           ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                        ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                                                                                                                                                       ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                                                                ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                            ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                                                                                                                                                 ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                                                                                                                                                                 ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                             ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                 ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                                                                                                                    ^
+C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+    @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                           ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+3 errors
+88 warnings
+
+[Incubating] Problems report is available at: file:///C:/Users/WillJ/Documents/LunarArc-Builds/Trial%20Zenith/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':base:compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  Note: Recompile with -Xlint:deprecation for details.
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:78: error: cannot find symbol
+          if (paperPluginManager instanceof PaperPluginManagerImpl paper) {
+                                            ^
+    symbol:   class PaperPluginManagerImpl
+    location: class SimplePluginManager
+  Note: Recompile with -Xlint:unchecked for details.
+  Note: Some input files use or override a deprecated API.
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:72: error: method does not override or implement a method from a supertype
+      @Override
+      ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:166: error: method does not override or implement a method from a supertype
+      @Override
+      ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:1074: warning: [removal] getDataPackManager() in Server has been deprecated and marked for removal
+      public @Nullable org.bukkit.packs.DataPackManager getDataPackManager() {
+                                                        ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:250: warning: [removal] PluginsCommand in org.bukkit.command.defaults has been deprecated and marked for removal
+          commandMap.register("bukkit", new org.bukkit.command.defaults.PluginsCommand("plugins"));
+                                                                       ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftServer.java:1074: warning: [removal] DataPackManager in org.bukkit.packs has been deprecated and marked for removal
+      public @Nullable org.bukkit.packs.DataPackManager getDataPackManager() {
+                                       ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:38: warning: [removal] registerInterface(Class<? extends PluginLoader>) in PluginManager has been deprecated and marked for removal
+      public void registerInterface(@NotNull Class<? extends PluginLoader> loader) {
+                  ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:38: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+      public void registerInterface(@NotNull Class<? extends PluginLoader> loader) {
+                                                             ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\SimplePluginManager.java:39: warning: [removal] registerInterface(Class<? extends PluginLoader>) in PluginManager has been deprecated and marked for removal
+          if (paperPluginManager != null) paperPluginManager.registerInterface(loader);
+                                                            ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:614: warning: [removal] Spigot in World has been deprecated and marked for removal
+      public @NotNull org.bukkit.World.Spigot spigot() {
+                                      ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:615: warning: [removal] Spigot in World has been deprecated and marked for removal
+          return new org.bukkit.World.Spigot();
+                                     ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\CraftWorld.java:1151: warning: [removal] MaterialData in org.bukkit.material has been deprecated and marked for removal
+              @NotNull org.bukkit.material.MaterialData data) {
+                                          ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcPluginLoader.java:22: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+  public class LunarArcPluginLoader implements PluginLoader {
+                                               ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:132: warning: [removal] getPluginLoader() in Plugin has been deprecated and marked for removal
+      public final @NotNull PluginLoader getPluginLoader() {
+                                         ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:33: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+      protected PluginLoader loader;
+                ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:132: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+      public final @NotNull PluginLoader getPluginLoader() {
+                            ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:191: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+          this.loader = (PluginLoader) java.lang.reflect.Proxy.newProxyInstance(
+                         ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:193: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+                  new Class<?>[]{PluginLoader.class},
+                                 ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\plugin\java\JavaPlugin.java:192: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+                  PluginLoader.class.getClassLoader(),
+                  ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcRegistryAccess.java:33: warning: [removal] <T>getRegistry(Class<T>) in RegistryAccess has been deprecated and marked for removal
+      public <T extends Keyed> @NotNull Registry<T> getRegistry(@NotNull Class<T> type) {
+                                                    ^
+    where T is a type-variable:
+      T extends Keyed declared in method <T>getRegistry(Class<T>)
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\ampznetwork\lunararc\common\server\LunarArcRegistryAccess.java:35: warning: [removal] <T>getRegistry(Class<T>) in RegistryAccess has been deprecated and marked for removal
+              return parent.getRegistry(type);
+                           ^
+    where T is a type-variable:
+      T extends Keyed declared in method <T>getRegistry(Class<T>)
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:67: warning: [removal] registerInterface(Class<? extends PluginLoader>) in PluginManager has been deprecated and marked for removal
+      public void registerInterface(@NotNull Class<? extends org.bukkit.plugin.PluginLoader> loader) {
+                  ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\io\papermc\paper\plugin\manager\PaperPluginManagerImpl.java:67: warning: [removal] PluginLoader in org.bukkit.plugin has been deprecated and marked for removal
+      public void registerInterface(@NotNull Class<? extends org.bukkit.plugin.PluginLoader> loader) {
+                                                                              ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftEntity.java:381: warning: [removal] setLastDamageCause(EntityDamageEvent) in Entity has been deprecated and marked for removal
+      public void setLastDamageCause(@Nullable org.bukkit.event.entity.EntityDamageEvent cause) {
+                  ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:432: warning: [removal] getResourcePackHash() in Player has been deprecated and marked for removal
+      @Override public String getResourcePackHash() { return null; }
+                              ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:496: warning: [removal] setWindowProperty(Property,int) in HumanEntity has been deprecated and marked for removal
+      @Override public boolean setWindowProperty(InventoryView.Property prop, int value) { return false; }
+                               ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:454: warning: [removal] getCategory() in LivingEntity has been deprecated and marked for removal
+      @Override public EntityCategory getCategory() { return EntityCategory.NONE; }
+                                      ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:668: warning: [removal] setItemInUseTicks(int) in LivingEntity has been deprecated and marked for removal
+      @Override public void setItemInUseTicks(int ticks) {}
+                            ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:667: warning: [removal] getItemInUseTicks() in LivingEntity has been deprecated and marked for removal
+      @Override public int getItemInUseTicks() { return 0; }
+                           ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:626: warning: [removal] getItemInUse() in LivingEntity has been deprecated and marked for removal
+      @Override public ItemStack getItemInUse() { return CraftItemStack.asBukkitCopy(player.getUseItem()); }
+                                 ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] getTargetEntityInfo(int,boolean) in LivingEntity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                 ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] getTargetBlockInfo(int,FluidMode) in LivingEntity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                               ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] getTargetBlockInfo(int) in LivingEntity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                                               ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] getTargetBlockFace(int,FluidMode) in LivingEntity has been deprecated and marked for removal
+      @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                  ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] getTargetBlock(int,FluidMode) in LivingEntity has been deprecated and marked for removal
+      @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                       ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                                 ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:447: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+      @Override public @Nullable Block getTargetBlock(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { 
+                                                                                                                 ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:448: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+          RayTraceResult result = rayTraceBlocks(distance, fluidMode == com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.ALWAYS ? FluidCollisionMode.ALWAYS : FluidCollisionMode.NEVER);
+                                                                                                     ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:448: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+          RayTraceResult result = rayTraceBlocks(distance, fluidMode == com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.ALWAYS ? FluidCollisionMode.ALWAYS : FluidCollisionMode.NEVER);
+                                                                                                                     ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                                ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:492: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+      @Override public org.bukkit.block.BlockFace getTargetBlockFace(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return null; }
+                                                                                                                                ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:496: warning: [removal] Property in InventoryView has been deprecated and marked for removal
+      @Override public boolean setWindowProperty(InventoryView.Property prop, int value) { return false; }
+                                                              ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                              ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                             ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                             ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                          ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                                                                                                                                                         ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:635: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) { return (com.destroystokyo.paper.block.TargetBlockInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.block.TargetBlockInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.block.TargetBlockInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                                                                  ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                              ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] TargetBlockInfo in com.destroystokyo.paper.block has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                                                                                                                                                   ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:636: warning: [removal] FluidMode in TargetBlockInfo has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int distance) { return getTargetBlockInfo(distance, com.destroystokyo.paper.block.TargetBlockInfo.FluidMode.NEVER); }
+                                                                                                                                                                                                   ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                               ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                   ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                                                                                                                      ^
+  C:\Users\WillJ\Documents\LunarArc-Builds\Trial Zenith\projects\base\src\main\java\org\bukkit\craftbukkit\v1_21_R1\entity\CraftPlayer.java:637: warning: [removal] TargetEntityInfo in com.destroystokyo.paper.entity has been deprecated and marked for removal
+      @Override public @Nullable com.destroystokyo.paper.entity.TargetEntityInfo getTargetEntityInfo(int distance, boolean nonTransparent) { return (com.destroystokyo.paper.entity.TargetEntityInfo) java.lang.reflect.Proxy.newProxyInstance(com.destroystokyo.paper.entity.TargetEntityInfo.class.getClassLoader(), new Class<?>[] { com.destroystokyo.paper.entity.TargetEntityInfo.class }, (p, m, a) -> null); }
+                                                                                                                                                                                                                                                                             ^
+  Note: Some input files use unchecked or unsafe operations.
+  3 errors
+  88 warnings
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.5.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 2s
+6 actionable tasks: 1 executed, 5 up-to-date
