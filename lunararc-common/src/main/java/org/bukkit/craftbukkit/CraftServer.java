@@ -52,7 +52,7 @@ public class CraftServer implements Server {
     private final MinecraftServer console;
     private final PlayerList playerList;
     private final Logger logger = LunarArcLogger.getLogger("Minecraft");
-    private final SimpleCommandMap commandMap = new io.ampznetwork.lunararc.common.server.LunarArcCommandMap(this);
+    private final SimpleCommandMap commandMap = new org.bukkit.craftbukkit.command.CraftCommandMap(this);
     private final PluginManager pluginManager;
     private final SimplePluginManager simplePluginManager;
     private final ServicesManager servicesManager = new SimpleServicesManager();
@@ -213,7 +213,7 @@ public class CraftServer implements Server {
             existingPlugins.unregister(commandMap);
             commandMap.getKnownCommands().entrySet().removeIf(e -> e.getValue() == existingPlugins);
         }
-        commandMap.register("bukkit", new org.bukkit.command.defaults.PluginsCommand("plugins"));
+        io.papermc.paper.command.LunarArcPaperBuiltinCommands.register(commandMap);
         commandMap.register("bukkit", new org.bukkit.command.defaults.ReloadCommand("reload"));
     }
 
@@ -381,7 +381,7 @@ public class CraftServer implements Server {
 
     @Override
     public @NotNull String getName() {
-        return "Paper";
+        return io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.projectName();
     }
 
     @Override
@@ -553,8 +553,10 @@ public class CraftServer implements Server {
     }
 
     public void shutdownSchedulers() {
-        paperSchedulers.shutdown();
-        scheduler.shutdown();
+        paperSchedulers.beginShutdown();
+        scheduler.beginShutdown();
+        paperSchedulers.awaitShutdown();
+        scheduler.awaitShutdown();
     }
 
     public void clearPluginsForShutdown() {
@@ -896,6 +898,13 @@ public class CraftServer implements Server {
         return mapViews.get(id);
     }
 
+    public void reloadPaperWorldConfigurations() {
+        if (!isPrimaryThread()) throw new IllegalStateException("Paper configuration reload must run on the server thread");
+        java.util.Map<CraftWorld, io.papermc.paper.configuration.WorldConfiguration> loaded = new java.util.LinkedHashMap<>();
+        for (CraftWorld world : worldByDimension.values()) loaded.put(world, world.loadPaperConfiguration());
+        loaded.forEach(CraftWorld::applyPaperConfiguration);
+    }
+
     @Override
     public void reload() {
         if (!isPrimaryThread()) {
@@ -905,6 +914,7 @@ public class CraftServer implements Server {
         io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge bridge =
                 (io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
 
+        reloadPaperWorldConfigurations();
         disablePlugins();
         simplePluginManager.clearPlugins();
         commandMap.clearCommands();

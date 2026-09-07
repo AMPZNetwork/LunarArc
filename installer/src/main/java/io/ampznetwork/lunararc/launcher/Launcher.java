@@ -65,19 +65,13 @@ public class Launcher {
             StartupTimer.phase("libraries", LibraryExtractor::extractLibraries);
 
             Path workingDir = Paths.get("").toAbsolutePath();
+            Path configPath = workingDir.resolve("lunararc.conf");
+            Properties config = loadConfiguration(configPath);
 
             String choice = platformChoiceFromManifest();
 
             if (choice == null || choice.isEmpty()) {
-                Path configPath = workingDir.resolve("lunararc.conf");
-                Properties config = new Properties();
-
-                if (Files.exists(configPath)) {
-                    try (InputStream in = Files.newInputStream(configPath)) {
-                        config.load(in);
-                        choice = config.getProperty("platform", "");
-                    }
-                }
+                choice = config.getProperty("platform", "");
 
                 if (choice == null || choice.isEmpty()) {
                     System.out.println(TranslationManager.get("platform.select_header"));
@@ -92,13 +86,15 @@ public class Launcher {
                     choice = scanner.nextLine();
 
                     config.setProperty("platform", choice);
-                    try (java.io.OutputStream out = Files.newOutputStream(configPath)) {
-                        config.store(out, "LunarArc Server Configuration");
-                    }
                 } else {
                     ConsoleUI.printStep("step.auto_selecting", choice, configPath.getFileName());
                 }
             }
+
+            if (!Files.exists(configPath)) {
+                saveConfiguration(configPath, config);
+            }
+            recordVersion(workingDir, projectVersion);
 
             Path selfPath = Paths.get(Launcher.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .toAbsolutePath();
@@ -208,5 +204,42 @@ public class Launcher {
         } catch (Exception ignored) {
         }
         return props;
+    }
+
+    private static Properties loadConfiguration(Path configPath) throws java.io.IOException {
+        Properties config = new Properties();
+        if (Files.exists(configPath)) {
+            try (InputStream in = Files.newInputStream(configPath)) {
+                config.load(in);
+            }
+        }
+        return config;
+    }
+
+    private static void saveConfiguration(Path configPath, Properties config) throws java.io.IOException {
+        try (java.io.OutputStream out = Files.newOutputStream(configPath)) {
+            config.store(out, "LunarArc Server Configuration");
+        }
+    }
+
+    static void recordVersion(Path workingDir, String version) {
+        if (version == null || version.isBlank() || "unknown".equalsIgnoreCase(version)) {
+            return;
+        }
+        Path statePath = workingDir.resolve(".lunararc").resolve("version-state.properties");
+        try {
+            Properties state = loadConfiguration(statePath);
+            String current = state.getProperty("version.current", "").trim();
+            if (version.equals(current)) {
+                return;
+            }
+            if (!current.isEmpty() && !"unknown".equalsIgnoreCase(current)) {
+                state.setProperty("version.previous", current);
+            }
+            state.setProperty("version.current", version);
+            Files.createDirectories(statePath.getParent());
+            saveConfiguration(statePath, state);
+        } catch (java.io.IOException ignored) {
+        }
     }
 }

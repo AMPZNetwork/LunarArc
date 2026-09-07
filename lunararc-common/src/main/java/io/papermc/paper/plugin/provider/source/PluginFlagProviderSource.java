@@ -22,6 +22,8 @@ public class PluginFlagProviderSource implements ProviderSource<List<Path>, List
         for (Path path : context) {
             try {
                 files.add(FILE_PROVIDER_SOURCE.prepareContext(path));
+            } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+                throw fatal;
             } catch (Exception e) {
                 LOGGER.error("Error preparing plugin context: " + e.getMessage(), e);
             }
@@ -34,6 +36,8 @@ public class PluginFlagProviderSource implements ProviderSource<List<Path>, List
         for (Path path : context) {
             try {
                 FILE_PROVIDER_SOURCE.registerProviders(entrypointHandler, path);
+            } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+                throw fatal;
             } catch (Exception e) {
                 LOGGER.error("Error loading plugin: " + e.getMessage(), e);
             }

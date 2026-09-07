@@ -800,16 +800,34 @@ public class LunarArcRemapper extends org.objectweb.asm.commons.Remapper {
                     current.getName().replace('.', '/'));
             String descriptorMapped = parameterDescriptor == null ? null
                     : findMethodMappingByParameters(spigotOwner, spigotName, parameterDescriptor);
-            if (descriptorMapped != null) return descriptorMapped;
+            if (descriptorMapped != null && acceptsRuntimeParameters(runtimeOwner, descriptorMapped, parameterTypes)) return descriptorMapped;
 
             String unique = METHOD_NAME_MAP.get(new MemberNameKey(spigotOwner, spigotName));
-            if (unique != null && !AMBIGUOUS.equals(unique)) return unique;
+            if (unique != null && !AMBIGUOUS.equals(unique)
+                    && acceptsRuntimeParameters(runtimeOwner, unique, parameterTypes)) return unique;
             for (Class<?> iface : current.getInterfaces()) {
                 String resolved = lookupRuntimeMethod(iface, spigotName, parameterTypes, parameterDescriptor);
                 if (resolved != null) return resolved;
             }
         }
         return null;
+    }
+
+    private static boolean acceptsRuntimeParameters(Class<?> owner, String name, Class<?>[] parameters) {
+        if (parameters == null) return true;
+        try {
+            owner.getMethod(name, parameters);
+            return true;
+        } catch (NoSuchMethodException ignored) {
+            for (Class<?> current = owner; current != null; current = current.getSuperclass()) {
+                try {
+                    current.getDeclaredMethod(name, parameters);
+                    return true;
+                } catch (NoSuchMethodException missing) {
+                }
+            }
+            return false;
+        }
     }
 
     private static String findMethodMappingByParameters(String spigotOwner, String spigotName,

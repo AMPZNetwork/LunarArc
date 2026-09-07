@@ -1,0 +1,3 @@
+The Sable entity-query guard is adapted from XSY-Team/fuck-sable,
+SubLevelEntityGetterGuardMixin.java.
+https://github.com/XSY-Team/fuck-sable

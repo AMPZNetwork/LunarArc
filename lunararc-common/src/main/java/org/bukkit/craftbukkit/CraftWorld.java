@@ -63,6 +63,7 @@ public class CraftWorld implements World {
                 pos);
     }
 
+    private volatile io.papermc.paper.configuration.WorldConfiguration paperConfiguration;
     private final ServerLevel world;
     private final String name;
     private final UUID uid;
@@ -94,11 +95,30 @@ public class CraftWorld implements World {
         this.lunararcGenerator = generator;
         this.lunararcBiomeProvider = biomeProvider;
         this.uid = loadOrCreateWorldUid(world, name);
+        this.paperConfiguration = loadPaperConfiguration();
         this.worldBorder = new CraftWorldBorder(this);
         this.persistentDataContainer = org.bukkit.craftbukkit.persistence.CraftWorldPersistentData.get(world).container();
         // CraftBukkit assigns Level.world as the world is created; plugins read that field
         // reflectively, so it must be set before anyone can observe the level.
         ((io.ampznetwork.lunararc.common.bridge.LevelBridge) world).lunararc$attachBukkitWorld(this);
+    }
+
+    public io.papermc.paper.configuration.WorldConfiguration getPaperConfiguration() {
+        return paperConfiguration;
+    }
+
+    public io.papermc.paper.configuration.WorldConfiguration loadPaperConfiguration() {
+        try {
+            return io.papermc.paper.configuration.PaperConfigurations.loadWorldConfiguration(
+                    java.nio.file.Path.of("config", "paper-world-defaults.yml"), getWorldFolder().toPath());
+        } catch (java.io.IOException error) {
+            throw new java.io.UncheckedIOException("Cannot load Paper settings for world " + name, error);
+        }
+    }
+
+    public void applyPaperConfiguration(io.papermc.paper.configuration.WorldConfiguration configuration) {
+        this.paperConfiguration = java.util.Objects.requireNonNull(configuration);
+        io.ampznetwork.lunararc.common.server.LunarArcAntiXrayEngine.invalidate(world);
     }
 
     private static String defaultWorldName(ServerLevel world) {
@@ -1821,6 +1841,8 @@ public class CraftWorld implements World {
 
     @Override
     public @NotNull java.io.File getWorldFolder() {
+        java.nio.file.Path folder = ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) world).lunararc$getDimensionFolder();
+        if (folder != null) return folder.toFile();
         String dim = world.dimension().location().toString();
         return switch (dim) {
             case "minecraft:overworld" -> new java.io.File("world");

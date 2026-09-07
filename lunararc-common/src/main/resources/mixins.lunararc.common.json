@@ -6,7 +6,11 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "mixins.lunararc.common.refmap.json",
   "mixins": [
+    "core.server.GameProfileCacheMixin",
+    "core.network.Varint21FrameDecoderMixin",
+    "core.entity.SchoolingFishAccessor",
     "core.command.EffectCommandsMixin",
+    "core.command.ItemArgumentMixin",
     "core.command.SetSpawnCommandMixin",
     "core.pathfinding.PathNavigationAccessor",
     "core.pathfinding.PathFinderAccessor",

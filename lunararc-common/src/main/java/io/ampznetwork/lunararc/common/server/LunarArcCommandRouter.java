@@ -180,7 +180,13 @@ public final class LunarArcCommandRouter {
         if (sender instanceof CraftPlayer player) {
             return player.getHandle().createCommandSourceStack();
         }
-        return server.getServer().createCommandSourceStack();
+        if (sender == server.getConsoleSender()) {
+            return server.getServer().createCommandSourceStack();
+        }
+        if (sender instanceof org.bukkit.craftbukkit.entity.CraftEntity entity) {
+            return entity.getHandle().createCommandSourceStack();
+        }
+        throw new IllegalArgumentException("Unsupported native command sender: " + sender.getClass().getName());
     }
 
 

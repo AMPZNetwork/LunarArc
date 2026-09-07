@@ -33,6 +33,7 @@ public final class LunarArcPluginDebug {
     }
 
     public static void startSession() {
+        if (!io.ampznetwork.lunararc.common.LunarArcDebug.PLUGIN) return;
         try {
             synchronized (LOCK) {
                 initialize();
@@ -47,6 +48,7 @@ public final class LunarArcPluginDebug {
     }
 
     public static void report(Plugin plugin, String phase, Throwable error, String context) {
+        if (!io.ampznetwork.lunararc.common.LunarArcDebug.PLUGIN) return;
         PluginDescriptionFile description = plugin == null ? null : plugin.getDescription();
         File source = sourceOf(plugin);
         String loader = loaderInfo(plugin);
@@ -78,6 +80,7 @@ public final class LunarArcPluginDebug {
 
     private static void write(PluginDescriptionFile description, File source, String phase,
                               Throwable error, String context) {
+        if (!io.ampznetwork.lunararc.common.LunarArcDebug.PLUGIN) return;
         try {
             synchronized (LOCK) {
                 initialize();

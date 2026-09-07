@@ -12,6 +12,8 @@ public final class EntrypointUtil {
         try {
             C context = source.prepareContext(contextInput);
             source.registerProviders(LaunchEntryPointHandler.INSTANCE, context);
+        } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+            throw fatal;
         } catch (Throwable e) {
             LOGGER.error(e.getMessage(), e);
         }

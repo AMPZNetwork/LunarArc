@@ -271,8 +271,13 @@ public final class CraftLegacy {
                 CompoundTag stack = new CompoundTag();
                 stack.putInt("id", material.getId());
                 stack.putShort("Damage", data);
-                Dynamic<Tag> converted = DataFixers.getDataFixer().update(
-                        References.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, stack), -1, dataVersion());
+                Dynamic<Tag> converted;
+                try {
+                    converted = DataFixers.getDataFixer().update(
+                            References.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, stack), -1, dataVersion());
+                } catch (Throwable ignored) {
+                    continue;
+                }
                 if (!(converted.getValue() instanceof CompoundTag fixedStack)) continue;
                 String itemId = fixedStack.getString("id");
                 if ("minecraft:spawn_egg".equals(itemId)) itemId = "minecraft:pig_spawn_egg";

@@ -15,7 +15,7 @@ fabric-loader = "0.19.5"
 fabric-api = "0.116.17+1.21.1"
 fabric-installer = "0.11.2"
 forge = "52.1.16"
-neoforge = "21.1.249"
+neoforge = "21.1.250"
 quilt-loader = "0.30.1"
 quilt-installer = "0.15.1"
 

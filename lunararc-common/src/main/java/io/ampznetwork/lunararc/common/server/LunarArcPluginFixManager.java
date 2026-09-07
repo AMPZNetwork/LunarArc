@@ -46,11 +46,8 @@ public final class LunarArcPluginFixManager {
 
     public static byte[] injectPluginFix(String className, byte[] clazz) {
         Consumer<ClassNode> patcher = switch (className) {
-            case "com.sk89q.worldedit.bukkit.BukkitConfiguration" -> node -> {
-                helloWorld(node, "I accept that I will receive no support with this flag enabled.", REPLACEMENT);
-                helloWorld(node, "allow-editing-on-unsupported-versions", REPLACEMENT);
-                helloWorld(node, "false", REPLACEMENT);
-            };
+            case "com.sk89q.worldedit.util.translation.TranslationManager" ->
+                    LunarArcPluginFixManager::fixEmptyWorldEditTranslations;
             case "com.sk89q.worldedit.bukkit.adapter.impl.v1_21.PaperweightAdapter",
                  "com.sk89q.worldedit.bukkit.adapter.ext.fawe.v1_21_R1.PaperweightAdapter" ->
                     node -> helloWorld(node, "org.spigotmc.WatchdogThread", REPLACEMENT);
@@ -77,6 +74,25 @@ public final class LunarArcPluginFixManager {
             default -> null;
         };
         return patcher == null ? clazz : patch(clazz, patcher);
+    }
+
+    private static void fixEmptyWorldEditTranslations(ClassNode node) {
+        for (MethodNode method : node.methods) {
+            if (!method.name.equals("putTranslationData")
+                    || !method.desc.equals("(Ljava/util/Map;Ljava/io/InputStream;)V")) continue;
+            for (AbstractInsnNode instruction : method.instructions.toArray()) {
+                if (!(instruction instanceof MethodInsnNode call)
+                        || !call.owner.equals("java/util/Map") || !call.name.equals("entrySet")
+                        || !call.desc.equals("()Ljava/util/Set;")) continue;
+                method.instructions.set(call, new MethodInsnNode(Opcodes.INVOKESTATIC,
+                        Type.getInternalName(LunarArcPluginFixManager.class), "translationEntries",
+                        "(Ljava/util/Map;)Ljava/util/Set;", false));
+            }
+        }
+    }
+
+    public static java.util.Set<Map.Entry<String, String>> translationEntries(Map<String, String> translations) {
+        return translations == null ? java.util.Set.of() : translations.entrySet();
     }
 
     private static void fixEssentialsModdedMaterials(ClassNode node) {
@@ -151,7 +167,7 @@ public final class LunarArcPluginFixManager {
 
             InsnList guard = new InsnList();
             org.objectweb.asm.tree.LabelNode vanillaMaterial = new org.objectweb.asm.tree.LabelNode();
-            guard.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            guard.add(new VarInsnNode(Opcodes.ALOAD, (method.access & Opcodes.ACC_STATIC) != 0 ? 0 : 1));
             guard.add(new MethodInsnNode(
                     Opcodes.INVOKEVIRTUAL,
                     "org/bukkit/event/block/BlockPlaceEvent",
@@ -186,6 +202,7 @@ public final class LunarArcPluginFixManager {
             guard.add(new org.objectweb.asm.tree.JumpInsnNode(Opcodes.IFNE, vanillaMaterial));
             guard.add(new InsnNode(Opcodes.RETURN));
             guard.add(vanillaMaterial);
+            guard.add(new org.objectweb.asm.tree.FrameNode(Opcodes.F_SAME, 0, null, 0, null));
             method.instructions.insert(guard);
             method.maxStack = Math.max(method.maxStack, 2);
             return;

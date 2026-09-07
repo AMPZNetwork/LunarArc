@@ -30,6 +30,8 @@ public class DirectoryProviderSource implements ProviderSource<Path, List<Path>>
         this.walkFiles(context, path -> {
             try {
                 files.add(FILE_PROVIDER_SOURCE.prepareContext(path));
+            } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+                throw fatal;
             } catch (IllegalArgumentException ignored) {
                 // Ignore illegal argument exceptions from jar checking
             } catch (final Exception e) {
@@ -44,6 +46,8 @@ public class DirectoryProviderSource implements ProviderSource<Path, List<Path>>
         for (Path path : context) {
             try {
                 FILE_PROVIDER_SOURCE.registerProviders(entrypointHandler, path);
+            } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+                throw fatal;
             } catch (IllegalArgumentException ignored) {
                 // Ignore illegal argument exceptions from jar checking
             } catch (Exception e) {

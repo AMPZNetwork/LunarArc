@@ -21,7 +21,7 @@ public interface PaperLootableInventory extends PaperLootable, LootableInventory
     /* LootableInventory */
     @Override
     default boolean isRefillEnabled() {
-        return io.papermc.paper.configuration.WorldConfiguration.CURRENT.lootables.autoReplenish;
+        return io.papermc.paper.configuration.WorldConfiguration.forLevel(getNMSWorld()).lootables.autoReplenish;
     }
 
     @Override
@@ -36,7 +36,7 @@ public interface PaperLootableInventory extends PaperLootable, LootableInventory
 
     @Override
     default boolean canPlayerLoot(final UUID player) {
-        return this.lootableDataForAPI().canPlayerLoot(player, io.papermc.paper.configuration.WorldConfiguration.CURRENT);
+        return this.lootableDataForAPI().canPlayerLoot(player, io.papermc.paper.configuration.WorldConfiguration.forLevel(getNMSWorld()));
     }
 
     @Override

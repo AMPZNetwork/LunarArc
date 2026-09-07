@@ -68,6 +68,13 @@ public abstract class PluginFileType<T, C extends PluginMeta> {
 
     public T register(EntrypointHandler entrypointHandler, JarFile file, Path context) throws Exception {
         C config = this.getConfig(file);
+        io.ampznetwork.lunararc.common.config.IncompatibleList.Entry incompatible =
+                io.ampznetwork.lunararc.common.config.IncompatibleList.check(
+                        config.getMainClass(), config.getVersion());
+        if (incompatible != null) {
+            throw io.ampznetwork.lunararc.common.config.IncompatibleList.fatalPlugin(
+                    config.getMainClass(), config.getName(), config.getVersion(), incompatible);
+        }
         T provider = this.factory.build(file, config, context);
         this.register(entrypointHandler, provider);
         return provider;

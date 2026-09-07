@@ -17,12 +17,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 
 public class FileProviderSource implements ProviderSource<Path, Path> {
 
     private final Function<Path, String> contextChecker;
-    private static final Logger LOGGER = Logger.getLogger(FileProviderSource.class.getName());
 
     public FileProviderSource(Function<Path, String> contextChecker) {
         this.contextChecker = contextChecker;
@@ -56,7 +54,9 @@ public class FileProviderSource implements ProviderSource<Path, Path> {
     public void registerProviders(EntrypointHandler entrypointHandler, Path context) throws Exception {
         String source = this.contextChecker.apply(context);
 
-        try (JarFile file = new JarFile(context.toFile(), true, JarFile.OPEN_READ, JarFile.runtimeVersion())) {
+        JarFile file = new JarFile(context.toFile(), true, JarFile.OPEN_READ, JarFile.runtimeVersion());
+        boolean registered = false;
+        try {
             PluginFileType<?, ?> type = PluginFileType.guessType(file);
             if (type == null) {
 
@@ -71,13 +71,15 @@ public class FileProviderSource implements ProviderSource<Path, Path> {
 
             try {
                 type.register(entrypointHandler, file, context);
+                registered = true;
             } catch (Throwable throwable) {
                 UnsupportedClassVersionError versionError = findUnsupportedClassVersionError(throwable);
                 if (versionError == null) throw throwable;
 
-                LOGGER.warning(io.ampznetwork.lunararc.common.server.LunarArcPluginLoader
-                        .friendlyJavaVersionMessage(context.getFileName().toString(), versionError));
+                io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.warnJavaVersionOnce(context, versionError);
             }
+        } finally {
+            if (!registered) file.close();
         }
     }
 

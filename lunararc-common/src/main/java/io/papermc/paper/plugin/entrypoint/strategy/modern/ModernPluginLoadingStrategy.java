@@ -123,11 +123,8 @@ public class ModernPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
                     root = root.getCause();
                 }
                 if (root instanceof UnsupportedClassVersionError versionError) {
-                    LOGGER.error("Skipping plugin '{}' in folder '{}': {}",
-                        retrievedProvider.getFileName(),
-                        retrievedProvider.getParentSource(),
-                        io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.friendlyJavaVersionMessage(
-                            retrievedProvider.getFileName().toString(), versionError));
+                    io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.warnJavaVersionOnce(
+                            retrievedProvider.getSource(), versionError);
                     continue;
                 }
                 LOGGER.error("Could not load plugin '%s' in folder '%s'".formatted(retrievedProvider.getFileName(), retrievedProvider.getParentSource()), ex); // Paper

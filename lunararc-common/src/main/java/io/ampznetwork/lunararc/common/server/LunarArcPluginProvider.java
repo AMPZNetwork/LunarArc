@@ -60,12 +60,12 @@ public final class LunarArcPluginProvider implements AutoCloseable {
         } catch (org.bukkit.plugin.InvalidDescriptionException error) {
             throw new InvalidPluginException(error);
         }
-        io.ampznetwork.lunararc.common.config.IncompatibilityList.Entry incompatible =
-                io.ampznetwork.lunararc.common.config.IncompatibilityList.check(
-                        description.getName(), description.getVersion());
+        io.ampznetwork.lunararc.common.config.IncompatibleList.Entry incompatible =
+                io.ampznetwork.lunararc.common.config.IncompatibleList.check(
+                        description.getMain(), description.getVersion());
         if (incompatible != null) {
-            throw new InvalidPluginException("Plugin " + description.getFullName()
-                    + " is incompatible with LunarArc: " + incompatible.reason());
+            throw io.ampznetwork.lunararc.common.config.IncompatibleList.fatalPlugin(
+                    description.getMain(), description.getName(), description.getVersion(), incompatible);
         }
         // Paper/CraftBukkit validates api-version here and initializes the legacy
         // Bukkit compatibility layer for descriptors without api-version. Keeping
@@ -102,8 +102,9 @@ public final class LunarArcPluginProvider implements AutoCloseable {
             // declares no libraries, in which case the parent is unchanged from before.
             ClassLoader parent = loader.getClass().getClassLoader();
             try {
-                ClassLoader libraryLoader = new org.bukkit.plugin.java.LibraryLoader(loader.getServerInstance().getLogger())
-                        .createLoader(description);
+                ClassLoader libraryLoader = description.getLibraries().isEmpty() ? null
+                        : new org.bukkit.plugin.java.LibraryLoader(loader.getServerInstance().getLogger())
+                                .createLoader(description);
                 if (libraryLoader != null) parent = libraryLoader;
             } catch (Throwable libraryError) {
                 loader.getServerInstance().getLogger().log(java.util.logging.Level.WARNING,
@@ -130,10 +131,6 @@ public final class LunarArcPluginProvider implements AutoCloseable {
             rollback(error);
             Throwable cause = error instanceof java.lang.reflect.InvocationTargetException ite && ite.getCause() != null
                     ? ite.getCause() : error;
-            if (cause instanceof UnsupportedClassVersionError versionError) {
-                throw new InvalidPluginException(LunarArcPluginLoader.friendlyJavaVersionMessage(
-                        description.getName(), versionError), versionError);
-            }
             if (cause instanceof Error fatal) throw fatal;
             if (cause instanceof InvalidPluginException invalid) throw invalid;
             throw new InvalidPluginException(cause);
@@ -195,10 +192,6 @@ public final class LunarArcPluginProvider implements AutoCloseable {
     private static void rethrow(Throwable error) throws InvalidPluginException {
         Throwable cause = error instanceof java.lang.reflect.InvocationTargetException ite && ite.getCause() != null
                 ? ite.getCause() : error;
-        if (cause instanceof UnsupportedClassVersionError versionError) {
-            throw new InvalidPluginException(LunarArcPluginLoader.friendlyJavaVersionMessage(
-                    "plugin", versionError), versionError);
-        }
         if (cause instanceof Error fatal) throw fatal;
         if (cause instanceof InvalidPluginException invalid) throw invalid;
         if (cause instanceof RuntimeException runtime) throw runtime;

@@ -2,35 +2,49 @@ package io.papermc.paper.configuration;
 
 import io.papermc.paper.configuration.type.DurationOrDisabled;
 
-/**
- * Real Paper's {@code WorldConfiguration} is its entire per-world configuration system —
- * hundreds of fields, loaded per-world from paper-world.yml via Configurate. That's a much
- * larger undertaking than anything ported here (same scope decision as
- * {@link PaperConfigurations} elsewhere in this package).
- * <p>
- * This class intentionally contains only the real {@code lootables} section
- * {@code PaperLootableInventoryData} actually reads, with every field at its exact real Paper
- * default (verified against patches/server/0005-Paper-config-files.patch). Every
- * {@link net.minecraft.world.level.Level} shares one static instance (see the Level.paperConfig()
- * mixin) rather than per-world customized config, since real per-world config-file loading isn't
- * wired up. Nothing else from Paper's real config system should be assumed to exist here.
- */
 public final class WorldConfiguration {
 
-    /**
-     * Real Paper reaches this per-Level via Level.paperConfig(). Since every Level shares this
-     * exact same instance here anyway (see the class javadoc), exposing it as a plain static
-     * field lets any file reference it directly, avoiding the fact that a Mixin-added
-     * Level.paperConfig() method wouldn't be visible to separately-compiled callers at
-     * compile time (Mixin only weaves it into bytecode, not into the source-level type other
-     * files see).
-     */
-    public static final WorldConfiguration CURRENT = new WorldConfiguration();
-
     public final Lootables lootables = new Lootables();
+    public final Entities entities = new Entities();
+    public final Anticheat anticheat = new Anticheat();
+
+    public static WorldConfiguration forLevel(net.minecraft.world.level.Level level) {
+        return ((io.ampznetwork.lunararc.common.bridge.LevelBridge) level).lunararc$getPaperConfiguration();
+    }
+
+    public static final class Anticheat {
+        public final AntiXray antiXray = new AntiXray();
+
+        public static final class AntiXray {
+            public boolean enabled;
+            public int engineMode = 1;
+            public int maxBlockHeight = 64;
+            public int updateRadius = 2;
+            public boolean lavaObscures;
+            public java.util.List<String> hiddenBlocks = java.util.List.of();
+        }
+    }
+
+    public static final class Entities {
+        public final Markers markers = new Markers();
+
+        public static final class Markers {
+            public boolean tick = true;
+        }
+
+        public static final class Spawning {
+            public static final class DuplicateUUID {
+                public enum DuplicateUUIDMode { SAFE_REGEN, DELETE, NOTHING, WARN }
+            }
+        }
+    }
+
+    public static final class Misc {
+        public enum RedstoneImplementation { VANILLA, EIGENCRAFT, ALTERNATE_CURRENT }
+    }
 
     public static final class Lootables {
-        public DurationOrDisabled restrictPlayerRelootTime = DurationOrDisabled.USE_DISABLED;
+        public DurationOrDisabled restrictPlayerRelootTime = new DurationOrDisabled(java.util.Optional.empty());
         public boolean restrictPlayerReloot = true;
         public boolean autoReplenish = false;
         public int maxRefills = -1;

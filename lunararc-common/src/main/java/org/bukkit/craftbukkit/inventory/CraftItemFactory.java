@@ -101,6 +101,7 @@ public final class CraftItemFactory implements ItemFactory {
         if (material == Material.FIREWORK_ROCKET) return new CraftMetaFirework(prototype);
         if (material == Material.FIREWORK_STAR) return new CraftMetaCharge(prototype);
         if (material == Material.PLAYER_HEAD) return new CraftMetaSkull(prototype);
+        if (isLeather(material)) return new CraftMetaColorableArmor(prototype);
         if (isArmor(material)) return new CraftMetaArmor(prototype);
         if (material.name().endsWith("_BANNER")) return new CraftMetaBanner(prototype);
         return new CraftMetaItem(prototype);
@@ -122,6 +123,7 @@ public final class CraftItemFactory implements ItemFactory {
         if (meta instanceof CraftMetaFirework) return material == Material.FIREWORK_ROCKET;
         if (meta instanceof CraftMetaCharge) return material == Material.FIREWORK_STAR;
         if (meta instanceof CraftMetaSkull) return material == Material.PLAYER_HEAD;
+        if (meta instanceof CraftMetaColorableArmor) return isLeather(material);
         if (meta instanceof CraftMetaArmor) return isArmor(material);
         if (meta instanceof CraftMetaBanner) return material.name().endsWith("_BANNER");
         return true;
@@ -161,9 +163,16 @@ public final class CraftItemFactory implements ItemFactory {
         if (material == Material.FIREWORK_ROCKET) return new CraftMetaFirework(temp);
         if (material == Material.FIREWORK_STAR) return new CraftMetaCharge(temp);
         if (material == Material.PLAYER_HEAD) return new CraftMetaSkull(temp);
+        if (isLeather(material)) return new CraftMetaColorableArmor(temp);
         if (isArmor(material)) return new CraftMetaArmor(temp);
         if (material.name().endsWith("_BANNER")) return new CraftMetaBanner(temp);
         return new CraftItemMeta(temp);
+    }
+
+    static boolean isLeather(Material material) {
+        return material == Material.LEATHER_HELMET || material == Material.LEATHER_CHESTPLATE
+                || material == Material.LEATHER_LEGGINGS || material == Material.LEATHER_BOOTS
+                || material == Material.LEATHER_HORSE_ARMOR;
     }
 
     private static boolean isArmor(Material material) {

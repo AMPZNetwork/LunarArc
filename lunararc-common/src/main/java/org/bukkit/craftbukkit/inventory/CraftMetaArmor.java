@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.jetbrains.annotations.Nullable;
 
 /** Concrete armor trim metadata over Minecraft 1.21.1 TRIM. */
-public final class CraftMetaArmor extends CraftItemMeta implements ArmorMeta {
+public class CraftMetaArmor extends CraftItemMeta implements ArmorMeta {
     private ArmorTrim trim;
     public CraftMetaArmor() { super(); }
     public CraftMetaArmor(ItemStack nms) {

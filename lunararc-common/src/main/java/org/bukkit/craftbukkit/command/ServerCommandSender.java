@@ -13,8 +13,31 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ServerCommandSender implements CommandSender {
-    public final PermissibleBase perm = new PermissibleBase(this);
-    private final CommandSender.Spigot spigot = new CommandSender.Spigot();
+    public final PermissibleBase perm;
+
+    public ServerCommandSender() { this.perm = new PermissibleBase(this); }
+    public ServerCommandSender(PermissibleBase perm) { this.perm = java.util.Objects.requireNonNull(perm); }
+    private final CommandSender.Spigot spigot = new CommandSender.Spigot() {
+        @Override
+        public void sendMessage(net.md_5.bungee.api.chat.BaseComponent component) {
+            sendMessage(new net.md_5.bungee.api.chat.BaseComponent[]{component});
+        }
+
+        @Override
+        public void sendMessage(net.md_5.bungee.api.chat.BaseComponent... components) {
+            ServerCommandSender.this.sendMessage(net.md_5.bungee.api.chat.TextComponent.toLegacyText(components));
+        }
+
+        @Override
+        public void sendMessage(UUID sender, net.md_5.bungee.api.chat.BaseComponent component) {
+            sendMessage(component);
+        }
+
+        @Override
+        public void sendMessage(UUID sender, net.md_5.bungee.api.chat.BaseComponent... components) {
+            sendMessage(components);
+        }
+    };
 
     @Override
     public boolean isPermissionSet(@NotNull String name) {

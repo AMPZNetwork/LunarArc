@@ -90,6 +90,7 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-${libs.versions.minecraft.get()}:${libs.versions.parchment.get()}@zip")
     }
 
+    implementation 'org.jline:jline-reader:3.20.0'
     implementation project(':lunararc-api')
     implementation project(':i18n-config')
 
@@ -108,20 +109,41 @@ dependencies {
     implementation 'org.codehaus.plexus:plexus-utils:3.5.1'
     implementation 'org.codehaus.plexus:plexus-interpolation:1.26'
     implementation 'commons-logging:commons-logging:1.2'
+
+    // Needed for io.papermc.paper.plugin.provider.configuration.* (PaperPluginMeta and friends) —
+    // real Paper's paper-plugin.yml parsing is built on Sponge's Configurate library. This is
+    // implementation, not compileOnly: unlike paper-api's interfaces, Configurate isn't already
+    // present anywhere else on LunarArc's runtime classpath, so it needs to actually be included.
     implementation 'org.spongepowered:configurate-core:4.1.2'
     implementation 'org.spongepowered:configurate-yaml:4.1.2'
 
+    // Explicitly pin Adventure here too, mirroring bootstrap/build.gradle's already-correct
+    // pattern. Without this, lunararc-common's extensive Adventure work (PaperAdventure,
+    // AdventureCodecs, WrapperAwareSerializer, the providers/* SPI implementations) only
+    // compiles today by accident, via paper-api's transitive Adventure dependency — which
+    // doesn't guarantee the actual runtime jar bundles this same pinned 4.17.0 rather than
+    // whatever version a Forge/NeoForge mod happens to bundle unrelocated (Adventure is
+    // deliberately never relocated, by ecosystem convention). This is the exact same failure
+    // class that just broke LogUtils.getClassLogger() (NoSuchMethodError from a version that
+    // doesn't have a method the real Paper source calls) — closing it here before it surfaces
+    // the same way at runtime instead of waiting for the next crash report to find it.
     implementation libs.adventure.api
     implementation libs.adventure.text.minimessage
     implementation libs.adventure.text.serializer.gson
     implementation libs.adventure.text.serializer.legacy
     implementation libs.adventure.text.serializer.plain
 
+    // SnakeYAML: real Paper's SpigotPluginProviderFactory catches org.yaml.snakeyaml.error.
+    // YAMLException directly when parsing legacy plugin.yml. configurate-yaml likely already
+    // pulls this in transitively (it's SnakeYAML-backed internally), but declaring it explicitly
+    // matches bootstrap/build.gradle's own established pattern rather than relying on an
+    // unconfirmed transitive chain for a class referenced directly by name.
     implementation libs.snakeyaml
 
     compileOnly libs.paper.api
     paperApiReference libs.paper.api
-
+    // Paper server jar for CraftBukkit/Spigot compile reference — unfiltered.
+    // Classes LunarArc owns in source are excluded via the filteredPaperCompileRef task below.
     compileOnly fileTree(dir: rootProject.ext.paperDir, include: "paper-server-*.jar")
     compileOnly libs.joml
     compileOnly libs.log4j.api
@@ -130,7 +152,14 @@ dependencies {
 
     compileOnly libs.asm
     compileOnly libs.asm.commons
-
+    // Needed for the ASM tree API (ClassNode/MethodNode/InsnList) used by
+    // LunarArcPluginFixManager to patch known-problematic third-party plugin bytecode at
+    // classload time. This was added earlier this session but lost when lunararc-common was
+    // later replaced wholesale from a separately-uploaded copy that predated this specific
+    // edit — LunarArcPluginFixManager.java itself survived the merge (it's a .java file) but
+    // this one-line build.gradle dependency didn't, which would have caused a real compile
+    // failure. compileOnly, same reasoning as asm/asm-commons above: Mixin itself is built on
+    // ASM's tree API and bundles it at runtime, so this isn't duplicated into the shipped jar.
     compileOnly libs.asm.tree
 
     compileOnly libs.mixin
@@ -246,6 +275,12 @@ tasks.register('extractPaperPluginMappings') {
         String spigotText = spigotMappingFile.getText('UTF-8')
         String spigotMappingsUrl = spigotMappingFile.toURI().toString()
 
+        // Spigot member renames. Since 1.17 Spigot only renames NMS *classes* wholesale and
+        // leaves member names obfuscated, renaming just a handful by hand — so this file is
+        // small (and may be absent). Whatever it does not list keeps the obfuscated name on
+        // the Spigot side, which is what a Spigot-compiled plugin's bytecode actually calls.
+        // Keyed CSRG-style: "<obfOwner> <obfName> <spigotName>" for fields and
+        // "<obfOwner> <obfName> <obfDescriptor> <spigotName>" for methods.
         File spigotMemberFile = new File(buildDataDir, "mappings/bukkit-${minecraftVersion}-members.csrg")
         Map<String, String> spigotMemberRenames = new LinkedHashMap<>()
         if (spigotMemberFile.isFile()) {
@@ -376,12 +411,33 @@ tasks.register('extractPaperPluginMappings') {
             return renamed != null ? renamed : obfMemberName
         }
 
+        // Mojang server mappings are ProGuard mappings. Do not parse these with a
+        // single all-or-nothing regex: 1.21.1 includes indented source metadata
+        // comments and optional source line ranges on methods, for example:
+        //   net.minecraft.server.Foo -> abc:
+        //       # {"fileName":"Foo.java","id":"sourceFile"}
+        //       int fieldName -> a
+        //       68:69:void methodName(java.lang.String) -> b
+        //
+        // The Spigot-side member name is the OBFUSCATED name (the ProGuard RHS), not the
+        // Mojang name. Spigot has only remapped NMS *classes* since 1.17 and leaves member
+        // names obfuscated, so a Spigot-compiled plugin's bytecode calls e.g.
+        // net/minecraft/util/RandomSource.a() where Mojang has RandomSource.create().
+        // Paper's own build-data/reobf-mappings-patch.tiny shows the same thing for 1.21.1
+        // (mojang+yarn -> spigot: ServerLevel.serverLevelData -> K, LevelChunk.level -> r).
+        // Emitting the Mojang name on both sides, as this task previously did, made every
+        // member entry an identity mapping - the member half of the table did nothing at all,
+        // so any Spigot plugin touching NMS kept its obfuscated call and died with
+        // NoSuchMethodError/NoSuchFieldError (WorldEdit's PaperweightAdapter on RandomSource.a()).
         mojangText.readLines().each { String raw ->
             if (raw == null) return
             String trimmed = raw.trim()
             if (trimmed.isEmpty()) return
 
             int rawArrow = trimmed.lastIndexOf(' -> ')
+            // Class headers are the only mapping records whose RHS ends with ':'.
+            // Detect them from the trimmed content, not from indentation, so CRLF,
+            // tabs, or future Mojang whitespace changes cannot zero the member map.
             if (rawArrow > 0 && trimmed.endsWith(':')) {
                 currentNamed = normalizeInternal(trimmed.substring(0, rawArrow).trim())
                 return
@@ -468,7 +524,11 @@ tasks.register('extractPaperPluginMappings') {
                 "LunarArc must never ship class-only NMS remapping."
             )
         }
-
+        // A member row whose Spigot name equals its Mojang name remaps nothing. A few of those
+        // are legitimate (members Mojang never obfuscates, e.g. interface methods inherited from
+        // the JDK), but the vast majority of NMS members are obfuscated on the Spigot side, so a
+        // low ratio here means the member half of the table has silently gone identity again -
+        // which reads as "mappings present" while remapping nothing at all.
         if (renamingMembers * 2L < memberCount) {
             throw new GradleException(
                 "Plugin mapping generation produced ${renamingMembers} of ${memberCount} members whose " +
@@ -516,72 +576,85 @@ tasks.register('generateLunarArcBuildInfo') {
 }
 sourceSets.main.resources.srcDir(generatedBuildInfoDir)
 
+// gradle/incompatible/plugins.json and mods.json are the editable build-time sources. They are
+// validated here and baked into the jar as compact TSV resources, so a running server has no
+// external blocked-list file that can be edited or removed to bypass the checks. Unknown keys,
+// malformed JSON, blank required values, and duplicate entries fail the build instead of being
+// silently ignored.
+def generatedIncompatibleDir = layout.buildDirectory.dir('generated/incompatible')
 
-def generatedIncompatibilityDir = layout.buildDirectory.dir('generated/incompatibility')
-
-tasks.register('generateIncompatibilityList') {
-    def source = rootProject.file('gradle/incompatibility.toml')
-    def output = generatedIncompatibilityDir.map { it.file('lunararc/incompatibility.tsv').asFile }
-    inputs.file(source)
-    outputs.file(output)
+tasks.register('generateIncompatibleList') {
+    def pluginsSource = rootProject.file('gradle/incompatible/plugins.json')
+    def modsSource = rootProject.file('gradle/incompatible/mods.json')
+    def pluginsOutput = generatedIncompatibleDir.map { it.file('lunararc/incompatible/plugins.tsv').asFile }
+    def modsOutput = generatedIncompatibleDir.map { it.file('lunararc/incompatible/mods.tsv').asFile }
+    inputs.files(pluginsSource, modsSource)
+    outputs.files(pluginsOutput, modsOutput)
 
     doLast {
-        def target = output.get()
-        target.parentFile.mkdirs()
-
-        def rows = []
-        def section = null
-        def current = null
-        def lineNumber = 0
-
-        def flush = {
-            if (current == null) return
-            if (!current.name) {
-                throw new GradleException("gradle/incompatibility.toml: [[${current.section}]] entry ending at line ${lineNumber} has no name")
+        def parseList = { File source, String rootKey, String idKey ->
+            def parsed
+            try {
+                parsed = new groovy.json.JsonSlurper().parse(source)
+            } catch (Exception error) {
+                throw new GradleException("${rootProject.relativePath(source)} is not valid JSON", error)
             }
-            if (!current.reason) {
-                throw new GradleException("gradle/incompatibility.toml: ${current.section} entry '${current.name}' has no reason")
+            if (!(parsed instanceof Map) || parsed.keySet() != ([rootKey] as Set)) {
+                throw new GradleException("${rootProject.relativePath(source)} must contain exactly one top-level key: '${rootKey}'")
             }
-            rows << "${current.section}\t${current.name}\t${current.version ?: ''}\t${current.reason}"
-            current = null
-        }
-
-        source.eachLine { String raw ->
-            lineNumber++
-            def line = raw.trim()
-            if (line.isEmpty() || line.startsWith('#')) return
-
-            def header = (line =~ /^\[\[(plugins|mods)]]$/)
-            if (header.matches()) {
-                flush()
-                section = header[0][1]
-                current = [section: section, name: null, version: null, reason: null]
-                return
+            def entries = parsed[rootKey]
+            if (!(entries instanceof List)) {
+                throw new GradleException("${rootProject.relativePath(source)}: '${rootKey}' must be an array")
             }
 
-            def pair = (line =~ /^(name|version|reason)\s*=\s*"(.*)"$/)
-            if (pair.matches()) {
-                if (current == null) {
-                    throw new GradleException("gradle/incompatibility.toml:${lineNumber}: '${line}' appears before any [[plugins]] or [[mods]] header")
+            Set<String> seen = new HashSet<>()
+            List<String> rows = []
+            entries.eachWithIndex { entry, index ->
+                if (!(entry instanceof Map)) {
+                    throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] must be an object")
                 }
-                current[pair[0][1]] = pair[0][2]
-                return
+                Set<String> allowed = [idKey, 'version', 'reason'] as Set
+                def unknown = entry.keySet().findAll { !allowed.contains(it) }
+                if (!unknown.isEmpty()) {
+                    throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] has unknown key(s): ${unknown.join(', ')}")
+                }
+                String id = entry[idKey]?.toString()?.trim()
+                String reason = entry.reason?.toString()?.trim()
+                String version = entry.version == null ? null : entry.version.toString().trim()
+                if (!id) throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] requires '${idKey}'")
+                if (!reason) throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] '${id}' requires 'reason'")
+                if (entry.containsKey('version') && !version) {
+                    throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] '${id}' has a blank version")
+                }
+                if (id.contains('\t') || reason.contains('\t') || (version != null && version.contains('\t'))) {
+                    throw new GradleException("${rootProject.relativePath(source)}: tabs are not allowed in incompatible fields")
+                }
+                String duplicateKey = id.toLowerCase(java.util.Locale.ROOT) + '\u0000' + (version ?: '*')
+                if (!seen.add(duplicateKey)) {
+                    throw new GradleException("${rootProject.relativePath(source)}: duplicate ${idKey} '${id}'${version ? " version '${version}'" : ''}")
+                }
+                rows << "${id}\t${version ?: ''}\t${reason}"
             }
-
-            throw new GradleException("gradle/incompatibility.toml:${lineNumber}: cannot parse '${line}'. Expected [[plugins]], [[mods]], or key = \"value\".")
+            return rows
         }
-        flush()
 
-        target.text = rows.isEmpty() ? '' : rows.join('\n') + '\n'
-        logger.lifecycle("Generated LunarArc incompatibility list with ${rows.size()} entries")
+        List<String> pluginRows = parseList(pluginsSource, 'plugins', 'main')
+        List<String> modRows = parseList(modsSource, 'mods', 'modId')
+        File pluginsTarget = pluginsOutput.get()
+        File modsTarget = modsOutput.get()
+        pluginsTarget.parentFile.mkdirs()
+        modsTarget.parentFile.mkdirs()
+        pluginsTarget.setText(pluginRows.isEmpty() ? '' : pluginRows.join('\n') + '\n', 'UTF-8')
+        modsTarget.setText(modRows.isEmpty() ? '' : modRows.join('\n') + '\n', 'UTF-8')
+        logger.lifecycle("Generated LunarArc incompatible resources with ${pluginRows.size()} plugin and ${modRows.size()} mod entries")
     }
 }
-sourceSets.main.resources.srcDir(generatedIncompatibilityDir)
+sourceSets.main.resources.srcDir(generatedIncompatibleDir)
 
 processResources {
     dependsOn tasks.named('extractPaperPluginMappings')
     dependsOn tasks.named('generateLunarArcBuildInfo')
-    dependsOn tasks.named('generateIncompatibilityList')
+    dependsOn tasks.named('generateIncompatibleList')
     def javaRuntime = libs.versions.java.runtime.get()
     inputs.property 'version', project.version
     inputs.property 'java_runtime', javaRuntime
@@ -649,11 +722,9 @@ tasks.register('preparePaperImplementationSurface') {
     dependsOn rootProject.tasks.named('preparePaperCompileReference')
     inputs.file(rootProject.ext.paperServerJar)
     inputs.files(configurations.paperApiReference)
-    inputs.files(fileTree('src/main/java') {
-        include 'org/bukkit/craftbukkit/**/*.java'
-        include 'org/spigotmc/**/*.java'
-        include 'io/papermc/paper/configuration/**/*.java'
-    })
+    inputs.files(fileTree('src/main/java') { include '**/*.java' })
+    dependsOn tasks.named('compileJava')
+    inputs.files(tasks.named('compileJava').map { it.destinationDirectory })
     outputs.dir(generatedPaperImplementationSurfaceDir)
 
     doLast {
@@ -693,27 +764,41 @@ tasks.register('preparePaperImplementationSurface') {
         List<String> blockImplClasses = []
         Set<String> surfaceEntryNames = new HashSet<>()
         Map<String, Set<String>> paperRefsByDonor = new TreeMap<>()
-        // Single-quoted so Groovy leaves the '$' of inner-class names alone.
-        def paperTypeReferencePattern = java.util.regex.Pattern.compile('io/papermc/paper/[A-Za-z0-9_$/]+')
+        Set<String> helperClasses = [
+            'io/papermc/paper/block/fluid/PaperFluidData',
+            'io/papermc/paper/block/fluid/type/PaperFlowingFluidData',
+            'io/papermc/paper/block/fluid/type/PaperFallingFluidData',
+            'io/papermc/paper/entity/PaperBucketable',
+            'io/papermc/paper/entity/PaperShearable',
+            'io/papermc/paper/inventory/BrewingSimpleContainerData',
+            'io/papermc/paper/persistence/PaperPersistentDataContainerView',
+            'io/papermc/paper/util/ObfHelper',
+            'io/papermc/paper/util/StringPool'
+        ] as Set
+        def referencesOf = { byte[] bytes ->
+            Set<String> found = new TreeSet<>()
+            def remapper = new org.objectweb.asm.commons.Remapper() {
+                @Override
+                String map(String name) {
+                    if (name.startsWith('io/papermc/paper/')) found.add(name)
+                    return name
+                }
+            }
+            new ClassReader(bytes).accept(new org.objectweb.asm.commons.ClassRemapper(new ClassNode(), remapper), 0)
+            return found
+        }
         new java.util.jar.JarFile(paperJar).withCloseable { jar ->
             def entries = jar.entries()
             while (entries.hasMoreElements()) {
                 def entry = entries.nextElement()
                 if (entry.directory || !entry.name.endsWith('.class')) continue
 
-                // Keep the donor boundary narrow: CraftBukkit/Spigot implementation surface,
-                // plus Paper's own config framework (io.papermc.paper.configuration.*) - a
-                // small, loader-independent Configurate/Adventure utility layer that
-                // PaperPluginMeta (LunarArc-owned) needs at runtime and that plugin.yml/
-                // paper-plugin.yml parsing depends on. Paper API is already a normal
-                // dependency and Minecraft/NMS stays exclusively loader-owned; the
-                // verify*HybridShape tasks reject any net.minecraft class that slips in.
                 boolean surfaceClass = entry.name.startsWith('org/bukkit/craftbukkit/') ||
+                    entry.name.startsWith('ca/spottedleaf/dataconverter/') ||
                     entry.name.startsWith('org/spigotmc/') ||
-                    entry.name.startsWith('io/papermc/paper/configuration/')
+                    entry.name.startsWith('io/papermc/paper/configuration/') ||
+                    helperClasses.contains(entry.name.substring(0, entry.name.length() - 6).split('\\$')[0])
                 if (!surfaceClass) continue
-                // Both donated and LunarArc-owned surface classes end up in the compiled
-                // output, so both count as resolvable for the audit below.
                 surfaceEntryNames.add(entry.name)
 
                 if (ownsPaperImplementationClass(entry.name)) {
@@ -724,15 +809,7 @@ tasks.register('preparePaperImplementationSurface') {
                 byte[] classBytes = jar.getInputStream(entry).withCloseable { it.readAllBytes() }
                 classBytes = neutralizeMojangLogUtils(classBytes)
 
-                // Record every io/papermc/paper/** type this donated class names, so the audit
-                // below can tell whether it will still be there at runtime. Reading the constant
-                // pool as text is the same technique the validBlocks audit above uses; it can
-                // over-report (a string literal that happens to look like a class name) but it
-                // never under-reports, which is the direction that matters for a missing class.
-                String donatedConstants = new String(classBytes, java.nio.charset.StandardCharsets.ISO_8859_1)
-                def matcher = paperTypeReferencePattern.matcher(donatedConstants)
-                Set<String> found = new TreeSet<>()
-                while (matcher.find()) found.add(matcher.group())
+                Set<String> found = referencesOf(classBytes)
                 if (!found.isEmpty()) paperRefsByDonor.put(entry.name, found)
 
                 File target = new File(outputDir, entry.name)
@@ -761,22 +838,13 @@ tasks.register('preparePaperImplementationSurface') {
                 "Paper 1.21.1 implementation donor found only ${blockImplClasses.size()} generated block implementations"
             )
         }
-        // Donated Paper classes can name Paper's own server-internal helpers, which the donor
-        // boundary deliberately does not carry and which LunarArc may not own either. Nothing
-        // fails at build time when one is missing - the class links fine against the compileOnly
-        // paper-server jar - and nothing fails at boot either. It fails the first time a plugin
-        // touches that code path, as a NoClassDefFoundError from inside Paper's own class
-        // initializer, which reads like a broken plugin rather than a missing class.
-        //
-        // That is exactly how Commodore stayed dead here: it needs
-        // io.papermc.paper.util.MappingEnvironment and io.papermc.paper.pluginremap.reflect.
-        // ReflectionRemapper, neither of which existed, so no plugin ever got Paper's API-level
-        // rewrites. This audit names that shape of gap at build time instead.
-        Set<String> resolvable = new HashSet<>(surfaceEntryNames)
-        project.fileTree('src/main/java') { include 'io/papermc/paper/**/*.java' }.each { File source ->
-            String relative = source.absolutePath.substring(
-                project.file('src/main/java').absolutePath.length() + 1).replace(File.separator, '/')
-            resolvable.add(relative.substring(0, relative.length() - '.java'.length()) + '.class')
+        Set<String> resolvable = new HashSet<>()
+        project.fileTree(outputDir) { include '**/*.class' }.each { File compiled ->
+            resolvable.add(outputDir.toPath().relativize(compiled.toPath()).toString().replace(File.separator, '/'))
+        }
+        File compiledDir = tasks.named('compileJava').get().destinationDirectory.get().asFile
+        project.fileTree(compiledDir) { include '**/*.class' }.each { File compiled ->
+            resolvable.add(compiledDir.toPath().relativize(compiled.toPath()).toString().replace(File.separator, '/'))
         }
         configurations.paperApiReference.each { File dependency ->
             if (!dependency.name.endsWith('.jar')) return
@@ -792,9 +860,7 @@ tasks.register('preparePaperImplementationSurface') {
         Map<String, Set<String>> missingByType = new TreeMap<>()
         paperRefsByDonor.each { String donor, Set<String> references ->
             references.each { String reference ->
-                // Inner classes live in their outer class's file; resolving the outer one is
-                // enough to know the type will be present.
-                String topLevel = reference.contains('$') ? reference.substring(0, reference.indexOf('$')) : reference
+                String topLevel = reference
                 if (resolvable.contains(topLevel + '.class')) return
                 Set<String> donorsForType = missingByType.get(topLevel)
                 if (donorsForType == null) {
@@ -808,17 +874,10 @@ tasks.register('preparePaperImplementationSurface') {
         if (missingByType.isEmpty()) {
             logger.lifecycle("Paper donor dependency audit: all io.papermc.paper references from donated classes resolve")
         } else {
-            // Reported rather than thrown for now: the reference scan reads the constant pool as
-            // text, so a name that only ever appears in a string literal can show up here without
-            // being a real link-time dependency. Tighten this to a hard failure once the reported
-            // list has been walked once and is understood.
-            logger.warn("Paper donor dependency audit: ${missingByType.size()} io.papermc.paper type(s) referenced by " +
-                "donated Paper classes are neither donated, LunarArc-owned, nor present in paper-api. " +
-                "Each is a NoClassDefFoundError waiting for the first plugin that reaches it:")
-            missingByType.each { String type, Set<String> donors ->
-                String sample = donors.take(3).join(', ')
-                logger.warn("  ${type.replace('/', '.')}  <- ${sample}${donors.size() > 3 ? " (+${donors.size() - 3} more)" : ''}")
-            }
+            String detail = missingByType.collect { String type, Set<String> donors ->
+                "  ${type.replace('/', '.')} <- ${donors.join(', ')}"
+            }.join(System.lineSeparator())
+            throw new GradleException("Unresolved Paper donor dependencies:\n" + detail)
         }
 
         logger.lifecycle(
@@ -827,6 +886,7 @@ tasks.register('preparePaperImplementationSurface') {
         )
     }
 }
+
 
 // Treat the exact Paper 1.21.1 donor as compiled common output, not as a raw final-JAR
 // overlay. Architectury/Loom therefore transforms/remaps these classes for each loader.
@@ -983,3 +1043,51 @@ static String simpleTypeName(String type) {
 }
 
 tasks.named('classes') { dependsOn tasks.named('verifyCraftBukkitMemberParity') }
+
+tasks.named('compileTestJava', JavaCompile) {
+    classpath += sourceSets.main.compileClasspath
+}
+
+tasks.register('runCompatibilityRegression', JavaExec) {
+    dependsOn tasks.named('testClasses'), ':bootstrap:generateVersions'
+    classpath = files(sourceSets.test.output, sourceSets.main.output.classesDirs,
+            generatedPaperImplementationSurfaceDir, generatedPaperMappingsDir, generatedBuildInfoDir,
+            project(':bootstrap').layout.buildDirectory.dir('generated/versions'),
+            sourceSets.main.compileClasspath)
+    mainClass = 'io.ampznetwork.lunararc.PluginCompatibilityRegressionTest'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+    systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
+}
+
+tasks.named('test', Test) {
+    dependsOn tasks.named('runCompatibilityRegression')
+    failOnNoDiscoveredTests = false
+}
+
+['off', 'timing', 'reflect,command', 'all'].eachWithIndex { mode, index ->
+    def verification = tasks.register("verifyDebugOptions${index}", JavaExec) {
+        dependsOn tasks.named('testClasses'), ':installer:classes', ':bootstrap:generateVersions'
+        classpath = files(tasks.named('runCompatibilityRegression', JavaExec).get().classpath,
+                project(':installer').sourceSets.main.output.classesDirs)
+        mainClass = 'io.ampznetwork.lunararc.DebugOptionsRegressionTest'
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+        systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
+        if (mode != 'off') systemProperty 'lunararc.debug', mode
+        args mode
+        doFirst {
+            workingDir java.nio.file.Files.createTempDirectory(layout.buildDirectory.get().asFile.toPath(), "debug-options-${index}-").toFile()
+        }
+    }
+    tasks.named('test') { dependsOn verification }
+}
+
+tasks.register('runPackagedRecipeRegression', JavaExec) {
+    dependsOn tasks.named('testClasses'), project(':bootstrap').tasks.named('neoforgeJar')
+    classpath = tasks.named('runCompatibilityRegression', JavaExec).get().classpath
+    mainClass = 'io.ampznetwork.lunararc.PackagedRecipeRegressionTest'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+    systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
+    doFirst {
+        args = [project(':bootstrap').tasks.named('neoforgeJar').get().archiveFile.get().asFile.absolutePath]
+    }
+}

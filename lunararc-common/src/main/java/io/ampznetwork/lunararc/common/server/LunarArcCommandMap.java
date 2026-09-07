@@ -14,9 +14,11 @@ import java.util.Locale;
 import java.util.Set;
 
 
-public final class LunarArcCommandMap extends SimpleCommandMap {
+public class LunarArcCommandMap extends SimpleCommandMap {
     private static volatile CommandDispatcher<CommandSourceStack> dispatcher;
     private final Server lunararc$server;
+    private Set<String> lunararc$mirroredLabels;
+    private CommandDispatcher<CommandSourceStack> lunararc$mirroredDispatcher;
 
     public LunarArcCommandMap(Server server) {
         super(server, new HashMap<>());
@@ -42,15 +44,25 @@ public final class LunarArcCommandMap extends SimpleCommandMap {
     public void unregisterPlugin(Plugin plugin) {
         if (plugin == null) return;
         Set<Command> removed = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        Set<String> removedLabels = new LinkedHashSet<>();
         getKnownCommands().entrySet().removeIf(entry -> {
             Command command = entry.getValue();
             if (command instanceof PluginCommand pluginCommand && pluginCommand.getPlugin() == plugin) {
                 removed.add(command);
+                removedLabels.add(normalize(entry.getKey()));
                 return true;
             }
             return false;
         });
         for (Command command : removed) command.unregister(this);
+        for (String label : removedLabels) removeMirrorIfUnused(label);
+        syncCommandTreeToPlayers();
+    }
+
+    @Override
+    public void clearCommands() {
+        super.clearCommands();
+        clearMirrors();
         syncCommandTreeToPlayers();
     }
 
@@ -92,6 +104,10 @@ public final class LunarArcCommandMap extends SimpleCommandMap {
     public void syncToBrigadier(CommandDispatcher<CommandSourceStack> target) {
         if (target == null) return;
         dispatcher = target;
+        if (lunararc$mirroredDispatcher != target) {
+            mirroredLabels().clear();
+            lunararc$mirroredDispatcher = target;
+        }
 
         Set<String> labels = new LinkedHashSet<>(getKnownCommands().keySet());
         for (String knownLabel : labels) {
@@ -128,11 +144,48 @@ public final class LunarArcCommandMap extends SimpleCommandMap {
     private void registerMirror(CommandDispatcher<CommandSourceStack> target, String label) {
         String normalized = normalize(label);
         if (normalized.isEmpty() || getCommand(normalized) == null) return;
+        if (lunararc$mirroredDispatcher != target) {
+            mirroredLabels().clear();
+            lunararc$mirroredDispatcher = target;
+        }
 
-
-        if (target.getRoot().getChild(normalized) != null) return;
+        if (target.getRoot().getChild(normalized) != null) {
+            if (!mirroredLabels().contains(normalized)) return;
+            removeMirror(target, normalized);
+        }
 
         new BukkitCommandWrapper(this, normalized).register(target);
+        if (target.getRoot().getChild(normalized) != null) mirroredLabels().add(normalized);
+    }
+
+    private void removeMirrorIfUnused(String label) {
+        if (getCommand(label) != null) return;
+        CommandDispatcher<CommandSourceStack> target = dispatcher;
+        if (target != null && target == lunararc$mirroredDispatcher && mirroredLabels().contains(label)) {
+            removeMirror(target, label);
+        }
+    }
+
+    private void clearMirrors() {
+        CommandDispatcher<CommandSourceStack> target = dispatcher;
+        if (target != null && target == lunararc$mirroredDispatcher) {
+            for (String label : Set.copyOf(mirroredLabels())) removeMirror(target, label);
+        }
+        mirroredLabels().clear();
+    }
+
+    private void removeMirror(CommandDispatcher<CommandSourceStack> target, String label) {
+        if (target.getRoot() instanceof io.ampznetwork.lunararc.common.bridge.access.CommandNodeAccessBridge accessor) {
+            accessor.lunararc$getChildren().remove(label);
+            accessor.lunararc$getLiterals().remove(label);
+            accessor.lunararc$getArguments().remove(label);
+        }
+        mirroredLabels().remove(label);
+    }
+
+    private Set<String> mirroredLabels() {
+        if (lunararc$mirroredLabels == null) lunararc$mirroredLabels = new LinkedHashSet<>();
+        return lunararc$mirroredLabels;
     }
 
     private void syncCommandTreeToPlayers() {

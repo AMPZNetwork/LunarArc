@@ -78,12 +78,10 @@ public final class BukkitCommandWrapper {
 
         List<String> completions;
         try {
-            String argumentText = input.length() <= label.length()
-                    ? ""
-                    : input.substring(label.length()).stripLeading();
-            String[] args = argumentText.isEmpty()
-                    ? new String[0]
-                    : argumentText.split(" ", -1);
+            boolean hasArgumentInput = input.length() > label.length();
+            String argumentText = hasArgumentInput ? input.substring(label.length()) : "";
+            if (argumentText.startsWith(" ")) argumentText = argumentText.substring(1);
+            String[] args = hasArgumentInput ? argumentText.split(" ", -1) : new String[0];
             completions = command == null ? List.of() : command.tabComplete(sender, label, args);
         } catch (org.bukkit.command.CommandException exception) {
             throw exception;

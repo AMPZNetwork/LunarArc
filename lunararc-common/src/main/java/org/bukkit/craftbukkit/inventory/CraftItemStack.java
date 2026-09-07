@@ -341,6 +341,7 @@ public class CraftItemStack extends ItemStack {
         if (type == org.bukkit.Material.FIREWORK_ROCKET) return new CraftMetaFirework(handle);
         if (type == org.bukkit.Material.FIREWORK_STAR) return new CraftMetaCharge(handle);
         if (type == org.bukkit.Material.PLAYER_HEAD) return new CraftMetaSkull(handle);
+        if (CraftItemFactory.isLeather(type)) return new CraftMetaColorableArmor(handle);
         if (type.name().endsWith("_HELMET") || type.name().endsWith("_CHESTPLATE") || type.name().endsWith("_LEGGINGS") || type.name().endsWith("_BOOTS")) return new CraftMetaArmor(handle);
         if (type.name().endsWith("_BANNER")) return new CraftMetaBanner(handle);
         return new CraftItemMeta(handle);

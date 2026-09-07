@@ -11,22 +11,25 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+
 
 /** Exposes loader-owned items to EssentialsX as both namespace_path and namespace:path. */
 public final class LunarArcEssentialsItemBridge {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("LunarArc");
     private static final String ESSENTIALS_CLASS = "com.earth2me.essentials.Essentials";
-    private static final Map<String, Material> MODDED_ITEM_ALIASES = new ConcurrentHashMap<>();
+    private static final AliasIndex<Material> MODDED_ITEM_ALIASES = new AliasIndex<>(
+            LunarArcDynamicBukkitEnums::materialsById, Material::isItem);
 
     private LunarArcEssentialsItemBridge() {}
 
     public static void populateModdedItems(CraftServer craftServer) {
-        rebuildAliasIndex();
+        MODDED_ITEM_ALIASES.refresh();
         Plugin essentials = findEssentials(craftServer);
         if (essentials == null) return;
 
@@ -44,6 +47,24 @@ public final class LunarArcEssentialsItemBridge {
             reloadEssentialsItemDb(essentials);
         } catch (Exception e) {
             LOGGER.warn("[LunarArc] Could not add modded items to Essentials' items.json: {}", e.toString());
+        } finally {
+            prepareItemCommands(essentials);
+        }
+    }
+
+    private static void prepareItemCommands(Plugin essentials) {
+        if (!essentials.isEnabled()) return;
+        try {
+            Object itemDb = essentials.getClass().getMethod("getItemDb").invoke(essentials);
+            itemDb.getClass().getMethod("get", String.class, boolean.class).invoke(itemDb, "stone", false);
+            itemDb.getClass().getMethod("listNames").invoke(itemDb);
+            ClassLoader loader = essentials.getClass().getClassLoader();
+            Class.forName("com.earth2me.essentials.commands.Commandgive", false, loader);
+            Class.forName("com.earth2me.essentials.commands.Commanditem", false, loader);
+        } catch (ReflectiveOperationException error) {
+            if (io.ampznetwork.lunararc.common.LunarArcDebug.CLASSLOAD) {
+                io.ampznetwork.lunararc.common.LunarArcDebug.classload("Essentials item command preparation failed: {}", error.toString());
+            }
         }
     }
 
@@ -51,21 +72,41 @@ public final class LunarArcEssentialsItemBridge {
     public static Material resolveAlias(String alias) {
         if (alias == null || alias.isBlank()) return null;
         String normalized = alias.trim().toLowerCase(Locale.ROOT);
-        Material material = MODDED_ITEM_ALIASES.get(normalized);
-        if (material != null) return material;
-
-        rebuildAliasIndex();
         return MODDED_ITEM_ALIASES.get(normalized);
     }
 
-    private static void rebuildAliasIndex() {
-        for (Map.Entry<ResourceLocation, Material> entry : LunarArcDynamicBukkitEnums.materialsById().entrySet()) {
-            ResourceLocation id = entry.getKey();
-            Material material = entry.getValue();
-            if (id == null || material == null || "minecraft".equals(id.getNamespace()) || !material.isItem()) continue;
-            MODDED_ITEM_ALIASES.putIfAbsent(
-                    (id.getNamespace() + "_" + id.getPath()).toLowerCase(Locale.ROOT), material);
+    static final class AliasIndex<T> {
+        private final java.util.function.Supplier<Map<ResourceLocation, T>> source;
+        private final java.util.function.Predicate<T> isItem;
+        private volatile Snapshot<T> snapshot = new Snapshot<>(-1, Map.of());
+
+        AliasIndex(java.util.function.Supplier<Map<ResourceLocation, T>> source, java.util.function.Predicate<T> isItem) {
+            this.source = source;
+            this.isItem = isItem;
         }
+
+        T get(String alias) {
+            refresh();
+            return snapshot.aliases().get(alias);
+        }
+
+        void refresh() {
+            Map<ResourceLocation, T> materials = source.get();
+            if (snapshot.materialCount() == materials.size()) return;
+            synchronized (this) {
+                int count = materials.size();
+                if (snapshot.materialCount() == count) return;
+                Map<String, T> aliases = new java.util.HashMap<>();
+                materials.forEach((id, material) -> {
+                    if (id != null && material != null && !"minecraft".equals(id.getNamespace()) && isItem.test(material)) {
+                        aliases.putIfAbsent(id.getNamespace() + "_" + id.getPath(), material);
+                    }
+                });
+                snapshot = new Snapshot<>(count, Map.copyOf(aliases));
+            }
+        }
+
+        private record Snapshot<T>(int materialCount, Map<String, T> aliases) {}
     }
 
     private static Plugin findEssentials(CraftServer craftServer) {
@@ -87,6 +128,7 @@ public final class LunarArcEssentialsItemBridge {
         }
         if (closingBrace < 0) return null;
 
+        Set<String> existingAliases = indexAliases(lines);
         List<String> additions = new ArrayList<>();
         for (Map.Entry<ResourceLocation, Material> entry : LunarArcDynamicBukkitEnums.materialsById().entrySet()) {
             ResourceLocation id = entry.getKey();
@@ -95,7 +137,7 @@ public final class LunarArcEssentialsItemBridge {
             if (material == null || !material.isItem()) continue;
 
             String alias = (id.getNamespace() + "_" + id.getPath()).toLowerCase(Locale.ROOT);
-            if (alreadyPresent(lines, alias)) continue;
+            if (!existingAliases.add(alias)) continue;
 
             additions.add("  \"" + alias + "\": {");
             additions.add("    \"material\": \"" + material.name() + "\"");
@@ -124,13 +166,22 @@ public final class LunarArcEssentialsItemBridge {
         return result;
     }
 
-    private static boolean alreadyPresent(List<String> lines, String alias) {
-        String quoted = "\"" + alias + "\"";
+    private static Set<String> indexAliases(List<String> lines) {
+        Set<String> aliases = new HashSet<>();
         for (String line : lines) {
             String trimmed = line.trim();
-            if (trimmed.startsWith(quoted + ":") || trimmed.startsWith(quoted + " :")) return true;
+            if (trimmed.length() < 3 || trimmed.charAt(0) != '\"') continue;
+
+            int endQuote = trimmed.indexOf('\"', 1);
+            if (endQuote <= 1) continue;
+
+            int colon = endQuote + 1;
+            while (colon < trimmed.length() && Character.isWhitespace(trimmed.charAt(colon))) colon++;
+            if (colon < trimmed.length() && trimmed.charAt(colon) == ':') {
+                aliases.add(trimmed.substring(1, endQuote));
+            }
         }
-        return false;
+        return aliases;
     }
 
     private static void reloadEssentialsItemDb(Plugin essentials) {

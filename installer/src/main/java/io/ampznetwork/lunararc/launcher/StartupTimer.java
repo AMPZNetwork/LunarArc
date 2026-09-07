@@ -13,10 +13,10 @@ import java.util.Locale;
  * them costs anything depends on the disk, the machine and whether the network answers at all. A
  * phase breakdown turns the next boot log into the answer rather than something to reason about.</p>
  *
- * <p>One line, always on. A breakdown that has to be switched on is one nobody has when they need
- * it, and the cost is a few nanoTime calls against phases measured in milliseconds.</p>
  */
 public final class StartupTimer {
+    private static final boolean ENABLED = java.util.Arrays.stream(System.getProperty("lunararc.debug", "").split(","))
+            .map(String::trim).anyMatch(value -> value.equalsIgnoreCase("all") || value.equalsIgnoreCase("timing"));
 
     private record Phase(String name, long nanos) {}
 
@@ -28,6 +28,10 @@ public final class StartupTimer {
 
     /** Times {@code work}, recording it under {@code name}. */
     public static void phase(String name, ThrowingRunnable work) throws Exception {
+        if (!ENABLED) {
+            work.run();
+            return;
+        }
         long began = System.nanoTime();
         try {
             work.run();
@@ -38,11 +42,13 @@ public final class StartupTimer {
 
     /** Records a phase timed by the caller. */
     public static synchronized void record(String name, long nanos) {
+        if (!ENABLED) return;
         PHASES.add(new Phase(name, nanos));
     }
 
     /** Prints the breakdown. Called once, just before the server takes over. */
     public static synchronized void report() {
+        if (!ENABLED) return;
         StringBuilder line = new StringBuilder("[LunarArc] Launcher startup took ")
                 .append(seconds(System.nanoTime() - START));
         if (!PHASES.isEmpty()) {

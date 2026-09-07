@@ -47,6 +47,15 @@ public abstract class LevelMixin implements io.ampznetwork.lunararc.common.bridg
     }
 
     @Override
+    public io.papermc.paper.configuration.WorldConfiguration lunararc$getPaperConfiguration() {
+        return this.getWorld().getPaperConfiguration();
+    }
+
+    public io.papermc.paper.configuration.WorldConfiguration paperConfig() {
+        return lunararc$getPaperConfiguration();
+    }
+
+    @Override
     public CraftServer lunararc$getCraftServer() {
         return this.getCraftServer();
     }

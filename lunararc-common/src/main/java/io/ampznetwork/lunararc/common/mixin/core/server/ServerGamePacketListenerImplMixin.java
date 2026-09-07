@@ -220,67 +220,28 @@ public abstract class ServerGamePacketListenerImplMixin {
         }
     }
 
-    @Inject(method = "handleChatCommand", at = @At("HEAD"), cancellable = true, require = 0)
-    private void lunararc$routeCommandPacket(ServerboundChatCommandPacket packet, CallbackInfo ci) {
-        if (!this.player.server.isSameThread()) {
-            this.player.server.execute(() -> ((ServerGamePacketListenerImpl) (Object) this).handleChatCommand(packet));
-            ci.cancel();
-            return;
-        }
-
+    @WrapOperation(
+            method = {"performUnsignedChatCommand", "performSignedChatCommand"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/commands/Commands;performCommand(Lcom/mojang/brigadier/ParseResults;Ljava/lang/String;)V"))
+    private void lunararc$routeValidatedCommand(net.minecraft.commands.Commands commands,
+            com.mojang.brigadier.ParseResults<net.minecraft.commands.CommandSourceStack> parsed,
+            String command, Operation<Void> original) {
         Object bukkit = ((EntityBridge) this.player).lunararc$getBukkitEntity();
         if (!(bukkit instanceof Player bukkitPlayer)) {
-            return;
-        }
-
-        CraftServer craftServer = LunarArcServerAccess.getCraftServer(this.player.server);
-        LunarArcCommandLogger.begin(this.player.getUUID(), this.player.getScoreboardName(), packet.command());
-        try {
-            if (LunarArcCommandRouter.routePlayerPacket(craftServer, bukkitPlayer, packet.command()) == LunarArcCommandRouter.PacketResult.CANCEL) {
-                ci.cancel();
-            }
-        } finally {
-            if (ci.isCancelled()) {
-                LunarArcCommandLogger.end();
-            }
-        }
-    }
-
-    @Inject(method = "handleChatCommand", at = @At("RETURN"), require = 0)
-    private void lunararc$afterHandleChatCommand(ServerboundChatCommandPacket packet, CallbackInfo ci) {
-        LunarArcCommandLogger.end();
-    }
-
-    @Inject(method = "handleSignedChatCommand", at = @At("HEAD"), cancellable = true, require = 0)
-    private void lunararc$routeSignedCommandPacket(ServerboundChatCommandSignedPacket packet, CallbackInfo ci) {
-        if (!this.player.server.isSameThread()) {
-            this.player.server.execute(() -> ((ServerGamePacketListenerImpl) (Object) this).handleSignedChatCommand(packet));
-            ci.cancel();
-            return;
-        }
-        Object bukkit = ((EntityBridge) this.player).lunararc$getBukkitEntity();
-        if (!(bukkit instanceof Player bukkitPlayer)) {
+            original.call(commands, parsed, command);
             return;
         }
         CraftServer craftServer = LunarArcServerAccess.getCraftServer(this.player.server);
-        LunarArcCommandLogger.begin(this.player.getUUID(), this.player.getScoreboardName(), packet.command());
+        LunarArcCommandLogger.begin(this.player.getUUID(), this.player.getScoreboardName(), command);
         try {
-            if (LunarArcCommandRouter.routePlayerPacket(craftServer, bukkitPlayer, packet.command())
-                    == LunarArcCommandRouter.PacketResult.CANCEL) {
-                ci.cancel();
+            if (LunarArcCommandRouter.routePlayerPacket(craftServer, bukkitPlayer, command)
+                    == LunarArcCommandRouter.PacketResult.PASS) {
+                original.call(commands, parsed, command);
             }
         } finally {
-            if (ci.isCancelled()) {
-                LunarArcCommandLogger.end();
-            }
+            LunarArcCommandLogger.end();
         }
     }
-
-    @Inject(method = "handleSignedChatCommand", at = @At("RETURN"), require = 0)
-    private void lunararc$afterHandleSignedChatCommand(ServerboundChatCommandSignedPacket packet, CallbackInfo ci) {
-        LunarArcCommandLogger.end();
-    }
-
 
     @Inject(method = "handlePlayerAction", at = @At("HEAD"), cancellable = true, require = 0)
     private void lunararc$onSwapHands(ServerboundPlayerActionPacket packet, CallbackInfo ci) {

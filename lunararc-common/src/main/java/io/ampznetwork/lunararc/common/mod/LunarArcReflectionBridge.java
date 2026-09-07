@@ -106,6 +106,10 @@ public final class LunarArcReflectionBridge {
     }
 
     public static Method getMethod(Class<?> owner, String name, Class<?>[] parameterTypes) throws NoSuchMethodException {
+        if (name.equals("getDefaultRegistryAccess") && (parameterTypes == null || parameterTypes.length == 0)
+                && net.minecraft.server.MinecraftServer.class.isAssignableFrom(owner)) {
+            return org.bukkit.craftbukkit.CraftRegistry.class.getMethod("getMinecraftRegistry");
+        }
         String mapped = REMAPPER.mapRuntimeMethodName(owner, name, parameterTypes);
         if (io.ampznetwork.lunararc.common.LunarArcDebug.REFLECT) {
             io.ampznetwork.lunararc.common.LunarArcDebug.reflect("getMethod {}#{}({} args) -> {} (from {})",

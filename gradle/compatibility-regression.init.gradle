@@ -1,0 +1,21 @@
+allprojects {
+    afterEvaluate { p ->
+        if (p.path == ':lunararc-common' && tasks.findByName('runCompatibilityRegression') == null) {
+            tasks.register('compileCompatibilityRegression', JavaCompile) {
+                dependsOn tasks.named('classes')
+                source = fileTree('src/test/java/io/ampznetwork/lunararc')
+                classpath = files(sourceSets.main.output.classesDirs, layout.buildDirectory.dir('generated/paper-1.21.1-implementation-surface'), sourceSets.main.compileClasspath)
+                destinationDirectory = layout.buildDirectory.dir('compatibility-regression')
+                javaCompiler = tasks.named('compileJava').get().javaCompiler
+                options.compilerArgs = ['-proc:none']
+            }
+            tasks.register('runCompatibilityRegression', JavaExec) {
+                dependsOn tasks.named('compileCompatibilityRegression')
+                classpath = files(layout.buildDirectory.dir('compatibility-regression'), sourceSets.main.output.classesDirs, layout.buildDirectory.dir('generated/paper-1.21.1-implementation-surface'), sourceSets.main.compileClasspath)
+                systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
+                mainClass = 'io.ampznetwork.lunararc.PluginCompatibilityRegressionTest'
+                javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+            }
+        }
+    }
+}

@@ -23,6 +23,19 @@ public abstract class RecipeManagerMixin implements RecipeManagerBridge {
     @Shadow private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
     @Shadow private Map<ResourceLocation, RecipeHolder<?>> byName;
 
+    @org.spongepowered.asm.mixin.injection.ModifyVariable(
+            method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+            at = @org.spongepowered.asm.mixin.injection.At("HEAD"), argsOnly = true)
+    private Map<ResourceLocation, com.google.gson.JsonElement> lunararc$filterOptionalMarketRecipes(
+            Map<ResourceLocation, com.google.gson.JsonElement> recipes) {
+        var filtered = io.ampznetwork.lunararc.common.compat.MarketRecipeFilter.filter(
+                recipes, net.minecraft.core.registries.BuiltInRegistries.ITEM::containsKey);
+        int skipped = recipes.size() - filtered.size();
+        if (skipped > 0) org.slf4j.LoggerFactory.getLogger("LunarArc").info(
+                "Skipped {} optional market recipes whose result items are not registered", skipped);
+        return filtered;
+    }
+
     @Override
     public synchronized Collection<RecipeHolder<?>> lunararc$recipes() {
         return new ArrayList<>(this.byName.values());

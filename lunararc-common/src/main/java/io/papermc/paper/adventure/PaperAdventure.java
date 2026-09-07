@@ -62,11 +62,14 @@ import static java.util.Objects.requireNonNull;
  * (patches/server/0010-Adventure.patch), not reimplemented. {@code asVanilla}/{@code asAdventure} now do the
  * same zero-loss conversion real Paper does — wrapping in {@link AdventureComponent} / delegating to
  * {@link WrapperAwareSerializer} — instead of a lossy round-trip through legacy JSON.
- *
- * <p>Not yet ported: {@code resolveWithContext(...)}, which needs a real {@code VanillaCommandWrapper}
- * that does not exist in LunarArc yet. Left out rather than faked; do not add a shortcut version of it here.</p>
  */
 public final class PaperAdventure {
+    public static Component resolveWithContext(Component component, org.bukkit.command.CommandSender context,
+            org.bukkit.entity.Entity scoreboardSubject, boolean bypassPermissions) throws java.io.IOException {
+        return org.bukkit.craftbukkit.util.CraftMagicNumbers.INSTANCE.resolveWithContext(
+                component, context, scoreboardSubject, bypassPermissions);
+    }
+
     private static final java.util.regex.Pattern LOCALIZATION_PATTERN = java.util.regex.Pattern.compile("%(?:(\\d+)\\$)?s");
 
     public static final ComponentFlattener FLATTENER = ComponentFlattener.basic().toBuilder()

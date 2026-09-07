@@ -313,6 +313,12 @@ class PaperPluginInstanceManager {
         }
 
         try {
+            this.server.getAsyncScheduler().cancelTasks(plugin);
+        } catch (Throwable ex) {
+            this.handlePluginException("Error occurred while cancelling Paper async tasks for " + pluginName, ex, plugin);
+        }
+
+        try {
             this.server.getServicesManager().unregisterAll(plugin);
         } catch (Throwable ex) {
             this.handlePluginException("Error occurred (in the plugin loader) while unregistering services for "

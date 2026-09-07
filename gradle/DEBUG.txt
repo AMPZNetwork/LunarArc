@@ -1,0 +1,37 @@
+LunarArc debug options
+
+Debug output and startup/shutdown timing reports are disabled by default.
+Put JVM options before -jar in your launch script, then restart the server.
+Replace the example JAR name with your server JAR's filename.
+
+Timing reports only:
+java -Dlunararc.debug=timing -jar lunararc-neoforge.jar nogui
+
+Timing and plugin diagnostics:
+java -Dlunararc.debug=timing,plugin -jar lunararc-neoforge.jar nogui
+
+All debug channels:
+java -Dlunararc.debug=all -jar lunararc-neoforge.jar nogui
+
+Available channels (combine with commas):
+timing    Startup/shutdown phases and individual operation durations.
+plugin    Plugin failure and compatibility diagnostics.
+reflect   Reflective field and method lookups.
+remap     Plugin bytecode remapping diagnostics.
+classload Plugin class loading and resolution.
+entity    Entity integration decisions.
+fluid     Fluid placement and flow tracing.
+command   Command handling traces.
+interact  Player interaction pipeline tracing.
+all       Every channel above.
+
+Output:
+Timing summaries appear in the console.
+Detailed traces: logs/lunararc-debug.log
+Plugin diagnostics: logs/lunararc-plugin-debug.log
+
+Remove -Dlunararc.debug=... and restart to disable diagnostics.
+The old -Ddebugall and -Dlunararc.debugall flags do not enable diagnostics.
+All-channel tracing is verbose; enable it only while investigating a problem.
+Normal warnings and errors remain visible without debug options.
+Java-version rejection warnings appear once per plugin JAR per server run.

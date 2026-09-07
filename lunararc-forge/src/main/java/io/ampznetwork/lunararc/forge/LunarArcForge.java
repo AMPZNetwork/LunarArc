@@ -21,7 +21,7 @@ public final class LunarArcForge {
         // Same as NeoForge: FML shows a mod constructor's exception on its error screen.
         LunarArcClientSideGuard.requireDedicatedServer(FMLEnvironment.dist == Dist.CLIENT);
         LunarArcServer.installPlatform("Forge", LunarArcForge.class.getClassLoader());
-        io.ampznetwork.lunararc.common.config.IncompatibilityList.screenLoadedMods(
+        io.ampznetwork.lunararc.common.config.IncompatibleList.screenLoadedMods(
                 lunararc$loadedMods());
         ForgeCommandHook.install();
         ForgeServerLifecycle.register(MinecraftForge.EVENT_BUS);
@@ -46,7 +46,7 @@ public final class LunarArcForge {
      * </pre>
      *
      * <p>Looking the method up by name emits no descriptor for the relocator to touch. A version
-     * that cannot be read is left null, which still matches any incompatibility entry that does not pin
+     * that cannot be read is left null, which still matches any incompatible entry that does not pin
      * one - the screening is a warning, and losing a version is not worth failing a boot over.</p>
      */
     private static java.util.Map<String, String> lunararc$loadedMods() {

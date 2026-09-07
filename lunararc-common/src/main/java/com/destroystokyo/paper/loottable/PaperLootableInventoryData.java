@@ -98,7 +98,7 @@ public class PaperLootableInventoryData {
         @Override
         public WorldConfiguration paperConfig(final RandomizableContainer holder) {
             Objects.requireNonNull(holder.getLevel(), "Can only manager loot replenishment on block entities in a world");
-            return WorldConfiguration.CURRENT;
+            return WorldConfiguration.forLevel(holder.getLevel());
         }
 
         @Override
@@ -120,7 +120,7 @@ public class PaperLootableInventoryData {
     public static final LootTableInterface<ContainerEntity> ENTITY = new LootTableInterface<>() {
         @Override
         public WorldConfiguration paperConfig(final ContainerEntity holder) {
-            return WorldConfiguration.CURRENT;
+            return WorldConfiguration.forLevel(((net.minecraft.world.entity.Entity) holder).level());
         }
 
         @Override

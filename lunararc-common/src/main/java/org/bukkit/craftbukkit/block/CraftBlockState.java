@@ -159,11 +159,7 @@ public class CraftBlockState implements BlockState {
     }
 
     private static Material toMaterial(net.minecraft.world.level.block.state.BlockState state) {
-        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-        if (key == null) throw new IllegalStateException("NMS block is not registered: " + state.getBlock());
-        Material material = Material.matchMaterial(key.toString());
-        if (material == null) throw new IllegalStateException("No Bukkit Material exists for NMS block " + key);
-        return material;
+        return org.bukkit.craftbukkit.util.CraftMagicNumbers.getMaterial(state.getBlock());
     }
 
     private static net.minecraft.world.level.block.state.BlockState stateFor(Material material) {

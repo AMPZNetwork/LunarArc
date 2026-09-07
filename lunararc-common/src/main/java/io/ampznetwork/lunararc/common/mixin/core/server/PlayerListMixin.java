@@ -362,11 +362,7 @@ public abstract class PlayerListMixin implements PlayerListBridge {
             this.broadcastSystemMessage(LunarArcComponentPipeline.fromAdventure(message), overlay);
         }
 
-        io.ampznetwork.lunararc.common.events.PlayerJoinListener.checkAndNotify(
-                bukkitPlayer,
-                player.getGameProfile(),
-                this.server,
-                this.server::execute);
+
     }
 
     @Inject(

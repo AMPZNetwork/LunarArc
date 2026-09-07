@@ -168,6 +168,18 @@ public class CraftNMSInventory implements Inventory {
 
     @Override public boolean contains(@Nullable ItemStack item, int amount) {
         if (item == null) return false;
+        if (amount < 1) return true;
+        int found = 0;
+        for (int i = 0; i < getSize(); i++) {
+            ItemStack slot = getItem(i);
+            if (item.equals(slot)) found++;
+            if (found >= amount) return true;
+        }
+        return false;
+    }
+
+    @Override public boolean containsAtLeast(@Nullable ItemStack item, int amount) {
+        if (item == null) return false;
         int found = 0;
         for (int i = 0; i < getSize(); i++) {
             ItemStack slot = getItem(i);
@@ -176,8 +188,6 @@ public class CraftNMSInventory implements Inventory {
         }
         return false;
     }
-
-    @Override public boolean containsAtLeast(@Nullable ItemStack item, int amount) { return contains(item, amount); }
 
     @Override public @NotNull HashMap<Integer, ? extends ItemStack> all(@NotNull Material material) {
         HashMap<Integer, ItemStack> result = new HashMap<>();

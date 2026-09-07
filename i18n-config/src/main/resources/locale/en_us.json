@@ -12,7 +12,7 @@
   "update.download": "\u001b[34mDownload at: \u001b[36m\u001b[4m{0}\u001b[0m",
   "version.latest": "You are running the latest version of LunarArc ({0}).",
   "version.previous": "Previous version: {0}",
-  "version.update.available": "A new version of LunarArc is available: {0} (you are running {1}).",
+  "version.update.available": "LunarArc update available: {0}\nInstalled: {1}",
   "version.update.download": "Download: {0}",
   "error.invalid_selection": "Invalid selection. Aborting.",
   "error.critical_failure": "Critical startup failure:",

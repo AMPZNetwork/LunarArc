@@ -35,18 +35,19 @@ public final class LunarArcVersionFetcher implements VersionFetcher {
     @Override
     public Component getVersionMessage(String serverVersion) {
         try {
+            String currentVersion = LunarArcVersionInfo.lunarArcVersion();
             Optional<Release> latest = fetchLatestRelease();
             if (latest.isEmpty()) {
-                return latestVersionMessage(LunarArcVersionInfo.lunarArcVersion());
+                return latestVersionMessage(currentVersion);
             }
 
             Release release = latest.get();
-            if (isSameVersion(serverVersion, release.version())) {
-                return latestVersionMessage(serverVersion);
+            if (isSameVersion(currentVersion, release.version())) {
+                return latestVersionMessage(currentVersion);
             }
 
             return Component.text(TranslationManager.get(
-                    "version.update.available", release.version(), serverVersion), NamedTextColor.YELLOW)
+                    "version.update.available", release.version(), currentVersion), NamedTextColor.YELLOW)
                     .append(Component.newline())
                     .append(Component.text(TranslationManager.get(
                             "version.update.download", release.downloadUrl()), NamedTextColor.YELLOW));

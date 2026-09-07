@@ -21,7 +21,7 @@ public final class LunarArcNeoForge {
         // on its mod-loading error screen, so this is what a client user actually reads.
         LunarArcClientSideGuard.requireDedicatedServer(FMLEnvironment.dist == Dist.CLIENT);
         LunarArcServer.installPlatform("NeoForge", LunarArcNeoForge.class.getClassLoader());
-        io.ampznetwork.lunararc.common.config.IncompatibilityList.screenLoadedMods(
+        io.ampznetwork.lunararc.common.config.IncompatibleList.screenLoadedMods(
                 lunararc$loadedMods());
         NeoForgeCommandHook.install();
         NeoForgeServerLifecycle.register();
@@ -45,7 +45,7 @@ public final class LunarArcNeoForge {
      * </pre>
      *
      * <p>Looking the method up by name emits no descriptor for the relocator to touch. A version
-     * that cannot be read is left null, which still matches any incompatibility entry that does not pin
+     * that cannot be read is left null, which still matches any incompatible entry that does not pin
      * one - the screening is a warning, and losing a version is not worth failing a boot over.</p>
      */
     private static java.util.Map<String, String> lunararc$loadedMods() {

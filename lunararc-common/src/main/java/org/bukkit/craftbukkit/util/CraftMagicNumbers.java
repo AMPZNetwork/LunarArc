@@ -606,12 +606,9 @@ public final class CraftMagicNumbers implements UnsafeValues {
         net.minecraft.nbt.CompoundTag compound = deserializeNbt(data);
         int oldVersion = compound.getInt("DataVersion");
         if (oldVersion < getDataVersion()) {
-            Dynamic<Tag> converted = DataFixers.getDataFixer().update(
-                    References.ITEM_STACK,
-                    new Dynamic<>(NbtOps.INSTANCE, compound),
-                    oldVersion,
-                    getDataVersion());
-            if (converted.getValue() instanceof net.minecraft.nbt.CompoundTag fixed) compound = fixed;
+            compound = ca.spottedleaf.dataconverter.minecraft.MCDataConverter.convertTag(
+                    ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry.ITEM_STACK,
+                    compound, oldVersion, getDataVersion());
         }
         return org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(
                 net.minecraft.world.item.ItemStack.parse(requireServer().registryAccess(), compound)
@@ -637,7 +634,13 @@ public final class CraftMagicNumbers implements UnsafeValues {
         Objects.requireNonNull(data, "data");
         MinecraftServer server = requireServer();
         JsonObject payload = data.deepCopy();
+        int oldVersion = payload.has("DataVersion") ? payload.get("DataVersion").getAsInt() : getDataVersion();
+        if (oldVersion > getDataVersion()) throw new IllegalArgumentException("Cannot load an item from a newer Minecraft data version");
         payload.remove("DataVersion");
+        if (oldVersion < getDataVersion()) {
+            payload = DataFixers.getDataFixer().update(References.ITEM_STACK,
+                    new Dynamic<>(JsonOps.INSTANCE, payload), oldVersion, getDataVersion()).getValue().getAsJsonObject();
+        }
         var ops = server.registryAccess().createSerializationContext(JsonOps.INSTANCE);
         net.minecraft.world.item.ItemStack nms = net.minecraft.world.item.ItemStack.CODEC
                 .parse(ops, payload)
@@ -665,12 +668,9 @@ public final class CraftMagicNumbers implements UnsafeValues {
         net.minecraft.nbt.CompoundTag compound = deserializeNbt(data);
         int oldVersion = compound.getInt("DataVersion");
         if (oldVersion < getDataVersion()) {
-            Dynamic<Tag> converted = DataFixers.getDataFixer().update(
-                    References.ENTITY,
-                    new Dynamic<>(NbtOps.INSTANCE, compound),
-                    oldVersion,
-                    getDataVersion());
-            if (converted.getValue() instanceof net.minecraft.nbt.CompoundTag fixed) compound = fixed;
+            compound = ca.spottedleaf.dataconverter.minecraft.MCDataConverter.convertTag(
+                    ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry.ENTITY,
+                    compound, oldVersion, getDataVersion());
         }
         if (!preserveUUID) compound.remove("UUID");
         net.minecraft.world.entity.Entity nms = net.minecraft.world.entity.EntityType.create(compound, craftWorld.getHandle())

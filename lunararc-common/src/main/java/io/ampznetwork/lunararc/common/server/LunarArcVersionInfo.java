@@ -26,11 +26,11 @@ public final class LunarArcVersionInfo {
     }
 
     public static String projectName() {
-        return "Paper";
+        return property("projectName", "LunarArc");
     }
 
     public static String projectVersion() {
-        return "git-Paper-" + paperBuild() + " (MC: " + minecraftVersion() + ")";
+        return projectName() + " " + lunarArcVersion() + " (MC: " + minecraftVersion() + ")";
     }
 
 

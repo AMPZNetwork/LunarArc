@@ -17,8 +17,9 @@ import java.util.function.Consumer;
 public class CraftScheduler implements BukkitScheduler {
     private final AtomicInteger taskCounter = new AtomicInteger(1);
     private final ConcurrentMap<Integer, CraftTask> tasks = new ConcurrentHashMap<>();
-    private final CopyOnWriteArrayList<CraftTask> syncTasks = new CopyOnWriteArrayList<>();
-    private final ConcurrentMap<Integer, CraftWorker> activeWorkers = new ConcurrentHashMap<>();
+    private final java.util.LinkedHashMap<Integer, CraftTask> syncTasks = new java.util.LinkedHashMap<>();
+    private CraftTask[] scheduledSnapshot;
+    private final ConcurrentMap<Thread, CraftWorker> activeWorkers = new ConcurrentHashMap<>();
     private final ScheduledThreadPoolExecutor asyncExecutor = createAsyncExecutor();
 
     private static ScheduledThreadPoolExecutor createAsyncExecutor() {
@@ -41,12 +42,22 @@ public class CraftScheduler implements BukkitScheduler {
     public void mainThreadHeartbeat(int tick) {
         this.currentTick = tick;
 
-        for (CraftTask task : syncTasks) {
+        for (CraftTask task : scheduledSnapshot()) {
             if (task.isCancelled()) {
                 finish(task);
                 continue;
             }
             if (!task.shouldRun(tick)) continue;
+
+            if (!task.isSync()) {
+                if (!task.isRepeating()) removeScheduled(task);
+                else task.setNextRun(tick + task.getPeriod());
+                asyncExecutor.execute(() -> {
+                    execute(task);
+                    if (task.isCancelled() || !task.isRepeating()) finish(task);
+                });
+                continue;
+            }
 
             execute(task);
 
@@ -63,37 +74,12 @@ public class CraftScheduler implements BukkitScheduler {
         if (delay < 0) delay = 0;
         tasks.put(task.getTaskId(), task);
 
-        if (task.isSync()) {
-            task.setNextRun(currentTick + safeTicks(delay));
-            syncTasks.add(task);
-        } else {
-            scheduleAsync(task, delay);
+        task.setNextRun(currentTick + safeTicks(delay));
+        synchronized (syncTasks) {
+            syncTasks.put(task.getTaskId(), task);
+            scheduledSnapshot = null;
         }
         return task;
-    }
-
-    private void scheduleAsync(CraftTask task, long delay) {
-        if (task.isCancelled()) {
-            finish(task);
-            return;
-        }
-
-        long millis = Math.multiplyExact(Math.max(0L, delay), 50L);
-        ScheduledFuture<?> future = asyncExecutor.schedule(() -> {
-            if (task.isCancelled()) {
-                finish(task);
-                return;
-            }
-
-            execute(task);
-
-            if (task.isCancelled() || !task.isRepeating()) {
-                finish(task);
-            } else {
-                scheduleAsync(task, task.getPeriod());
-            }
-        }, millis, TimeUnit.MILLISECONDS);
-        task.setFuture(future);
     }
 
     private void execute(CraftTask task) {
@@ -102,7 +88,7 @@ public class CraftScheduler implements BukkitScheduler {
 
         if (!task.isSync()) {
             worker = new CraftWorker(task, Thread.currentThread());
-            activeWorkers.put(task.getTaskId(), worker);
+            activeWorkers.put(Thread.currentThread(), worker);
         }
 
         Thread thread = Thread.currentThread();
@@ -119,13 +105,26 @@ public class CraftScheduler implements BukkitScheduler {
         } finally {
             thread.setContextClassLoader(previous);
             task.setRunning(false);
-            if (worker != null) activeWorkers.remove(task.getTaskId(), worker);
+            if (worker != null) activeWorkers.remove(Thread.currentThread(), worker);
         }
     }
 
     private void finish(CraftTask task) {
-        syncTasks.remove(task);
+        removeScheduled(task);
         tasks.remove(task.getTaskId(), task);
+    }
+
+    private CraftTask[] scheduledSnapshot() {
+        synchronized (syncTasks) {
+            if (scheduledSnapshot == null) scheduledSnapshot = syncTasks.values().toArray(CraftTask[]::new);
+            return scheduledSnapshot;
+        }
+    }
+
+    private void removeScheduled(CraftTask task) {
+        synchronized (syncTasks) {
+            if (syncTasks.remove(task.getTaskId(), task)) scheduledSnapshot = null;
+        }
     }
 
     private static void validatePlugin(Plugin plugin) {
@@ -287,8 +286,16 @@ public class CraftScheduler implements BukkitScheduler {
 
     /** Stop all Bukkit scheduler work and release LunarArc-owned executor threads. */
     public void shutdown() {
+        beginShutdown();
+        awaitShutdown();
+    }
+
+    public void beginShutdown() {
         for (CraftTask task : new ArrayList<>(tasks.values())) task.cancel();
-        syncTasks.clear();
+        synchronized (syncTasks) {
+            syncTasks.clear();
+            scheduledSnapshot = null;
+        }
         tasks.clear();
         asyncExecutor.shutdownNow();
         // Short grace period only. shutdownNow() has already interrupted these tasks and every
@@ -298,6 +305,9 @@ public class CraftScheduler implements BukkitScheduler {
         // cannot hold the JVM open, so waiting the old five seconds here (and another five in
         // the Paper async scheduler) just stalled shutdown. Say which tasks overran instead of
         // blocking silently on them.
+    }
+
+    public void awaitShutdown() {
         awaitSchedulerShutdown(asyncExecutor, "Bukkit async scheduler");
         activeWorkers.clear();
     }
@@ -348,14 +358,18 @@ public class CraftScheduler implements BukkitScheduler {
 
     @Override
     public @NotNull <T> Future<T> callSyncMethod(@NotNull Plugin plugin, @NotNull Callable<T> task) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        runTask(plugin, () -> {
-            try {
-                future.complete(task.call());
-            } catch (Throwable throwable) {
-                future.completeExceptionally(throwable);
+        java.util.concurrent.atomic.AtomicReference<CraftTask> backing = new java.util.concurrent.atomic.AtomicReference<>();
+        FutureTask<T> future = new FutureTask<>(task) {
+            @Override
+            protected void done() {
+                CraftTask scheduled = backing.get();
+                if (isCancelled() && scheduled != null) scheduled.cancel();
             }
-        });
+        };
+        CraftTask scheduled = new CraftTask(plugin, ignored -> future.run(), taskCounter.getAndIncrement(), true);
+        backing.set(scheduled);
+        scheduled.setFuture(future);
+        schedule(scheduled, 0);
         return future;
     }
 
@@ -381,7 +395,7 @@ public class CraftScheduler implements BukkitScheduler {
         private volatile int nextRun;
         private volatile int period = -1;
         private volatile boolean cancelled;
-        private volatile boolean running;
+        private final AtomicInteger running = new AtomicInteger();
         private volatile Future<?> future;
 
         private CraftTask(Plugin owner, Consumer<? super BukkitTask> task, int id, boolean sync) {
@@ -424,11 +438,12 @@ public class CraftScheduler implements BukkitScheduler {
         }
 
         private void setRunning(boolean running) {
-            this.running = running;
+            if (running) this.running.incrementAndGet();
+            else this.running.decrementAndGet();
         }
 
         private boolean isRunning() {
-            return running;
+            return running.get() > 0;
         }
 
         @Override

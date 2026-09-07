@@ -18,7 +18,6 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
     private static final boolean ANSI_ENABLED = detectAnsi();
     private static final Object CONSOLE_LOCK = new Object();
     private final org.bukkit.craftbukkit.conversations.ConversationTracker conversationTracker = new org.bukkit.craftbukkit.conversations.ConversationTracker();
-    private final Spigot spigot = new Spigot();
 
     public CraftConsoleCommandSender(MinecraftServer server) {
         this.server = server;
@@ -247,7 +246,7 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
 
     @Override
     public @NotNull Spigot spigot() {
-        return this.spigot;
+        return super.spigot();
     }
 
     @Override

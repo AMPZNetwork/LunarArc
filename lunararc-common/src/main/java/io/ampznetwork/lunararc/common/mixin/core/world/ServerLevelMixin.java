@@ -60,6 +60,15 @@ public abstract class ServerLevelMixin implements ServerLevelBridge {
         }
     }
 
+    @org.spongepowered.asm.mixin.injection.Inject(method = "tickNonPassenger", at = @org.spongepowered.asm.mixin.injection.At("HEAD"), cancellable = true)
+    private void lunararc$markerTickConfiguration(net.minecraft.world.entity.Entity entity,
+            org.spongepowered.asm.mixin.injection.callback.CallbackInfo callback) {
+        if (entity instanceof net.minecraft.world.entity.Marker
+                && !io.papermc.paper.configuration.WorldConfiguration.forLevel((net.minecraft.world.level.Level) (Object) this).entities.markers.tick) {
+            callback.cancel();
+        }
+    }
+
     @Override
     public java.nio.file.Path lunararc$getDimensionFolder() {
         return this.lunararc$dimensionFolder;

@@ -102,9 +102,21 @@ public class LunarArcPluginLoader implements PluginLoader {
                 + runtimeFeature + ".";
     }
 
+    private static final java.util.Set<java.nio.file.Path> JAVA_VERSION_WARNINGS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    public static void warnJavaVersionOnce(java.nio.file.Path source, UnsupportedClassVersionError error) {
+        if (JAVA_VERSION_WARNINGS.add(source.toAbsolutePath().normalize())) {
+            org.slf4j.LoggerFactory.getLogger("LunarArc").warn(
+                    friendlyJavaVersionMessage(source.getFileName().toString(), error));
+        }
+    }
+
     @Override
     public PluginDescriptionFile getPluginDescription(File file) throws InvalidDescriptionException {
         try (JarFile jar = new JarFile(file)) {
+            // Paper's provider model gives paper-plugin.yml its own loading path.
+            // When a jar intentionally ships both descriptors, prefer the Paper
+            // descriptor instead of silently downgrading it to the legacy loader.
             JarEntry entry = jar.getJarEntry("paper-plugin.yml");
             boolean isPaper = entry != null;
             if (entry == null) entry = jar.getJarEntry("plugin.yml");
@@ -141,7 +153,7 @@ public class LunarArcPluginLoader implements PluginLoader {
         }
     }
 
-    @SuppressWarnings("")
+    @SuppressWarnings("unchecked")
     private static void translatePaperDependencies(Map<String, Object> target, Object dependenciesValue) {
         if (!(dependenciesValue instanceof Map<?, ?> dependencies)) return;
         Object serverValue = dependencies.get("server");
@@ -167,6 +179,11 @@ public class LunarArcPluginLoader implements PluginLoader {
                 if (joinValue != null) joinClasspath = Boolean.parseBoolean(String.valueOf(joinValue));
             }
 
+
+            // Paper dependency ordering is independent from required/classpath.
+            // BEFORE means the dependency is loaded before this plugin; AFTER means
+            // this plugin is loaded before the dependency; OMIT intentionally adds no
+            // ordering edge. Required OMIT dependencies are validated during discovery.
             if ("AFTER".equals(load)) {
                 loadBefore.add(dependencyName);
             } else if ("BEFORE".equals(load)) {

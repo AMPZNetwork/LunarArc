@@ -307,7 +307,7 @@ public final class PluginClassLoader extends URLClassLoader
             digest.update(io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.minecraftVersion()
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
-            digest.update("compat-transform-v19-essentials-namespaced".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            digest.update("compat-transform-v21-chestshop-frames".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             // The token above has to be bumped by hand whenever the transform changes, and it was
             // missed once already: a remapper fix shipped, every plugin kept loading the bad
@@ -402,6 +402,9 @@ public final class PluginClassLoader extends URLClassLoader
      * {@link #loadPlatformClass} plus the mod class loader as a last resort.
      */
     private Class<?> loadPlatformClassWithBackstop(String name) throws ClassNotFoundException {
+        if (name.startsWith("com.google.gson.")) {
+            return com.google.gson.JsonElement.class.getClassLoader().loadClass(name);
+        }
         try {
             return loadPlatformClass(name);
         } catch (ClassNotFoundException notOnParent) {

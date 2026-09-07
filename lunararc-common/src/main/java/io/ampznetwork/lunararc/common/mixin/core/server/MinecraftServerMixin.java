@@ -59,10 +59,6 @@ public abstract class MinecraftServerMixin implements MinecraftServerBridge, Com
 
     @Unique
     private long lunararc$bukkitStartupStartedNanos;
-    @Unique
-    private long lunararc$worldLoadStartedNanos;
-    @Unique
-    private long lunararc$worldShutdownStartedNanos;
 
     @Unique
     private boolean lunararc$serverLoadEventFired;
@@ -349,13 +345,21 @@ public abstract class MinecraftServerMixin implements MinecraftServerBridge, Com
         this.lunararc$bukkitStartupStartedNanos = System.nanoTime();
 
         long loadStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
-        craftServer.loadPlugins();
+        try {
+            craftServer.loadPlugins();
+        } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+            // The plugin provider layer has already printed the operator-facing fatal block.
+            // Mark the Minecraft server as no longer running as well as rethrowing so that
+            // higher-level loader/crash guards cannot accidentally continue world startup
+            // with an empty/partially populated Bukkit plugin registry.
+            ((MinecraftServer) (Object) this).halt(false);
+            throw fatal;
+        }
         io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartupPhase("Plugin Load", loadStart);
 
         long enableStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
         this.lunararc$enablePlugins(craftServer, PluginLoadOrder.STARTUP);
         io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartupPhase("Plugin Enable STARTUP", enableStart);
-        this.lunararc$worldLoadStartedNanos = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
     }
 
 
@@ -366,9 +370,6 @@ public abstract class MinecraftServerMixin implements MinecraftServerBridge, Com
 
         MinecraftServer minecraftServer = (MinecraftServer) (Object) this;
         CraftServer craftServer = this.lunararc$requireCraftServer();
-
-        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartupPhase(
-            "World Load", this.lunararc$worldLoadStartedNanos);
 
         long worldInitStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
         for (net.minecraft.server.level.ServerLevel level : minecraftServer.getAllLevels()) {
@@ -400,9 +401,22 @@ public abstract class MinecraftServerMixin implements MinecraftServerBridge, Com
         }
 
         long bridgeStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
+
+        long tier3ProbeStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
         io.ampznetwork.lunararc.common.server.LunarArcTier3RuntimeProbe.run(craftServer);
+        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartup(
+                "Compatibility Bridge", "Tier3 Runtime Probe", tier3ProbeStart);
+
+        long essentialsBridgeStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
         io.ampznetwork.lunararc.common.server.LunarArcEssentialsItemBridge.populateModdedItems(craftServer);
+        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartup(
+                "Compatibility Bridge", "Essentials Items", essentialsBridgeStart);
+
+        long antiXrayBridgeStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
         io.ampznetwork.lunararc.common.server.LunarArcAntiXrayOreBridge.mergeModdedOres(craftServer);
+        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartup(
+                "Compatibility Bridge", "Anti-Xray Ores", antiXrayBridgeStart);
+
         io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartupPhase("Compatibility Bridges", bridgeStart);
 
         long startupMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - this.lunararc$bukkitStartupStartedNanos);
@@ -475,13 +489,11 @@ public abstract class MinecraftServerMixin implements MinecraftServerBridge, Com
         org.bukkit.plugin.java.PluginClassLoader.shutdownSharedLoaders();
         io.ampznetwork.lunararc.common.server.LunarArcContext.clearServerReferences();
         io.ampznetwork.lunararc.common.server.LunarArcTimings.recordShutdownPhase("Server Cleanup", cleanupStart);
-        this.lunararc$worldShutdownStartedNanos = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
     }
 
-    @Inject(method = "stopServer", at = @At("TAIL"))
+    @Inject(method = "stopServer", at = @At("RETURN"))
     private void lunararc$afterStop(CallbackInfo ci) {
-        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordShutdownPhase(
-                "World Shutdown", this.lunararc$worldShutdownStartedNanos);
+        io.ampznetwork.lunararc.common.server.LunarArcProfileCacheWriter.flush();
         io.ampznetwork.lunararc.common.server.LunarArcTimings.logShutdownSummary();
         io.ampznetwork.lunararc.common.server.LunarArcTimings.reset();
     }

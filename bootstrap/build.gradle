@@ -113,6 +113,40 @@ def createFatJar(String platform) {
 
         relocate 'com.google.gson',         'io.ampznetwork.lunararc.libs.gson'
 
+        doLast {
+            File output = archiveFile.get().asFile
+            File repaired = new File(temporaryDir, 'native-gson.jar')
+            def remapper = new org.objectweb.asm.commons.Remapper() {
+                @Override
+                String map(String name) {
+                    String prefix = 'io/ampznetwork/lunararc/libs/gson/'
+                    return name.startsWith(prefix) ? 'com/google/gson/' + name.substring(prefix.length()) : name
+                }
+            }
+            new java.util.jar.JarFile(output).withCloseable { input ->
+                new java.util.jar.JarOutputStream(new FileOutputStream(repaired)).withCloseable { target ->
+                    input.entries().each { entry ->
+                        byte[] bytes = input.getInputStream(entry).withCloseable { it.readAllBytes() }
+                        if (entry.name.endsWith('.class')
+                                && !entry.name.startsWith('io/ampznetwork/lunararc/launcher/')
+                                && !entry.name.startsWith('io/ampznetwork/lunararc/i18n/')
+                                && !entry.name.startsWith('io/ampznetwork/lunararc/libs/gson/')) {
+                            def writer = new org.objectweb.asm.ClassWriter(0)
+                            new org.objectweb.asm.ClassReader(bytes).accept(
+                                    new org.objectweb.asm.commons.ClassRemapper(writer, remapper), 0)
+                            bytes = writer.toByteArray()
+                        }
+                        def copy = new java.util.jar.JarEntry(entry.name)
+                        copy.time = entry.time
+                        target.putNextEntry(copy)
+                        target.write(bytes)
+                        target.closeEntry()
+                    }
+                }
+            }
+            java.nio.file.Files.move(repaired.toPath(), output.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
+
         relocate 'org.apache.maven',         'io.ampznetwork.lunararc.libs.maven.core'
         relocate 'org.codehaus.plexus',      'io.ampznetwork.lunararc.libs.maven.plexus'
         relocate 'org.eclipse.sisu',         'io.ampznetwork.lunararc.libs.maven.sisu'
@@ -308,6 +342,7 @@ def createFatJar(String platform) {
     }
 
     tasks.register("verify${platform.capitalize()}HybridShape") {
+        if (platform == 'neoforge') dependsOn ':lunararc-common:runPackagedRecipeRegression'
         dependsOn rootProject.tasks.named('verifyNoRuntimeProxies')
         dependsOn tasks.named("${platform}Jar")
         inputs.file(tasks.named("${platform}Jar").flatMap { it.archiveFile })
@@ -321,6 +356,16 @@ def createFatJar(String platform) {
                     if (entry.directory) return
                     entries.add(entry.name)
                     if (!entry.name.endsWith('.class')) return
+                    if (!entry.name.startsWith('io/ampznetwork/lunararc/launcher/')
+                            && !entry.name.startsWith('io/ampznetwork/lunararc/i18n/')
+                            && !entry.name.startsWith('io/ampznetwork/lunararc/libs/gson/')) {
+                        String bytecode = jar.getInputStream(entry).withCloseable {
+                            new String(it.readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1)
+                        }
+                        if (bytecode.contains('io/ampznetwork/lunararc/libs/gson/')) {
+                            throw new GradleException("Runtime class still uses private launcher Gson: ${entry.name}")
+                        }
+                    }
                     if (entry.name.startsWith('net/minecraft/')) forbiddenNms.add(entry.name)
 
                     boolean paperServerOnly =

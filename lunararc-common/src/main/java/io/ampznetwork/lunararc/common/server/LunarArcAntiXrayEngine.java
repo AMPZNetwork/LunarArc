@@ -65,21 +65,9 @@ public final class LunarArcAntiXrayEngine {
     private final Set<BlockState> hiddenStates;
 
     private LunarArcAntiXrayEngine(ServerLevel level) {
-        YamlConfiguration config = new YamlConfiguration();
-        File file = new File("config", "paper-world-defaults.yml");
-        boolean loaded = false;
-        if (file.isFile()) {
-            try {
-                config.load(file);
-                loaded = true;
-            } catch (Exception ex) {
-                LOGGER.warn("Unable to read {} for anti-xray - treating anti-xray as disabled for {}",
-                        file.getPath(), level.dimension().location(), ex);
-            }
-        }
-
-        boolean configuredEnabled = loaded && config.getBoolean("anticheat.anti-xray.enabled", false);
-        int engineMode = config.getInt("anticheat.anti-xray.engine-mode", 1);
+        var config = io.papermc.paper.configuration.WorldConfiguration.forLevel(level).anticheat.antiXray;
+        boolean configuredEnabled = config.enabled;
+        int engineMode = config.engineMode;
         if (configuredEnabled && engineMode != 1) {
             LOGGER.warn("anticheat.anti-xray.engine-mode {} is not implemented yet (only 1/HIDE is) "
                     + "- anti-xray is disabled for {}", engineMode, level.dimension().location());
@@ -87,13 +75,13 @@ public final class LunarArcAntiXrayEngine {
         }
 
         this.enabled = configuredEnabled;
-        this.maxBlockHeight = config.getInt("anticheat.anti-xray.max-block-height", 64);
-        this.updateRadius = config.getInt("anticheat.anti-xray.update-radius", 2);
-        this.lavaObscures = config.getBoolean("anticheat.anti-xray.lava-obscures", false);
+        this.maxBlockHeight = config.maxBlockHeight;
+        this.updateRadius = config.updateRadius;
+        this.lavaObscures = config.lavaObscures;
 
         Set<BlockState> states = new HashSet<>();
         if (this.enabled) {
-            for (String id : config.getStringList("anticheat.anti-xray.hidden-blocks")) {
+            for (String id : config.hiddenBlocks) {
                 ResourceLocation location = ResourceLocation.tryParse(id);
                 Block block = location == null ? null : BuiltInRegistries.BLOCK.get(location);
                 if (block == null || block.defaultBlockState().isAir()) continue;

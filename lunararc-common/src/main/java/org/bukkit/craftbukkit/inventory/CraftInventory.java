@@ -181,9 +181,10 @@ public class CraftInventory implements Inventory {
     @Override
     public boolean contains(@Nullable ItemStack item, int amount) {
         if (item == null) return false;
+        if (amount < 1) return true;
         int found = 0;
         for (ItemStack slot : contents) {
-            if (slot != null && item.isSimilar(slot)) found += slot.getAmount();
+            if (item.equals(slot)) found++;
             if (found >= amount) return true;
         }
         return false;
@@ -191,7 +192,13 @@ public class CraftInventory implements Inventory {
 
     @Override
     public boolean containsAtLeast(@Nullable ItemStack item, int amount) {
-        return contains(item, amount);
+        if (item == null) return false;
+        int found = 0;
+        for (ItemStack slot : contents) {
+            if (slot != null && item.isSimilar(slot)) found += slot.getAmount();
+            if (found >= amount) return true;
+        }
+        return false;
     }
 
     @Override

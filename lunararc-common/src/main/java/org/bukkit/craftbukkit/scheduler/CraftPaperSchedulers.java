@@ -60,9 +60,18 @@ public final class CraftPaperSchedulers {
     }
 
     public void shutdown() {
+        beginShutdown();
+        awaitShutdown();
+    }
+
+
+    public void beginShutdown() {
         async.shutdown();
     }
 
+    public void awaitShutdown() {
+        CraftScheduler.awaitSchedulerShutdown(async.executor, "Paper async scheduler");
+    }
 
     private abstract static class PaperTask implements ScheduledTask {
         final Plugin plugin;
@@ -161,9 +170,11 @@ public final class CraftPaperSchedulers {
 
     private static final class AsyncPaperTask extends PaperTask {
         volatile ScheduledFuture<?> backing;
+        final Set<AsyncPaperTask> ownerTasks;
 
-        AsyncPaperTask(Plugin plugin, boolean repeating) {
+        AsyncPaperTask(Plugin plugin, boolean repeating, Set<AsyncPaperTask> ownerTasks) {
             super(plugin, repeating);
+            this.ownerTasks = ownerTasks;
         }
 
         void setBacking(ScheduledFuture<?> task) {
@@ -176,6 +187,7 @@ public final class CraftPaperSchedulers {
         protected void cancelBackingTask() {
             ScheduledFuture<?> task = backing;
             if (task != null) task.cancel(false);
+            ownerTasks.remove(this);
         }
     }
 
@@ -348,9 +360,14 @@ public final class CraftPaperSchedulers {
             if (initialDelay < 0L) throw new IllegalArgumentException("delay cannot be negative");
             if (period == 0L) throw new IllegalArgumentException("period must be greater than zero");
             boolean repeating = period > 0L;
-            AsyncPaperTask paper = new AsyncPaperTask(plugin, repeating);
+            AsyncPaperTask paper = new AsyncPaperTask(plugin, repeating, tasks);
             tasks.add(paper);
+            if (!plugin.isEnabled()) {
+                paper.cancel();
+                throw new IllegalPluginAccessException("Plugin attempted to register async task while disabled");
+            }
             Runnable run = () -> {
+                if (!plugin.isEnabled()) paper.cancel();
                 if (!paper.beginExecution()) {
                     tasks.remove(paper);
                     return;
@@ -402,8 +419,6 @@ public final class CraftPaperSchedulers {
             for (AsyncPaperTask task : Set.copyOf(tasks)) task.cancel();
             tasks.clear();
             executor.shutdownNow();
-            // Same short grace period as the Bukkit scheduler - see CraftScheduler.shutdown().
-            CraftScheduler.awaitSchedulerShutdown(executor, "Paper async scheduler");
         }
     }
 }

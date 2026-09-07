@@ -14,15 +14,6 @@ import java.util.Locale;
  * Tracks wall-clock durations of named startup/shutdown phases and logs a ranked
  * summary when the lifecycle completes.
  *
- * <p>Two levels of detail:
- * <ul>
- *   <li><b>Phase-level</b> (always logged to console): major lifecycle milestones
- *       such as "Plugin Load", "World Load", "Plugin Enable POSTWORLD".</li>
- *   <li><b>Item-level</b> (logged when {@code -Dlunararc.debug=timing} or
- *       {@code debugall} is active): individual plugin enable/disable times,
- *       per-world load times, and any other fine-grained sub-step.</li>
- * </ul>
- *
  * <p>Thread-safe: phases can be recorded from any thread, but the summary should
  * be printed from the server thread after all phases complete.
  */
@@ -44,14 +35,16 @@ public final class LunarArcTimings {
     // ── Startup ──
 
     public static void markServerStart() {
+        if (!LunarArcDebug.TIMING) return;
         serverStartNanos = System.nanoTime();
     }
 
     public static long phaseStart() {
-        return System.nanoTime();
+        return LunarArcDebug.TIMING ? System.nanoTime() : 0;
     }
 
     public static void recordStartup(String phase, String item, long startNanos) {
+        if (!LunarArcDebug.TIMING) return;
         long ms = elapsedMillis(startNanos);
         synchronized (LOCK) {
             startupEntries.add(new Entry(phase, item, ms));
@@ -62,6 +55,7 @@ public final class LunarArcTimings {
     }
 
     public static void recordStartupPhase(String phase, long startNanos) {
+        if (!LunarArcDebug.TIMING) return;
         long ms = elapsedMillis(startNanos);
         synchronized (LOCK) {
             startupEntries.add(new Entry(phase, null, ms));
@@ -73,6 +67,7 @@ public final class LunarArcTimings {
     }
 
     public static void logStartupSummary() {
+        if (!LunarArcDebug.TIMING) return;
         long totalMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - serverStartNanos);
 
         List<Entry> phases;
@@ -97,10 +92,12 @@ public final class LunarArcTimings {
     // ── Shutdown ──
 
     public static void markShutdownStart() {
+        if (!LunarArcDebug.TIMING) return;
         shutdownStartNanos = System.nanoTime();
     }
 
     public static void recordShutdown(String phase, String item, long startNanos) {
+        if (!LunarArcDebug.TIMING) return;
         long ms = elapsedMillis(startNanos);
         synchronized (LOCK) {
             shutdownEntries.add(new Entry(phase, item, ms));
@@ -111,6 +108,7 @@ public final class LunarArcTimings {
     }
 
     public static void recordShutdownPhase(String phase, long startNanos) {
+        if (!LunarArcDebug.TIMING) return;
         long ms = elapsedMillis(startNanos);
         synchronized (LOCK) {
             shutdownEntries.add(new Entry(phase, null, ms));
@@ -122,6 +120,7 @@ public final class LunarArcTimings {
     }
 
     public static void logShutdownSummary() {
+        if (!LunarArcDebug.TIMING) return;
         long totalMs = shutdownStartNanos > 0
                 ? TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - shutdownStartNanos) : 0;
 

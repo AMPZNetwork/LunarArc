@@ -1,6 +1,7 @@
 package io.ampznetwork.lunararc.common.mixin.core.world;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.ampznetwork.lunararc.common.bridge.EntityBridge;
 import io.ampznetwork.lunararc.common.bridge.HopperBlockEntityBridge;
@@ -23,39 +24,54 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Fires {@link InventoryMoveItemEvent} and {@link InventoryPickupItemEvent}.
- *
- * <p>These are how a plugin sees items move on their own. Chest-shop plugins use them to stop a
- * hopper draining a shop's stock, protection plugins to stop one reaching into a claim, and
- * anti-lag plugins to cap transfers. None of it worked here, because neither event was fired.</p>
- *
- * <p>Not every transfer can be reported. LunarArcInventories answers null for a container it
- * cannot name a real Bukkit inventory for - a double chest, or a mod's own container - and this
- * skips the event rather than inventing one; see that class for why the alternative would be an
- * inventory a plugin could not actually act on. Every vanilla single container is covered.</p>
- *
- * <p>Both events are guarded on having a registered listener before anything is built. That is Paper's own
- * optimisation and it matters more here than upstream: a hopper runs every tick it is not on
- * cooldown, on every hopper on the server, so resolving two inventories and copying an ItemStack
- * per transfer would be a permanent cost paid by servers that never listen. It also keeps this
- * whole path inert - no event, no cancellation, no behaviour change of any kind - on a server with
- * no plugin interested in it.</p>
- *
- * <p>The cancel path returns the input stack unchanged. {@code addItem} returns what is left over,
- * so handing back everything says nothing moved, and vanilla's own "did the transfer succeed" test
- * then reverts exactly as it would for a full destination. Arclight takes the same route for the
- * same reason; CraftBukkit instead restores the slot by hand, which reaches into state this has no
- * business touching from outside the method.</p>
- *
- * <p>{@code addItem} is static and does not know which hopper is asking, so the cooldown that
- * follows a cancel comes from the block entity currently ticking - the same technique Arclight uses
- * through ArclightCaptures. Eight ticks is vanilla's own transfer cooldown and Spigot's default
- * hopper-transfer; without it a cancelled transfer is retried on the very next tick, so a plugin
- * saying no to one hopper would have it asked again twenty times a second.</p>
- */
 @Mixin(HopperBlockEntity.class)
 public abstract class HopperBlockEntityMixin implements HopperBlockEntityBridge {
+
+    @Unique
+    private static final ThreadLocal<java.util.IdentityHashMap<Container, Inventory>> lunararc$transferInventories = new ThreadLocal<>();
+
+    @Unique
+    private static final ThreadLocal<java.util.IdentityHashMap<Container, Inventory>> lunararc$reusableInventories = ThreadLocal.withInitial(() -> new java.util.IdentityHashMap<>(2));
+
+    @WrapMethod(method = "ejectItems")
+    private static boolean lunararc$cachePushInventories(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
+            HopperBlockEntity hopper, Operation<Boolean> original) {
+        if (InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0) return original.call(level, pos, hopper);
+        var previous = lunararc$transferInventories.get();
+        var current = previous == null ? lunararc$reusableInventories.get() : new java.util.IdentityHashMap<Container, Inventory>(2);
+        lunararc$transferInventories.set(current);
+        try {
+            return original.call(level, pos, hopper);
+        } finally {
+            current.clear();
+            if (previous == null) lunararc$transferInventories.remove();
+            else lunararc$transferInventories.set(previous);
+        }
+    }
+
+    @WrapMethod(method = "suckInItems")
+    private static boolean lunararc$cachePullInventories(net.minecraft.world.level.Level level,
+            net.minecraft.world.level.block.entity.Hopper hopper, Operation<Boolean> original) {
+        if (InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0) return original.call(level, hopper);
+        var previous = lunararc$transferInventories.get();
+        var current = previous == null ? lunararc$reusableInventories.get() : new java.util.IdentityHashMap<Container, Inventory>(2);
+        lunararc$transferInventories.set(current);
+        try {
+            return original.call(level, hopper);
+        } finally {
+            current.clear();
+            if (previous == null) lunararc$transferInventories.remove();
+            else lunararc$transferInventories.set(previous);
+        }
+    }
+
+    @Unique
+    private static Inventory lunararc$transferInventory(Container container) {
+        var inventories = lunararc$transferInventories.get();
+        if (inventories == null) return LunarArcInventories.ownerInventory(container);
+        if (!inventories.containsKey(container)) inventories.put(container, LunarArcInventories.ownerInventory(container));
+        return inventories.get(container);
+    }
 
     // Private in 1.21.1, and the handler that needs it is static rather than being a hopper, so it
     // is shadowed here and reached through the bridge - the same route ServerPlayer's private
@@ -135,21 +151,19 @@ public abstract class HopperBlockEntityMixin implements HopperBlockEntityBridge 
             boolean sourceInitiated) {
         if (InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0) return stack;
 
-        Inventory sourceInventory = LunarArcInventories.ownerInventory(source);
-        Inventory destinationInventory = LunarArcInventories.ownerInventory(destination);
+        Inventory sourceInventory = lunararc$transferInventory(source);
+        Inventory destinationInventory = lunararc$transferInventory(destination);
         if (sourceInventory == null || destinationInventory == null) return stack;
 
         org.bukkit.inventory.ItemStack mirror = CraftItemStack.asCraftMirror(stack);
-        InventoryMoveItemEvent event =
-                new InventoryMoveItemEvent(sourceInventory, mirror, destinationInventory, sourceInitiated);
+        var event = new io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent(
+                sourceInventory, mirror, destinationInventory, sourceInitiated);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             lunararc$delayTickingHopper();
             return null;
         }
-        // Same object back means no plugin called setItem, so vanilla keeps the stack it passed -
-        // including any in-place edit, which the mirror already applied to it.
-        return event.getItem() == mirror ? stack : CraftItemStack.asNMSCopy(event.getItem());
+        return !event.calledSetItem || event.getItem() == mirror ? stack : CraftItemStack.asNMSCopy(event.getItem());
     }
 
     @Unique

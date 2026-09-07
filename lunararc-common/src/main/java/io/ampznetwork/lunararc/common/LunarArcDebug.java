@@ -29,8 +29,6 @@ import java.time.Instant;
  * <p>Off unless asked for:</p>
  *
  * <pre>
- *   -Dlunararc.debug=fluid              one channel
- *   -Dlunararc.debug=reflect,classload  several
  *   -Dlunararc.debug=all                everything
  * </pre>
  *
@@ -103,33 +101,27 @@ public final class LunarArcDebug {
      * totals, and a ranked summary of the slowest items at the end of each lifecycle.
      */
     public static final boolean TIMING;
+    public static final boolean PLUGIN;
 
     private static BufferedWriter writer;
     private static boolean unusable;
 
     static {
-        String raw = System.getProperty("lunararc.debug", "");
         java.util.Set<String> channels = new java.util.HashSet<>();
-        for (String part : raw.split(",")) {
-            String trimmed = part.trim().toLowerCase(java.util.Locale.ROOT);
-            if (!trimmed.isEmpty()) channels.add(trimmed);
+        for (String channel : System.getProperty("lunararc.debug", "").split(",")) {
+            channels.add(channel.trim().toLowerCase(java.util.Locale.ROOT));
         }
-        boolean isDebugAll = Boolean.getBoolean("debugall")
-                || Boolean.getBoolean("lunararc.debugall")
-                || channels.contains("debugall")
-                || channels.contains("all");
-        // debugall enables interaction pipeline and timing, so other channels do not flood logs
-        INTERACT = isDebugAll || channels.contains("interact");
-        TIMING = isDebugAll || channels.contains("timing");
-        boolean everything = channels.contains("everything");
-        REFLECT = everything || channels.contains("reflect");
-        REMAP = everything || channels.contains("remap");
-        CLASSLOAD = everything || channels.contains("classload");
-        ENTITY = everything || channels.contains("entity");
-        FLUID = everything || channels.contains("fluid");
-        COMMAND = everything || channels.contains("command");
-
-        if (INTERACT || TIMING || REFLECT || REMAP || CLASSLOAD || ENTITY || FLUID || COMMAND) {
+        boolean all = channels.contains("all");
+        INTERACT = all || channels.contains("interact");
+        TIMING = all || channels.contains("timing");
+        REFLECT = all || channels.contains("reflect");
+        REMAP = all || channels.contains("remap");
+        CLASSLOAD = all || channels.contains("classload");
+        ENTITY = all || channels.contains("entity");
+        FLUID = all || channels.contains("fluid");
+        COMMAND = all || channels.contains("command");
+        PLUGIN = all || channels.contains("plugin");
+        if (INTERACT || TIMING || REFLECT || REMAP || CLASSLOAD || ENTITY || FLUID || COMMAND || PLUGIN) {
             StringBuilder enabled = new StringBuilder();
             if (INTERACT) enabled.append(" interact");
             if (TIMING) enabled.append(" timing");
@@ -139,6 +131,7 @@ public final class LunarArcDebug {
             if (ENTITY) enabled.append(" entity");
             if (FLUID) enabled.append(" fluid");
             if (COMMAND) enabled.append(" command");
+            if (PLUGIN) enabled.append(" plugin");
 
             // Opened here rather than on the first trace line. Lazily creating the file made an
             // absent file mean two different things - the channel never turned on, or it turned on
@@ -159,14 +152,6 @@ public final class LunarArcDebug {
             // whether the logger is configured yet depends on the loader, and an announcement that
             // may or may not appear is no use for telling someone their flag did not take.
             System.out.println(announcement);
-        } else if (!raw.isBlank()) {
-            // A name that matches nothing used to be indistinguishable from not passing the
-            // property at all: both produced silence, and the only symptom was a trace file that
-            // never appeared. Say which names exist instead.
-            String complaint = "[LunarArc/Debug] -Dlunararc.debug=" + raw + " names no known channel."
-                    + " Known channels: interact, timing, reflect, remap, classload, entity, fluid, command, or all/debugall.";
-            LOGGER.warn(complaint);
-            System.out.println(complaint);
         }
     }
 
@@ -216,6 +201,7 @@ public final class LunarArcDebug {
         if (ENTITY) enabled.append("entity ");
         if (FLUID) enabled.append("fluid ");
         if (COMMAND) enabled.append("command ");
+        if (PLUGIN) enabled.append("plugin ");
         return enabled.isEmpty() ? "none" : enabled.toString().trim().replace(' ', ',');
     }
 
@@ -235,6 +221,18 @@ public final class LunarArcDebug {
     }
 
     private static void write(String channel, String format, Object... args) {
+        boolean enabled = switch (channel) {
+            case "interact" -> INTERACT;
+            case "timing" -> TIMING;
+            case "reflect" -> REFLECT;
+            case "remap" -> REMAP;
+            case "classload" -> CLASSLOAD;
+            case "entity" -> ENTITY;
+            case "fluid" -> FLUID;
+            case "command" -> COMMAND;
+            default -> false;
+        };
+        if (!enabled) return;
         try {
             synchronized (LOCK) {
                 BufferedWriter out = open();

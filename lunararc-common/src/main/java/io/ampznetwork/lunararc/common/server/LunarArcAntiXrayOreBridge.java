@@ -93,6 +93,7 @@ public final class LunarArcAntiXrayOreBridge {
         config.set(HIDDEN_BLOCKS_PATH, new ArrayList<>(merged));
         try {
             config.save(file);
+            craftServer.reloadPaperWorldConfigurations();
             LOGGER.info("Anti-xray hidden-blocks: added {} modded ore block(s), removed {} orphaned entr{} in {}",
                     added, removed, removed == 1 ? "y" : "ies", file.getPath());
         } catch (Exception ex) {

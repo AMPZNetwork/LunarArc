@@ -166,8 +166,10 @@ public abstract class ServerCommonPacketListenerImplMixin implements ServerCommo
             return;
         }
 
-        byte[] data = payload.data();
         ResourceLocation id = payload.id();
+        if (!LUNARARC_REGISTER.equals(id) && !LUNARARC_UNREGISTER.equals(id) && !LUNARARC_BRAND.equals(id)
+                && io.ampznetwork.lunararc.common.network.LunarArcPluginMessageOwnership.isNativeInbound(id)) return;
+        byte[] data = payload.data();
         Runnable task = () -> this.lunararc$processCustomPayload(gameListener, id, data);
         if (this.server.isSameThread()) {
             task.run();

@@ -34,6 +34,7 @@ public final class LunarArcDynamicBukkitEnums {
     private static final Map<Material, NamespacedKey> MATERIAL_KEYS =
             Collections.synchronizedMap(new IdentityHashMap<>());
     private static final Map<ResourceLocation, Material> MATERIALS_BY_ID = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, Material> MATERIALS_VIEW = Collections.unmodifiableMap(MATERIALS_BY_ID);
     private static final Map<ResourceLocation, EntityType> ENTITY_TYPES = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Map<ResourceLocation, World.Environment> ENVIRONMENTS = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Map<World.Environment, net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem>> LEVEL_STEMS =
@@ -83,7 +84,7 @@ public final class LunarArcDynamicBukkitEnums {
      * mutating LunarArc's own view of it.
      */
     public static Map<ResourceLocation, Material> materialsById() {
-        return Collections.unmodifiableMap(MATERIALS_BY_ID);
+        return MATERIALS_VIEW;
     }
 
     public static EntityType entityType(ResourceLocation id) {
