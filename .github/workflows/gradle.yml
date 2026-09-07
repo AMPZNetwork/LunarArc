@@ -66,8 +66,7 @@ jobs:
         run: ls -R build/libs
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@d23441a48e516b6c34aea4fa41551a30e30af803
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: LunarArc
           path: build/libs
-
