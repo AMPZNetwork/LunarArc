@@ -11,7 +11,7 @@ mixinextras = "0.4.1"
 
 # lunararc
 lunararc-api = "1.0.0"
-project-version = "1.0.0-DEV"
+project-version = "1.0.0-SNAPSHOT"
 build-name = "Trial Zenith"
 java-runtime = "21"
 

@@ -26,7 +26,7 @@ Read our document for more information.
 
 ## Support
 
-Discord Server [Inivte Link](https://discord.gg/)
+Discord Server [Inivte Link](https://discord.gg/JDP3CMfBef)
 
 ## License
 
