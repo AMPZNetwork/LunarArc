@@ -197,10 +197,12 @@ public abstract class EntityMixin implements EntityBridge, CommandSourceBridge {
     private void lunararc$vehicleExit(Entity passenger, CallbackInfo ci) {
         // Same reasoning as lunararc$vehicleEnter above.
         if (!org.bukkit.Bukkit.isPrimaryThread()) return;
-        Entity vehicle = (Entity) (Object) this;
-        if (passenger.getVehicle() != vehicle) {
-            return;
-        }
+        // Entity.removeVehicle() - the only vanilla caller of removePassenger - always clears
+        // the passenger's own `vehicle` field to null BEFORE calling vehicle.removePassenger(this)
+        // (confirmed by reading the real bytecode: field write happens, then the invokevirtual).
+        // A `passenger.getVehicle() != this` guard here is therefore never true for a real
+        // dismount and was silently swallowing this whole method, including the SitEverywhere
+        // dismount fix below - it just never actually ran.
         org.bukkit.entity.Entity bukkitVehicle = this.lunararc$getBukkitEntity();
         org.bukkit.entity.Entity bukkitPassenger = ((EntityBridge) passenger).lunararc$getBukkitEntity();
 

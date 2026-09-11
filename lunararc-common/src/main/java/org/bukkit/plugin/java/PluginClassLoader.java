@@ -297,7 +297,7 @@ public final class PluginClassLoader extends URLClassLoader
             digest.update(io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.minecraftVersion()
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
-            digest.update("compat-transform-v21-chestshop-frames".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            digest.update("compat-transform-v23-worldedit-regen-chunksource-close".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             // The token above has to be bumped by hand whenever the transform changes, and it was
             // missed once already: a remapper fix shipped, every plugin kept loading the bad

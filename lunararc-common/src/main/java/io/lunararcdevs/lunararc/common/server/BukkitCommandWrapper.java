@@ -78,8 +78,16 @@ public final class BukkitCommandWrapper {
 
         List<String> completions;
         try {
-            boolean hasArgumentInput = input.length() > label.length();
-            String argumentText = hasArgumentInput ? input.substring(label.length()) : "";
+            // context.getInput() includes the leading "/" (confirmed live: input was literally
+            // "/warp ..."), but label never does - stripping only label.length() characters left
+            // a stray leftover character (label's own last letter) at the front of args, shifting
+            // every real argument one slot to the right. Essentials' /warp then read the actual
+            // partial warp name as arg[1] (its "target player" slot) instead of arg[0] (the warp
+            // name slot), which is exactly why it suggested player names instead of warp names -
+            // and this shifted every command routed through this wrapper, not just /warp.
+            String commandText = input.startsWith("/") ? input.substring(1) : input;
+            boolean hasArgumentInput = commandText.length() > label.length();
+            String argumentText = hasArgumentInput ? commandText.substring(label.length()) : "";
             if (argumentText.startsWith(" ")) argumentText = argumentText.substring(1);
             String[] args = hasArgumentInput ? argumentText.split(" ", -1) : new String[0];
             completions = command == null ? List.of() : command.tabComplete(sender, label, args);
