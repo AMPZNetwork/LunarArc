@@ -16,9 +16,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-/**
- * Represents a simple classloader used for paper plugin bootstrappers.
- */
 @ApiStatus.Internal
 public class PaperSimplePluginClassLoader extends URLClassLoader {
 
@@ -52,7 +49,6 @@ public class PaperSimplePluginClassLoader extends URLClassLoader {
         return this.findResources(name);
     }
 
-    // Bytecode modification supported loader
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         NamespaceChecker.validateNameSpaceForClassloading(name);

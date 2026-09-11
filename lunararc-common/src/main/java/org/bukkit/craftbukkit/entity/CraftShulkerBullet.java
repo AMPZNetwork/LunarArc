@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.access.ShulkerBulletAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.ShulkerBulletAccessBridge;
 import net.minecraft.core.Direction;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftServer;

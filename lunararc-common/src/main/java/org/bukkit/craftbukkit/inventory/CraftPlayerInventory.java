@@ -204,10 +204,10 @@ public class CraftPlayerInventory implements PlayerInventory, org.bukkit.invento
     @Override public int getSize() { return SIZE; }
 
     @Override public int getMaxStackSize() {
-        return ((io.ampznetwork.lunararc.common.bridge.PlayerInventoryBridge) handle).lunararc$getMaxStackSize();
+        return ((io.lunararcdevs.lunararc.common.bridge.PlayerInventoryBridge) handle).lunararc$getMaxStackSize();
     }
     @Override public void setMaxStackSize(int size) {
-        ((io.ampznetwork.lunararc.common.bridge.PlayerInventoryBridge) handle).lunararc$setMaxStackSize(size);
+        ((io.lunararcdevs.lunararc.common.bridge.PlayerInventoryBridge) handle).lunararc$setMaxStackSize(size);
     }
 
     @Override public @Nullable ItemStack getItem(int index) {

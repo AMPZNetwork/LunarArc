@@ -18,9 +18,6 @@ public class DependencyBasedPluginClassLoaderGroup extends SimpleListPluginClass
         this.globalPluginClassLoaderGroup = globalPluginClassLoaderGroup;
     }
 
-    /**
-     * This will refresh the dependencies of the current classloader.
-     */
     public void populateDependencies() {
         this.classloaders.clear();
         for (ConfiguredPluginClassLoader configuredPluginClassLoader : this.globalPluginClassLoaderGroup.getClassLoaders()) {

@@ -126,9 +126,9 @@ public class SpigotPluginProvider implements PluginProvider<JavaPlugin>, Provide
                 // Reusing the shared registered LunarArcPluginLoader instance (rather than
                 // constructing an independent one) keeps this on the same class-space as
                 // classically-loaded plugins for correct cross-plugin dependency resolution.
-                io.ampznetwork.lunararc.common.server.LunarArcPluginLoader sharedLoader =
+                io.lunararcdevs.lunararc.common.server.LunarArcPluginLoader sharedLoader =
                         PaperPluginManagerImpl.getInstance().getRegisteredLoader(
-                                io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.class);
+                                io.lunararcdevs.lunararc.common.server.LunarArcPluginLoader.class);
                 if (sharedLoader == null) {
                     throw new InvalidPluginException(
                             "LunarArcPluginLoader is not registered — cannot construct a plugin classloader");

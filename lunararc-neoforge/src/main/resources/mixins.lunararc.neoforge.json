@@ -1,11 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "io.ampznetwork.lunararc.neoforge.mixin",
+  "package": "io.lunararcdevs.lunararc.neoforge.mixin",
+  "plugin": "io.lunararcdevs.lunararc.neoforge.mixinplugin.LunarArcNeoForgeCompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "compat.SableEntityQueryMixin",
-    "compat.AlexsMobsSpawnMixin",
+    "compat.SablePersistentEntitySectionManagerStopTrackingGuardMixin",
     "permission.PermissionAPIMixin",
     "core.server.MinecraftServerMixin_NeoForge",
     "bukkit.CraftWorldMixin_NeoForge",

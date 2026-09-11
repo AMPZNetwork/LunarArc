@@ -172,7 +172,7 @@ public final class CraftMetaPotion extends CraftItemMeta implements PotionMeta {
     }
 
     private static net.minecraft.server.MinecraftServer server() {
-        net.minecraft.server.MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        net.minecraft.server.MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) throw new IllegalStateException("MinecraftServer is not attached");
         return server;
     }

@@ -3,13 +3,26 @@ plugins {
     id 'com.gradleup.shadow'
 }
 
+configurations {
+    lunararcApiJar {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    paperApiJar {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
 dependencies {
     implementation project(':installer')
     implementation project(':lunararc-common')
-    implementation project(':lunararc-api')
+    implementation libs.lunararc.api
+    lunararcApiJar(libs.lunararc.api) { transitive = false }
     implementation project(':i18n-config')
 
     implementation libs.paper.api
+    paperApiJar(libs.paper.api) { transitive = false }
     implementation libs.bungeecord.chat.api
 
     implementation libs.sqlite.jdbc
@@ -90,8 +103,8 @@ processResources.dependsOn 'generateVersions'
 jar {
     manifest {
         attributes(
-            'Main-Class':           'io.ampznetwork.lunararc.launcher.Launcher',
-            'Premain-Class':        'io.ampznetwork.lunararc.launcher.LunarArcAgent',
+            'Main-Class':           'io.lunararcdevs.lunararc.launcher.Launcher',
+            'Premain-Class':        'io.lunararcdevs.lunararc.launcher.LunarArcAgent',
             'Can-Retransform-Classes': 'true',
             'Can-Append-To-Class-Path': 'true'
         )
@@ -99,6 +112,166 @@ jar {
 }
 
 def createFatJar(String platform) {
+
+    def platformProjectMap = [
+        neoforge: ':lunararc-neoforge',
+        forge:    ':lunararc-forge',
+        fabric:   ':lunararc-fabric',
+        quilt:    ':lunararc-quilt'
+    ]
+    def platformProject = project(platformProjectMap[platform])
+
+    // Resolved lazily, inside each task's own configuration block, rather than once here: these
+    // are Architectury/Loom tasks from a sibling project, and looking them up eagerly at script
+    // evaluation time (rather than when Gradle actually configures a task that needs them) hit
+    // "A dependency must not be empty" - some of them aren't registered yet at that point.
+    def resolvePlatformJarTask = {
+        def t = platformProject.tasks.findByName('remapJar')
+        if (t == null || !t.enabled) t = platformProject.tasks.findByName('jar')
+        return t
+    }
+    def commonTaskName = platform == 'neoforge'
+        ? 'transformProductionNeoForge'
+        : "transformProduction${platform.capitalize()}"
+    def resolveCommonJarTask = { project(':lunararc-common').tasks.findByName(commonTaskName) }
+
+    // transformProduction* is Architectury's bytecode transformer, and its output is still in
+    // the named (Mojang) namespace - Loom's remapJar, in the platform project, is what puts
+    // classes into the loader's namespace. Only NeoForge runs on Mojang names at runtime, so
+    // only there is the transformer output already the right thing to ship.
+    boolean commonRemappedIntoPlatformJar = platform != 'neoforge'
+
+    // NeoForge 21.1.250 / FML 4.0.44 has no locator that scans the classpath for an arbitrary
+    // jar's mods.toml - confirmed by reading a real debug.log's locator discovery list (only the
+    // production server provider, the neoforge jar's own PathBasedLocator, ModsFolderLocator, and
+    // MavenDirectoryLocator exist), and by reading FML's real ServiceLoaderUtil source. A jar
+    // living outside mods/ is invisible to it unless something registers a locator - Forge has the
+    // equivalent IModLocator SPI - so the launched jar carries only that locator (which must stay
+    // reachable on the classpath before mod discovery runs), and the mod itself lives exclusively
+    // in the extracted common.jar the locator points at. Confirmed against FML's real
+    // JarModsDotTomlModFileReader/ModJarMetadata source: the resulting module's packages come
+    // solely from the target path's own content, nothing from whichever module hosts the locator
+    // class, so common.jar only needs to exclude the locator's own subpackage (below) to stay
+    // clear of it - no module-graph surgery needed. Fabric/Quilt's own discovery never scans the
+    // whole classpath this way (only mods/ and an explicit addMods path), so they don't need this
+    // split for correctness - only for consistency, since fabric.addMods/loader.addMods already
+    // points at the extracted jar too.
+    boolean splitModFile = platform == 'neoforge' || platform == 'forge'
+
+    tasks.register("${platform}CommonJar", Jar) {
+        def platformJarTask = resolvePlatformJarTask()
+        def commonJarTask = resolveCommonJarTask()
+        def commonResources = project(':lunararc-common').tasks.named('processResources')
+        def platformResources = platformProject.tasks.named('processResources')
+
+        archiveBaseName.set("${rootProject.name.toLowerCase(Locale.ROOT).replaceAll('[^a-z0-9._-]+', '-')}-${platform}-common")
+        archiveVersion.set(project.version.toString())
+        // neoforge.mods.toml/mods.toml (packaged into this jar below) declare
+        // version="${file.jarVersion}" - NeoForge/Forge resolve that placeholder from the
+        // Implementation-Version of the jar's OWN manifest, not the outer jar's. Without this,
+        // the mod list shows "0.0NONE" instead of the real version.
+        manifest {
+            attributes('Implementation-Version': project.version)
+        }
+        // Never a standalone artifact - only ever consumed nested inside ${platform}Jar as
+        // common.jar - so it lives away from build/libs to avoid looking like a second
+        // shippable product sitting next to the real one.
+        destinationDirectory.set(layout.buildDirectory.dir('common-jars'))
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        dependsOn commonJarTask, platformJarTask, commonResources, platformResources
+
+        if (!commonRemappedIntoPlatformJar) {
+            from(zipTree(commonJarTask.outputs.files.singleFile)) {
+                exclude 'mixins.lunararc.common.json'
+                exclude 'mixins.lunararc.common.refmap.json'
+            }
+            from(project(':lunararc-common').file('src/main/resources/mixins.lunararc.common.json')) {
+                filter { String line ->
+                    if (line.contains('\"refmap\"')) return null
+                    if (line.contains('core.entity.SlimeAttackGoalMixin')) return null
+                    if (line.contains('core.entity.SlimeFloatGoalMixin')) return null
+                    if (line.contains('core.entity.SlimeRandomDirectionGoalMixin')) return null
+                    if (line.contains('core.entity.SlimeKeepOnJumpingGoalMixin')) return null
+                    if (line.contains('core.effect.HungerMobEffectMixin')) return null
+                    return line
+                }
+            }
+            from(zipTree(platformJarTask.outputs.files.singleFile)) {
+                include 'io/lunararcdevs/lunararc/**'
+                exclude 'io/lunararcdevs/lunararc/neoforge/mod/**'
+                include 'META-INF/neoforge.mods.toml'
+                include 'mixins.lunararc.neoforge.json'
+            }
+        } else if (platform == 'forge') {
+            from(zipTree(platformJarTask.outputs.files.singleFile)) {
+                exclude 'io/lunararcdevs/lunararc/forge/mod/**'
+                exclude 'META-INF/services/net.minecraftforge.forgespi.locating.IModLocator'
+                exclude 'META-INF/MANIFEST.MF'
+                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+            }
+        } else {
+            // Fabric/Quilt: no discovery-collision risk to guard against, so this is simply a
+            // full duplicate of the already-remapped platform jar, packaged the same way
+            // neoforge/forge are for consistency (and because fabric.addMods/loader.addMods
+            // already points the loader at this exact extracted jar).
+            from(zipTree(platformJarTask.outputs.files.singleFile)) {
+                exclude 'META-INF/MANIFEST.MF'
+                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+            }
+        }
+
+        from(project(':lunararc-common').sourceSets.main.output.resourcesDir) {
+            exclude 'mixins.lunararc.common.json'
+            exclude 'mixins.lunararc.common.refmap.json'
+        }
+        // Unfiltered on purpose except for this one entry: platformProject's own resources are
+        // otherwise exactly what common.jar is supposed to carry (its own mixin config, mod
+        // metadata, etc.) - but its locator's META-INF/services registration still names a class
+        // that (correctly) never ships in common.jar. A ModuleDescriptor built via
+        // ModuleDescriptor.Builder.provides(...) - which JPMS's automatic-module machinery uses
+        // for every META-INF/services entry a jar carries - adds the provider class's OWN PACKAGE
+        // to that module regardless of whether the class file is actually present, so this one
+        // leftover text file alone was enough to make common.jar's module claim
+        // io.lunararcdevs.lunararc.${platform}.mod - the exact package lunararc-core.jar (which
+        // hosts the real locator class) also claims - producing a split-package resolution failure
+        // that had nothing to do with any class file, JPMS boot-layer merging, or FML internals.
+        // Confirmed directly: ModuleDescriptor.Builder.provides() auto-adding the providers'
+        // package is real, observable behavior (verified against the actual securejarhandler
+        // library this project depends on), not a guess.
+        from(platformProject.sourceSets.main.output.resourcesDir) {
+            if (platform == 'neoforge') {
+                exclude 'META-INF/services/net.neoforged.neoforgespi.locating.IModFileCandidateLocator'
+            } else if (platform == 'forge') {
+                exclude 'META-INF/services/net.minecraftforge.forgespi.locating.IModLocator'
+            }
+        }
+
+        // paper-api is an interfaces-only jar (org.bukkit.plugin.PluginManager, RegistryAccess,
+        // ServerBuildInfo and friends) - lunararc-common implements the REAL classes for some of
+        // those same packages (SimplePluginManager, JavaPluginLoader, LunarArcRegistryAccess...),
+        // and those real classes live in this jar, not the outer one. A real NeoForge boot proved
+        // why both halves have to live in the same module: Mixin failed with "ClassNotFoundException:
+        // org.bukkit.plugin.PluginManager" transforming Entity, because the outer jar's own paper-api
+        // flatten step (further down) excludes anything whose package also appears in this jar -
+        // correctly avoiding a split-package error between the outer jar and this one - which left
+        // the *interface* half of org.bukkit.plugin owned by neither module.
+        // This is NOT splitModFile-only: a real Quilt boot proved Fabric/Quilt need it too, for a
+        // different reason. Knot only runs Mixin transforms on classes loaded through its own mod
+        // classpath (this jar, extracted and added via loader.addMods/fabric.addMods) - a class
+        // reachable only from the outer (non-mod) jar falls back to the plain system AppClassLoader,
+        // which never asks Knot for anything and so never sees the transformed bytecode. With
+        // paper-api split (some classes here, the rest in the outer jar), RegistryAccessMixin's
+        // @Overwrite on RegistryAccess.registryAccess() silently never applied - the crash trace
+        // still showed paper-api's own real RegistryAccessHolder/ServiceLoader code running,
+        // proving the untouched, un-mixed copy was what actually got loaded. Packaging the whole of
+        // paper-api directly into this jar (never partially split) keeps every interface, its
+        // lunararc-common implementation, and any mixin targeting it in the same module/classloader
+        // scope for all four loaders, and the outer jar's existing exclude already keeps its own
+        // copy out once this jar's package set covers all of it.
+        from(zipTree(project.configurations.paperApiJar.singleFile)) {
+            exclude 'META-INF/**'
+        }
+    }
 
     def ShadowJar = tasks.named('shadowJar').type
     tasks.register("${platform}Jar", ShadowJar) {
@@ -111,7 +284,7 @@ def createFatJar(String platform) {
         archiveClassifier.set('')
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-        relocate 'com.google.gson',         'io.ampznetwork.lunararc.libs.gson'
+        relocate 'com.google.gson',         'io.lunararcdevs.lunararc.libs.gson'
 
         doLast {
             File output = archiveFile.get().asFile
@@ -119,7 +292,7 @@ def createFatJar(String platform) {
             def remapper = new org.objectweb.asm.commons.Remapper() {
                 @Override
                 String map(String name) {
-                    String prefix = 'io/ampznetwork/lunararc/libs/gson/'
+                    String prefix = 'io/lunararcdevs/lunararc/libs/gson/'
                     return name.startsWith(prefix) ? 'com/google/gson/' + name.substring(prefix.length()) : name
                 }
             }
@@ -128,9 +301,9 @@ def createFatJar(String platform) {
                     input.entries().each { entry ->
                         byte[] bytes = input.getInputStream(entry).withCloseable { it.readAllBytes() }
                         if (entry.name.endsWith('.class')
-                                && !entry.name.startsWith('io/ampznetwork/lunararc/launcher/')
-                                && !entry.name.startsWith('io/ampznetwork/lunararc/i18n/')
-                                && !entry.name.startsWith('io/ampznetwork/lunararc/libs/gson/')) {
+                                && !entry.name.startsWith('io/lunararcdevs/lunararc/launcher/')
+                                && !entry.name.startsWith('io/lunararcdevs/lunararc/i18n/')
+                                && !entry.name.startsWith('io/lunararcdevs/lunararc/libs/gson/')) {
                             def writer = new org.objectweb.asm.ClassWriter(0)
                             new org.objectweb.asm.ClassReader(bytes).accept(
                                     new org.objectweb.asm.commons.ClassRemapper(writer, remapper), 0)
@@ -147,112 +320,119 @@ def createFatJar(String platform) {
             java.nio.file.Files.move(repaired.toPath(), output.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
         }
 
-        relocate 'org.apache.maven',         'io.ampznetwork.lunararc.libs.maven.core'
-        relocate 'org.codehaus.plexus',      'io.ampznetwork.lunararc.libs.maven.plexus'
-        relocate 'org.eclipse.sisu',         'io.ampznetwork.lunararc.libs.maven.sisu'
-        relocate 'javax.inject',             'io.ampznetwork.lunararc.libs.maven.inject'
-        relocate 'org.apache.http',          'io.ampznetwork.lunararc.libs.maven.http'
-        relocate 'org.apache.commons.codec', 'io.ampznetwork.lunararc.libs.maven.codec'
-        relocate 'org.apache.commons.logging','io.ampznetwork.lunararc.libs.maven.logging'
+        relocate 'org.apache.maven',         'io.lunararcdevs.lunararc.libs.maven.core'
+        relocate 'org.codehaus.plexus',      'io.lunararcdevs.lunararc.libs.maven.plexus'
+        relocate 'org.eclipse.sisu',         'io.lunararcdevs.lunararc.libs.maven.sisu'
+        relocate 'javax.inject',             'io.lunararcdevs.lunararc.libs.maven.inject'
+        relocate 'org.apache.http',          'io.lunararcdevs.lunararc.libs.maven.http'
+        relocate 'org.apache.commons.codec', 'io.lunararcdevs.lunararc.libs.maven.codec'
+        relocate 'org.apache.commons.logging','io.lunararcdevs.lunararc.libs.maven.logging'
 
-        def platformProjectMap = [
-            neoforge: ':lunararc-neoforge',
-            forge:    ':lunararc-forge',
-            fabric:   ':lunararc-fabric',
-            quilt:    ':lunararc-quilt'
-        ]
-        def platformProject = project(platformProjectMap[platform])
-
-        def platformJarTask = platformProject.tasks.findByName('remapJar')
-        if (platformJarTask == null || !platformJarTask.enabled) {
-            platformJarTask = platformProject.tasks.findByName('jar')
-        }
-
-        def commonTaskName = platform == 'neoforge'
-            ? 'transformProductionNeoForge'
-            : "transformProduction${platform.capitalize()}"
-        def commonJarTask = project(':lunararc-common').tasks.findByName(commonTaskName)
+        def platformJarTask = resolvePlatformJarTask()
+        def commonJarTask = resolveCommonJarTask()
+        def commonResources = project(':lunararc-common').tasks.named('processResources')
+        def platformResources = platformProject.tasks.named('processResources')
+        def bootstrapResources = tasks.named('processResources')
 
         // The mod metadata files are templates - fabric.mod.json and quilt.mod.json carry
         // ${version}, ${minecraft} and friends - and only processResources expands them. Depending
         // on the processResources tasks, and copying from their output below rather than from the
         // source directories, is what makes the shipped jar carry real values.
-        def commonResources = project(':lunararc-common').tasks.named('processResources')
-        def platformResources = platformProject.tasks.named('processResources')
-        def bootstrapResources = tasks.named('processResources')
         dependsOn commonJarTask, platformJarTask, 'generateVersions',
-                commonResources, platformResources, bootstrapResources
+                commonResources, platformResources, bootstrapResources,
+                tasks.named("${platform}CommonJar")
 
-        // transformProduction* is Architectury's bytecode transformer, and its output is still in
-        // the named (Mojang) namespace - Loom's remapJar, in the platform project, is what puts
-        // classes into the loader's namespace. Only NeoForge runs on Mojang names at runtime, so
-        // only there is the transformer output already the right thing to ship.
-        //
-        // Forge (SRG), Fabric and Quilt (intermediary) all bundle lunararc-common into their
-        // shadowJar so remapJar remaps common and platform classes in one pass. Copying the named
-        // transformer output in first defeated that entirely: duplicatesStrategy is EXCLUDE, so
-        // the first copy of a path wins and the un-remapped classes were the ones that shipped.
-        // On Fabric that surfaced as "@Mixin target net.minecraft.server.commands.EffectCommands
-        // was not found" - the Mojang name of a class the loader only knows as an intermediary
-        // one - and on Forge it would have been the same story one step later, as NoSuchMethodError
-        // against SRG member names. Take the remapped platform JAR whole on those platforms.
-        boolean commonRemappedIntoPlatformJar = platform != 'neoforge'
+        from(tasks.named("${platform}CommonJar").flatMap { it.archiveFile }) {
+            rename { 'common.jar' }
+        }
 
-        if (commonRemappedIntoPlatformJar) {
-
-            from(zipTree(platformJarTask.outputs.files.singleFile)) {
-                exclude 'META-INF/MANIFEST.MF'
-                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
-            }
-        } else {
-
-            from(zipTree(commonJarTask.outputs.files.singleFile)) {
-                exclude 'mixins.lunararc.common.json'
-                exclude 'mixins.lunararc.common.refmap.json'
-            }
-
-            from(project(':lunararc-common').file('src/main/resources/mixins.lunararc.common.json')) {
-                filter { String line ->
-                    if (line.contains('\"refmap\"')) return null
-                    if (line.contains('core.entity.SlimeAttackGoalMixin')) return null
-                    if (line.contains('core.entity.SlimeFloatGoalMixin')) return null
-                    if (line.contains('core.entity.SlimeRandomDirectionGoalMixin')) return null
-                    if (line.contains('core.entity.SlimeKeepOnJumpingGoalMixin')) return null
-                    if (line.contains('core.effect.HungerMobEffectMixin')) return null
-                    return line
+        // Architectury's loom merges lunararc-common's own compiled output (not just
+        // io/lunararcdevs/lunararc/** - also whatever CraftBukkit-surface packages it implements
+        // directly, like org/bukkit/plugin/**) straight into each platform project's own
+        // jar/remapJar output. JPMS forbids two modules exporting the same PACKAGE at all - not just
+        // the same class - so even though the outer jar's org/bukkit/plugin/*.class files and
+        // common.jar's org/bukkit/plugin/SimplePluginManager.class don't share a single filename,
+        // both jars claiming the org.bukkit.plugin package is exactly what blew up the instant a
+        // real plugin's own module read both of them ("Modules ... export package org.bukkit.plugin
+        // to module jadeaddons"). Rather than hand-naming every such package, exclude from the outer
+        // jar any class whose package also appears anywhere in common.jar's own real content - the
+        // two are built from the same archiveFile a few lines up, so this is authoritative.
+        // Shadow's relocate rules (declared above) rewrite these source packages into
+        // io/lunararcdevs/lunararc/libs/** on their way into the outer jar - common.jar can never
+        // contain that synthetic namespace (it's a plain, non-relocating Jar task), so a path here
+        // matching something in common.jar's own (always un-relocated) copy is not a real conflict:
+        // by the time this jar is finished building, the two land in genuinely different packages.
+        List<String> relocatedSourcePrefixes = [
+            'org/apache/maven/', 'org/codehaus/plexus/', 'javax/inject/',
+            'org/eclipse/sisu/', 'org/apache/http/', 'org/apache/commons/codec/',
+            'org/apache/commons/logging/', 'com/google/gson/'
+        ]
+        def commonJarPackages = null
+        def isCommonJarPackage = { String path ->
+            if (relocatedSourcePrefixes.any { path.startsWith(it) }) return false
+            if (commonJarPackages == null) {
+                commonJarPackages = new HashSet<String>()
+                File commonJarFile = tasks.named("${platform}CommonJar").get().archiveFile.get().asFile
+                if (commonJarFile.exists()) {
+                    new java.util.zip.ZipFile(commonJarFile).withCloseable { zip ->
+                        zip.entries().each { entry ->
+                            if (!entry.directory && entry.name.endsWith('.class')) {
+                                int slash = entry.name.lastIndexOf('/')
+                                commonJarPackages.add(slash >= 0 ? entry.name.substring(0, slash + 1) : '')
+                            }
+                        }
+                    }
                 }
             }
+            if (!path.endsWith('.class')) return false
+            int slash = path.lastIndexOf('/')
+            String pkg = slash >= 0 ? path.substring(0, slash + 1) : ''
+            return commonJarPackages.contains(pkg)
+        }
 
+        if (splitModFile) {
+            // Everything lunararc-owned moves into common.jar exclusively (see splitModFile's
+            // definition above) - the launched jar keeps only the locator that points at it.
             from(zipTree(platformJarTask.outputs.files.singleFile)) {
-                include 'io/ampznetwork/lunararc/**'
-                include 'META-INF/neoforge.mods.toml'
-                include 'META-INF/mods.toml'
+                exclude 'io/lunararcdevs/lunararc/**'
+                exclude 'mixins.lunararc.common.json'
+                exclude 'mixins.lunararc.common.refmap.json'
+                exclude "mixins.lunararc.${platform}.json"
+                exclude "META-INF/${platform == 'neoforge' ? 'neoforge.mods.toml' : 'mods.toml'}"
+                exclude 'META-INF/MANIFEST.MF'
+                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+                exclude { FileTreeElement fte -> !fte.directory && isCommonJarPackage(fte.relativePath.pathString) }
+            }
+            from(zipTree(platformJarTask.outputs.files.singleFile)) {
+                include "io/lunararcdevs/lunararc/${platform}/mod/**"
+            }
+        } else if (commonRemappedIntoPlatformJar) {
+            // Fabric/Quilt discover their mod entirely through fabric.addMods/loader.addMods
+            // pointing at the extracted common.jar (see FabricLauncher/QuiltLauncher) - unlike
+            // NeoForge/Forge there's no default classpath-scanning locator to satisfy here, so
+            // nothing lunararc-owned needs to also sit in the launched jar itself.
+            from(zipTree(platformJarTask.outputs.files.singleFile)) {
+                exclude 'io/lunararcdevs/lunararc/**'
+                exclude 'mixins.lunararc.common.json'
+                exclude 'mixins.lunararc.common.refmap.json'
+                exclude "mixins.lunararc.${platform}.json"
+                exclude 'fabric.mod.json'
+                exclude 'quilt.mod.json'
+                exclude 'META-INF/MANIFEST.MF'
+                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+                exclude { FileTreeElement fte -> !fte.directory && isCommonJarPackage(fte.relativePath.pathString) }
             }
         }
 
         from project(':installer').sourceSets.main.output
-        from project(':lunararc-api').sourceSets.main.output
+        from { zipTree(project.configurations.lunararcApiJar.singleFile) }
         from project(':i18n-config').sourceSets.main.output
-        // These take the processed resource output, not src/main/resources. Reading the source
-        // directory shipped fabric.mod.json and quilt.mod.json with their ${...} placeholders
-        // intact, so Fabric read the mod's version as the literal string "${version}" and refused
-        // to load it: "requires version ${fabric_loader} of mod 'Fabric Loader', but only the
-        // wrong version is present: 0.19.5". The same file arrives processed from the platform jar
-        // above, and which of the two won was left to the copy's duplicate handling.
-        // The mixin config and its refmap are deliberately never taken from here: NeoForge gets the
-        // filtered copy written above, and the remapped platforms must keep the copy remapJar
-        // rewrote for their namespace. Everything else in common's resources is namespace-neutral.
-        from(project(':lunararc-common').sourceSets.main.output.resourcesDir) {
-            exclude 'mixins.lunararc.common.json'
-            exclude 'mixins.lunararc.common.refmap.json'
-        }
-        from platformProject.sourceSets.main.output.resourcesDir
         from sourceSets.main.output.resourcesDir
 
         project.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             def id = artifact.moduleVersion.id
 
-            if (id.group == 'io.ampznetwork.lunararc') return
+            if (id.group == 'io.lunararcdevs.lunararc') return
 
             def providedByPlatform = id.group.startsWith('org.apache.commons') ||
                 (id.group.startsWith('org.apache.maven') && !(id.group == 'org.apache.maven.resolver' || id.group == 'org.apache.maven')) ||
@@ -311,9 +491,14 @@ def createFatJar(String platform) {
                 from(zipTree(artifact.file)) {
                     exclude 'META-INF/MANIFEST.MF'
                     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
-                    exclude 'org/bukkit/plugin/java/JavaPlugin.class'
-                    exclude 'org/bukkit/plugin/java/JavaPlugin$*.class'
-                    exclude 'org/bukkit/plugin/SimplePluginManager.class'
+                    // paper-api declares the org.bukkit.plugin (and .java) packages as plain API
+                    // interfaces; lunararc-common implements real classes in those same packages
+                    // (SimplePluginManager, JavaPluginLoader, PluginClassLoader, LunarArcRegistryAccess...)
+                    // that now ship inside common.jar for every loader (see the paper-api pull into
+                    // common.jar above - no longer splitModFile-only). Naming individual classes here
+                    // isn't enough - exclude by package, same as the platformJarTask pull above, so no
+                    // copy of paper-api survives in the outer jar anywhere it's also in common.jar.
+                    exclude { FileTreeElement fte -> !fte.directory && isCommonJarPackage(fte.relativePath.pathString) }
                 }
             } else {
 
@@ -323,16 +508,13 @@ def createFatJar(String platform) {
             }
         }
 
-        exclude 'io/ampznetwork/lunararc/common/server/LunarArcPluginLibraryRuntime.class'
-        exclude 'io/ampznetwork/lunararc/common/server/LunarArcPluginLibraryRuntime$*.class'
-
         exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
         mergeServiceFiles()
 
         manifest {
             attributes(
-                'Main-Class':              'io.ampznetwork.lunararc.launcher.Launcher',
-                'Premain-Class':           'io.ampznetwork.lunararc.launcher.LunarArcAgent',
+                'Main-Class':              'io.lunararcdevs.lunararc.launcher.Launcher',
+                'Premain-Class':           'io.lunararcdevs.lunararc.launcher.LunarArcAgent',
                 'Can-Retransform-Classes': 'true',
                 'Can-Append-To-Class-Path': 'true',
                 'LunarArc-Platform':       platform,
@@ -351,18 +533,23 @@ def createFatJar(String platform) {
             List<String> forbiddenNms = new ArrayList<>()
             List<String> forbiddenPaperServer = new ArrayList<>()
             Set<String> entries = new HashSet<>()
-            new java.util.jar.JarFile(hybridJar).withCloseable { jar ->
+            Set<String> outerEntries = new HashSet<>()
+            Set<String> commonEntries = new HashSet<>()
+            File commonScanFile = null
+
+            def scanJarEntries = { java.util.jar.JarFile jar, Set<String> ownEntries ->
                 jar.entries().each { entry ->
                     if (entry.directory) return
                     entries.add(entry.name)
-                    if (!entry.name.endsWith('.class')) return
-                    if (!entry.name.startsWith('io/ampznetwork/lunararc/launcher/')
-                            && !entry.name.startsWith('io/ampznetwork/lunararc/i18n/')
-                            && !entry.name.startsWith('io/ampznetwork/lunararc/libs/gson/')) {
+                    ownEntries.add(entry.name)
+                    if (entry.name.endsWith('.class')
+                            && !entry.name.startsWith('io/lunararcdevs/lunararc/launcher/')
+                            && !entry.name.startsWith('io/lunararcdevs/lunararc/i18n/')
+                            && !entry.name.startsWith('io/lunararcdevs/lunararc/libs/gson/')) {
                         String bytecode = jar.getInputStream(entry).withCloseable {
                             new String(it.readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1)
                         }
-                        if (bytecode.contains('io/ampznetwork/lunararc/libs/gson/')) {
+                        if (bytecode.contains('io/lunararcdevs/lunararc/libs/gson/')) {
                             throw new GradleException("Runtime class still uses private launcher Gson: ${entry.name}")
                         }
                     }
@@ -378,6 +565,21 @@ def createFatJar(String platform) {
                     if (paperServerOnly) {
                         forbiddenPaperServer.add(entry.name)
                     }
+                }
+            }
+
+            // The CraftBukkit/bridge classes and the loader metadata now live inside the nested
+            // common.jar (see splitModFile in createFatJar) rather than as direct entries of the
+            // launched jar, so every check below has to see inside it too.
+            new java.util.jar.JarFile(hybridJar).withCloseable { jar ->
+                scanJarEntries(jar, outerEntries)
+                def commonEntry = jar.getEntry('common.jar')
+                if (commonEntry != null) {
+                    commonScanFile = new File(temporaryDir, "${platform}-common-scan.jar")
+                    jar.getInputStream(commonEntry).withCloseable { input ->
+                        commonScanFile.bytes = input.readAllBytes()
+                    }
+                    new java.util.jar.JarFile(commonScanFile).withCloseable { commonJar -> scanJarEntries(commonJar, commonEntries) }
                 }
             }
             if (!forbiddenNms.isEmpty()) {
@@ -425,9 +627,9 @@ def createFatJar(String platform) {
                 'org/eclipse/aether/graph/Dependency.class',
                 'org/eclipse/aether/repository/RemoteRepository.class',
                 'org/eclipse/aether/RepositorySystem.class',
-                'io/ampznetwork/lunararc/libs/maven/core/repository/internal/MavenRepositorySystemUtils.class',
-                'io/ampznetwork/lunararc/libs/maven/inject/Inject.class',
-                'io/ampznetwork/lunararc/libs/maven/http/client/HttpClient.class'
+                'io/lunararcdevs/lunararc/libs/maven/core/repository/internal/MavenRepositorySystemUtils.class',
+                'io/lunararcdevs/lunararc/libs/maven/inject/Inject.class',
+                'io/lunararcdevs/lunararc/libs/maven/http/client/HttpClient.class'
             ]
             List<String> missingPluginLibraryRuntime = requiredPluginLibraryRuntime.findAll { !entries.contains(it) }
             if (!missingPluginLibraryRuntime.isEmpty()) {
@@ -436,12 +638,12 @@ def createFatJar(String platform) {
             if (entries.any { it.startsWith('META-INF/lunararc/plugin-runtime-libs/') }) {
                 throw new GradleException("${platform} hybrid JAR still contains the retired nested Paper PluginLoader runtime")
             }
-            if (entries.contains('io/ampznetwork/lunararc/common/server/LunarArcPluginLibraryRuntime.class')) {
+            if (entries.contains('io/lunararcdevs/lunararc/common/server/LunarArcPluginLibraryRuntime.class')) {
                 throw new GradleException("${platform} hybrid JAR still contains the retired LunarArcPluginLibraryRuntime class")
             }
 
             List<String> requiredLunarArcRuntimeResources = [
-                'io/ampznetwork/lunararc/i18n/TranslationManager.class',
+                'io/lunararcdevs/lunararc/i18n/TranslationManager.class',
                 'locale/en_gb.json'
             ]
             List<String> missingLunarArcRuntimeResources = requiredLunarArcRuntimeResources.findAll { !entries.contains(it) }
@@ -453,7 +655,15 @@ def createFatJar(String platform) {
             //
             // A loader whose metadata does not name mixins.lunararc.common.json applies none of the
             // common layer, so the server boots normally and simply has no Bukkit in it and loads no
-            // plugins. That was true of Forge, and nothing in the build noticed.
+            // plugins. That was true of Forge before, and nothing in the build noticed - entries (the
+            // union of the outer jar and the nested common.jar) was satisfied by whichever one had it,
+            // regardless of whether that is the one the loader actually reads from. All four platforms
+            // discover this mod from the nested common.jar - NeoForge/Forge via the custom
+            // IModFileCandidateLocator/IModLocator pointing at the extracted copy of it (confirmed
+            // against a real debug.log: neither loader has any built-in locator that would find a mod
+            // sitting directly in the outer jar), Fabric/Quilt via fabric.addMods/loader.addMods
+            // pointing at that same extracted copy - so the check requires both the metadata and the
+            // mixin config to be found specifically in common.jar, not just anywhere in their union.
             //
             // And metadata copied from src/main/resources rather than the processResources output
             // still holds its ${...} placeholders, which Fabric reports as a version conflict
@@ -465,15 +675,30 @@ def createFatJar(String platform) {
                 quilt:    'quilt.mod.json'
             ][platform]
 
-            if (!entries.contains(metadataEntry)) {
-                throw new GradleException("${platform} hybrid JAR is missing its loader metadata ${metadataEntry}")
+            Set<String> discoverySourceEntries = commonEntries
+            String discoverySourceLabel = 'nested common.jar'
+
+            if (!discoverySourceEntries.contains(metadataEntry)) {
+                throw new GradleException(
+                    "${platform} hybrid JAR's ${discoverySourceLabel} is missing its loader metadata ${metadataEntry} - " +
+                    "that is where ${platform} actually discovers the mod from, so metadata anywhere else is invisible to it.")
             }
-            if (!entries.contains('mixins.lunararc.common.json')) {
-                throw new GradleException("${platform} hybrid JAR is missing mixins.lunararc.common.json")
+            if (!discoverySourceEntries.contains('mixins.lunararc.common.json')) {
+                throw new GradleException(
+                    "${platform} hybrid JAR's ${discoverySourceLabel} is missing mixins.lunararc.common.json " +
+                    "alongside its loader metadata. Without it in the same place the loader reads ${metadataEntry} " +
+                    "from, the common mixins never apply: the server starts, and has no Bukkit layer and no plugins.")
             }
 
             String metadata = new java.util.jar.JarFile(hybridJar).withCloseable { jar ->
-                jar.getInputStream(jar.getEntry(metadataEntry)).getText('UTF-8')
+                def entry = jar.getEntry(metadataEntry)
+                if (entry != null) return jar.getInputStream(entry).getText('UTF-8')
+                if (commonScanFile == null) {
+                    throw new GradleException("${platform} hybrid JAR has no common.jar to read ${metadataEntry} from")
+                }
+                new java.util.jar.JarFile(commonScanFile).withCloseable { commonJar ->
+                    commonJar.getInputStream(commonJar.getEntry(metadataEntry)).getText('UTF-8')
+                }
             }
             if (!metadata.contains('mixins.lunararc.common.json')) {
                 throw new GradleException(

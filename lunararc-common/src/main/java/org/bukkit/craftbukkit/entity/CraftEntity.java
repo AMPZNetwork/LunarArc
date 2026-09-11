@@ -1,8 +1,8 @@
 package org.bukkit.craftbukkit.entity;
 
 import net.minecraft.world.entity.Entity;
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.bridge.ServerLevelBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -223,8 +223,28 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         if (entity instanceof net.minecraft.world.entity.Mob mob) {
             return new CraftMob(server, mob);
         }
+        if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand armorStand) {
+            return new CraftArmorStand(server, armorStand);
+        }
         if (entity instanceof net.minecraft.world.entity.LivingEntity living) {
             return new CraftLivingEntity(server, living);
+        }
+        // BlockAttachedEntity (ItemFrame/GlowItemFrame/Painting) extends Entity directly, not
+        // LivingEntity, so without these branches it fell through to CraftUnknownEntity - a real
+        // confirmed bug in Arclight (IzzelAliz/Arclight#2168: "modded BlockAttachedEntity cannot
+        // be cast to org.bukkit.entity.Hanging"), and the same gap existed here for the vanilla
+        // case too. GlowItemFrame extends ItemFrame, so it must be checked first.
+        if (entity instanceof net.minecraft.world.entity.decoration.GlowItemFrame glowItemFrame) {
+            return new CraftGlowItemFrame(server, glowItemFrame);
+        }
+        if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame itemFrame) {
+            return new CraftItemFrame(server, itemFrame);
+        }
+        if (entity instanceof net.minecraft.world.entity.decoration.Painting painting) {
+            return new CraftPainting(server, painting);
+        }
+        if (entity instanceof net.minecraft.world.entity.decoration.LeashFenceKnotEntity leash) {
+            return new CraftLeash(server, leash);
         }
         return new CraftUnknownEntity(server, entity);
     }
@@ -256,11 +276,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public @NotNull net.kyori.adventure.text.Component name() {
-        return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(entity.getName());
+        return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(entity.getName());
     }
 
     @Override
-    public @NotNull org.bukkit.entity.Entity.Spigot spigot() {
+    public org.bukkit.entity.Entity.@NotNull Spigot spigot() {
         return this.spigot;
     }
 
@@ -273,7 +293,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
     public @NotNull org.bukkit.entity.EntityType getType() {
         try {
             net.minecraft.resources.ResourceLocation id = entity.getType().builtInRegistryHolder().key().location();
-            org.bukkit.entity.EntityType type = io.ampznetwork.lunararc.common.server.LunarArcDynamicBukkitEnums.entityType(id);
+            org.bukkit.entity.EntityType type = io.lunararcdevs.lunararc.common.server.LunarArcDynamicBukkitEnums.entityType(id);
             return type != null ? type : org.bukkit.entity.EntityType.UNKNOWN;
         } catch (Throwable t) {
             return org.bukkit.entity.EntityType.UNKNOWN;
@@ -377,7 +397,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean teleport(@NotNull Location location,
-            @NotNull org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause) {
+            org.bukkit.event.player.PlayerTeleportEvent.@NotNull TeleportCause cause) {
         java.util.Objects.requireNonNull(location, "location");
         java.util.Objects.requireNonNull(cause, "cause");
         if (entity.isVehicle() || entity.isRemoved()) return false;
@@ -419,14 +439,14 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean teleport(@NotNull Location location,
-            @NotNull org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause,
+            org.bukkit.event.player.PlayerTeleportEvent.@NotNull TeleportCause cause,
             @NotNull io.papermc.paper.entity.TeleportFlag... flags) {
         return teleport(location, cause);
     }
 
     @Override
     public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location location,
-            @NotNull org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause,
+            org.bukkit.event.player.PlayerTeleportEvent.@NotNull TeleportCause cause,
             @NotNull io.papermc.paper.entity.TeleportFlag... flags) {
         java.util.Objects.requireNonNull(location, "location");
         java.util.Objects.requireNonNull(cause, "cause");
@@ -477,19 +497,19 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean teleport(@NotNull org.bukkit.entity.Entity destination,
-            @NotNull org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause) {
+            org.bukkit.event.player.PlayerTeleportEvent.@NotNull TeleportCause cause) {
         return teleport(destination.getLocation(), cause);
     }
 
 
     @Override
     public boolean isPersistent() {
-        return ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$isPersistent();
+        return ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$isPersistent();
     }
 
     @Override
     public void setPersistent(boolean persistent) {
-        ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$setPersistent(persistent);
+        ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$setPersistent(persistent);
     }
 
     @Override
@@ -705,7 +725,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         return java.util.Collections.unmodifiableSet(result);
     }
 
-    @Override public @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason getEntitySpawnReason() {
+    @Override public org.bukkit.event.entity.CreatureSpawnEvent.@NotNull SpawnReason getEntitySpawnReason() {
         org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason = this.bridge().lunararc$getSpawnReason();
         return reason == null ? org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT : reason;
     }
@@ -785,14 +805,14 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         for (String line : message) sendMessage(sender, line);
     }
     @Override public void sendMessage(@Nullable UUID sender, @NotNull String message) {
-        entity.sendSystemMessage(io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(
+        entity.sendSystemMessage(io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(
                 java.util.Objects.requireNonNull(message, "message")));
     }
     @Override public void sendMessage(@NotNull String... message) { sendMessage((UUID) null, message); }
     @Override public void sendMessage(@NotNull String message) { sendMessage((UUID) null, message); }
     @Override public void customName(net.kyori.adventure.text.Component customName) {
         entity.setCustomName(customName == null ? null
-                : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(customName));
+                : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(customName));
     }
     @Override public net.kyori.adventure.text.Component customName() {
         return entity.getCustomName() == null ? null : io.papermc.paper.adventure.PaperAdventure.asAdventure(entity.getCustomName());
@@ -972,7 +992,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean spawnAt(@NotNull Location location,
-            @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason) {
+            org.bukkit.event.entity.CreatureSpawnEvent.@NotNull SpawnReason reason) {
         java.util.Objects.requireNonNull(location, "location");
         java.util.Objects.requireNonNull(reason, "reason");
         if (!(location.getWorld() instanceof org.bukkit.craftbukkit.CraftWorld world)) {
@@ -1059,15 +1079,6 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         }
     }
 
-    /**
-     * Resend this entity to one player.
-     *
-     * <p>CraftBukkit pushes the add-entity packet straight down the connection, which needs the
-     * tracker's ServerEntity. That field is not reachable here, so the resend goes through the
-     * tracker's own remove/update pair instead - the player is dropped from the tracking set and
-     * immediately re-added, which makes the tracker rebuild and send the entity. Same observable
-     * effect, using only what vanilla exposes.</p>
-     */
     public void update(net.minecraft.server.level.ServerPlayer player) {
         if (!this.getHandle().isAlive()) {
             return;
@@ -1076,7 +1087,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         net.minecraft.server.level.ChunkMap chunkMap =
                 ((org.bukkit.craftbukkit.CraftWorld) this.getWorld()).getHandle().getChunkSource().chunkMap;
         net.minecraft.server.level.ChunkMap.TrackedEntity tracked =
-                ((io.ampznetwork.lunararc.common.bridge.access.ChunkMapAccessBridge) (Object) chunkMap)
+                ((io.lunararcdevs.lunararc.common.bridge.access.ChunkMapAccessBridge) (Object) chunkMap)
                         .lunararc$getEntityMap().get(this.getEntityId());
         if (tracked == null) {
             return;

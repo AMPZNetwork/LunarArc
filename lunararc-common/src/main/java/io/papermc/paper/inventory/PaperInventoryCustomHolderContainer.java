@@ -58,7 +58,7 @@ public final class PaperInventoryCustomHolderContainer implements Container {
     public void setMaxStackSize(int size) {
         if (size <= 0) throw new IllegalArgumentException("Stack size must be positive");
         maxStackSize = size;
-        if (delegate instanceof io.ampznetwork.lunararc.common.bridge.SimpleContainerBridge bridge) bridge.lunararc$setMaxStackSize(size);
+        if (delegate instanceof io.lunararcdevs.lunararc.common.bridge.SimpleContainerBridge bridge) bridge.lunararc$setMaxStackSize(size);
     }
     public org.bukkit.Location getLocation() {
         if (delegate instanceof net.minecraft.world.level.block.entity.BlockEntity block && block.getLevel() != null) {

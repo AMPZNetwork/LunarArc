@@ -1,8 +1,7 @@
 package org.bukkit.craftbukkit.block;
 
-import io.ampznetwork.lunararc.common.LunarArcServerAccess;
-import io.ampznetwork.lunararc.common.bridge.BlockEntityBridge;
-import net.minecraft.core.BlockPos;
+import io.lunararcdevs.lunararc.common.LunarArcServerAccess;
+import io.lunararcdevs.lunararc.common.bridge.BlockEntityBridge;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
@@ -10,7 +9,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.TileState;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
@@ -18,13 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-/**
- * Hybrid-safe CraftBukkit 1.21.1 block-entity state base.
- *
- * <p>The constructor/protected-method ABI intentionally mirrors the CraftBukkit
- * surface that specialized Paper/Craft block states are compiled against. The
- * wrapped block entity is always the loader-owned Minecraft object.</p>
- */
 @SuppressWarnings({"unchecked", "deprecation"})
 public class CraftBlockEntityState<T extends BlockEntity> extends CraftBlockState implements TileState {
     public static boolean DISABLE_SNAPSHOT = false;

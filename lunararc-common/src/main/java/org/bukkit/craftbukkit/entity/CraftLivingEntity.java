@@ -1,9 +1,9 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.ItemStackBridge;
-import io.ampznetwork.lunararc.common.bridge.LivingEntityBridge;
-import io.ampznetwork.lunararc.common.bridge.access.EntityAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.LivingEntityAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.ItemStackBridge;
+import io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.EntityAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.LivingEntityAccessBridge;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -56,13 +56,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Concrete common Bukkit LivingEntity adapter over the real loader-owned NMS LivingEntity.
- *
- * <p>Paper/CraftBukkit state which vanilla does not expose is attached to the NMS entity by
- * narrowly-scoped mixins. There is no proxy object or runtime dispatch layer between this wrapper
- * and Minecraft.</p>
- */
 public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     private final @Nullable CraftEntityEquipment equipment;
 
@@ -98,7 +91,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     }
 
     @Override
-    public void heal(double amount, @NotNull EntityRegainHealthEvent.RegainReason reason) {
+    public void heal(double amount, EntityRegainHealthEvent.@NotNull RegainReason reason) {
         Objects.requireNonNull(reason, "reason");
         if (!Double.isFinite(amount) || amount < 0.0D) throw new IllegalArgumentException("amount must be finite and >= 0");
         getHandle().heal((float) amount);
@@ -171,11 +164,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     // per-method rather than by disabling the javac `removal` lint for the whole build, so a
     // genuinely accidental use of a deprecated-for-removal API elsewhere still gets flagged.
     @SuppressWarnings("removal")
-    @Override public @Nullable Block getTargetBlock(int maxDistance, @NotNull com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) {
+    @Override public @Nullable Block getTargetBlock(int maxDistance, com.destroystokyo.paper.block.TargetBlockInfo.@NotNull FluidMode fluidMode) {
         return getTargetBlockExact(maxDistance, paperFluidMode(fluidMode));
     }
     @SuppressWarnings("removal")
-    @Override public @Nullable org.bukkit.block.BlockFace getTargetBlockFace(int maxDistance, @NotNull com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) {
+    @Override public @Nullable org.bukkit.block.BlockFace getTargetBlockFace(int maxDistance, com.destroystokyo.paper.block.TargetBlockInfo.@NotNull FluidMode fluidMode) {
         return getTargetBlockFace(maxDistance, paperFluidMode(fluidMode));
     }
     @Override public @Nullable org.bukkit.block.BlockFace getTargetBlockFace(int maxDistance, @NotNull FluidCollisionMode fluidMode) {
@@ -183,7 +176,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         return result == null ? null : result.getHitBlockFace();
     }
     @SuppressWarnings("removal")
-    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int maxDistance, @NotNull com.destroystokyo.paper.block.TargetBlockInfo.FluidMode fluidMode) {
+    @Override public @Nullable com.destroystokyo.paper.block.TargetBlockInfo getTargetBlockInfo(int maxDistance, com.destroystokyo.paper.block.TargetBlockInfo.@NotNull FluidMode fluidMode) {
         RayTraceResult result = rayTraceBlocks(maxDistance, paperFluidMode(fluidMode));
         if (result == null || result.getHitBlock() == null || result.getHitBlockFace() == null) return null;
         return new com.destroystokyo.paper.block.TargetBlockInfo(result.getHitBlock(), result.getHitBlockFace());
@@ -315,7 +308,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         Objects.requireNonNull(effect, "effect");
         Holder<net.minecraft.world.effect.MobEffect> holder = effectHolder(effect.getType());
         if (holder == null) return false;
-        ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle())
+        ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle())
                 .lunararc$pushEffectCause(org.bukkit.event.entity.EntityPotionEffectEvent.Cause.PLUGIN);
         return getHandle().addEffect(
                 new MobEffectInstance(holder, effect.getDuration(), effect.getAmplifier(), effect.isAmbient(), effect.hasParticles(), effect.hasIcon()));
@@ -339,7 +332,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     @Override public void removePotionEffect(@NotNull PotionEffectType type) {
         Holder<net.minecraft.world.effect.MobEffect> holder = effectHolder(type);
         if (holder != null) {
-            ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle())
+            ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle())
                     .lunararc$pushEffectCause(org.bukkit.event.entity.EntityPotionEffectEvent.Cause.PLUGIN);
             getHandle().removeEffect(holder);
         }
@@ -350,7 +343,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         return java.util.Collections.unmodifiableList(result);
     }
     @Override public boolean clearActivePotionEffects() {
-        return ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle())
+        return ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle())
                 .lunararc$removeAllEffects(org.bukkit.event.entity.EntityPotionEffectEvent.Cause.PLUGIN);
     }
 
@@ -384,7 +377,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     }
     @Override public void setRemoveWhenFarAway(boolean remove) {
         if (getHandle() instanceof net.minecraft.world.entity.Mob mob) {
-            if (remove) ((io.ampznetwork.lunararc.common.bridge.access.MobAccessBridge) mob).lunararc$setPersistenceRequired(false); else mob.setPersistenceRequired();
+            if (remove) ((io.lunararcdevs.lunararc.common.bridge.access.MobAccessBridge) mob).lunararc$setPersistenceRequired(false); else mob.setPersistenceRequired();
         }
     }
     @Override public @Nullable EntityEquipment getEquipment() { return equipment; }
@@ -429,7 +422,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         if (holder == null) throw new IllegalArgumentException("Unknown attribute " + attribute.getKey());
         if (getHandle().getAttribute(holder) != null) return;
         AttributeInstance instance = new AttributeInstance(holder, AttributeInstance::getAttribute);
-        ((io.ampznetwork.lunararc.common.bridge.access.AttributeMapAccessBridge) getHandle().getAttributes()).lunararc$getAttributes().put(holder, instance);
+        ((io.lunararcdevs.lunararc.common.bridge.access.AttributeMapAccessBridge) getHandle().getAttributes()).lunararc$getAttributes().put(holder, instance);
     }
     private static @Nullable Holder<net.minecraft.world.entity.ai.attributes.Attribute> attributeHolder(Attribute attribute) {
         Objects.requireNonNull(attribute, "attribute");

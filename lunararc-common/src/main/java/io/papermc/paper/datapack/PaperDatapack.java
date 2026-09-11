@@ -1,6 +1,6 @@
 package io.papermc.paper.datapack;
 
-import io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline;
+import io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -16,7 +16,6 @@ import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.flag.FeatureFlags;
 import org.bukkit.FeatureFlag;
-import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
 

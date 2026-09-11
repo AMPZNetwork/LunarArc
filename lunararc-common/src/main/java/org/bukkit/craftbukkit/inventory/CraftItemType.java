@@ -32,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/** Concrete Paper ItemType backed directly by a live Minecraft 1.21.1 Item. */
 public final class CraftItemType<M extends ItemMeta> implements ItemType.Typed<M> {
     private final NamespacedKey key;
     private final Item handle;
@@ -55,11 +54,11 @@ public final class CraftItemType<M extends ItemMeta> implements ItemType.Typed<M
         return id == null ? null : Registry.ITEM.get(new NamespacedKey(id.getNamespace(), id.getPath()));
     }
 
-    @Override public @NotNull ItemType.Typed<ItemMeta> typed() { return this.typed(ItemMeta.class); }
+    @Override public ItemType.@NotNull Typed<ItemMeta> typed() { return this.typed(ItemMeta.class); }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <Other extends ItemMeta> @NotNull ItemType.Typed<Other> typed(@NotNull Class<Other> itemMetaType) {
+    public <Other extends ItemMeta> ItemType.@NotNull Typed<Other> typed(@NotNull Class<Other> itemMetaType) {
         Objects.requireNonNull(itemMetaType, "itemMetaType");
         if (itemMetaType.isAssignableFrom(this.metaClass)) return (ItemType.Typed<Other>) this;
         throw new IllegalArgumentException("Cannot type item type " + this.key + " to meta type " + itemMetaType.getSimpleName());

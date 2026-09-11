@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
 import org.bukkit.BanEntry;
-import org.bukkit.BanList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -178,11 +177,11 @@ public class CraftOfflinePlayer implements OfflinePlayer {
         return net.minecraft.core.GlobalPos.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, data.get("LastDeathLocation"))
                 .result()
                 .map(globalPos -> {
-                    net.minecraft.server.MinecraftServer server = io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer();
+                    net.minecraft.server.MinecraftServer server = io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer();
                     net.minecraft.server.level.ServerLevel level = server.getLevel(globalPos.dimension());
                     if (level == null) return null;
                     net.minecraft.core.BlockPos pos = globalPos.pos();
-                    org.bukkit.craftbukkit.CraftWorld world = io.ampznetwork.lunararc.common.LunarArcServerAccess.getCraftServer().getCraftWorld(level);
+                    org.bukkit.craftbukkit.CraftWorld world = io.lunararcdevs.lunararc.common.LunarArcServerAccess.getCraftServer().getCraftWorld(level);
                     return world == null ? null : new Location(world, pos.getX(), pos.getY(), pos.getZ());
                 })
                 .orElse(null);
@@ -243,7 +242,7 @@ public class CraftOfflinePlayer implements OfflinePlayer {
 
     @Override
     public @NotNull com.destroystokyo.paper.profile.PlayerProfile getPlayerProfile() {
-        return new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(uuid, name);
+        return new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(uuid, name);
     }
 
     @Override
@@ -263,7 +262,7 @@ public class CraftOfflinePlayer implements OfflinePlayer {
     }
 
     private net.minecraft.stats.ServerStatsCounter offlineStatsCounter() {
-        net.minecraft.server.MinecraftServer server = io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer();
+        net.minecraft.server.MinecraftServer server = io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer();
         java.nio.file.Path file = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.PLAYER_STATS_DIR).resolve(uuid + ".json");
         return new net.minecraft.stats.ServerStatsCounter(server, file.toFile());
     }

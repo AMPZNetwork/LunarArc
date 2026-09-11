@@ -28,12 +28,10 @@ public abstract class MetaDependencyTree implements DependencyContext {
 
     public void add(PluginMeta configuration) {
         String identifier = configuration.getName();
-        // Build a validated provider's dependencies into the graph
         this.registerDependencies(identifier, configuration);
 
         this.graph.addNode(identifier); // Make sure dependencies at least have a node
 
-        // Add the provided plugins to the graph as well
         for (String provides : configuration.getProvidedPlugins()) {
             this.graph.putEdge(identifier, provides);
             this.dependencies.add(provides);
@@ -45,12 +43,10 @@ public abstract class MetaDependencyTree implements DependencyContext {
 
     public void remove(PluginMeta configuration) {
         String identifier = configuration.getName();
-        // Remove a validated provider's dependencies into the graph
         this.unregisterDependencies(identifier, configuration);
 
         this.graph.removeNode(identifier); // Remove root node
 
-        // Remove the provided plugins to the graph as well
         for (String provides : configuration.getProvidedPlugins()) {
             this.graph.removeEdge(identifier, provides);
             this.dependencies.remove(provides);

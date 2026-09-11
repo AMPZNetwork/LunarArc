@@ -29,7 +29,7 @@ public class CraftEventFactory {
     public static EntityDamageEvent callEntityDamageEvent(LivingEntity entity, DamageSource source, float damage) {
         DamageCause cause = damageCause(source);
 
-        org.bukkit.entity.Entity bukkitEntity = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity)
+        org.bukkit.entity.Entity bukkitEntity = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity)
                 .lunararc$getBukkitEntity();
         org.bukkit.craftbukkit.damage.CraftDamageSource bukkitSource =
                 new org.bukkit.craftbukkit.damage.CraftDamageSource(source);
@@ -104,7 +104,7 @@ public class CraftEventFactory {
     public static PlayerInteractEvent callPlayerInteractEvent(net.minecraft.server.level.ServerPlayer player,
             Action action, @Nullable net.minecraft.core.BlockPos pos, @Nullable net.minecraft.core.Direction direction,
             @Nullable net.minecraft.world.item.ItemStack itemstack, @Nullable org.bukkit.inventory.EquipmentSlot hand) {
-        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                 .lunararc$getBukkitEntity();
         if (bukkitPlayer == null)
             return null;
@@ -122,7 +122,7 @@ public class CraftEventFactory {
     public static com.mojang.datafixers.util.Either<net.minecraft.world.entity.player.Player.BedSleepingProblem, net.minecraft.util.Unit> callPlayerBedEnterEvent(
             net.minecraft.server.level.ServerPlayer player, net.minecraft.core.BlockPos bed,
             com.mojang.datafixers.util.Either<net.minecraft.world.entity.player.Player.BedSleepingProblem, net.minecraft.util.Unit> nmsResult) {
-        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                 .lunararc$getBukkitEntity();
         if (bukkitPlayer == null) return nmsResult;
 
@@ -146,7 +146,7 @@ public class CraftEventFactory {
 
     public static org.bukkit.event.player.PlayerBedLeaveEvent callPlayerBedLeaveEvent(
             net.minecraft.server.level.ServerPlayer player, net.minecraft.core.BlockPos bedPos, boolean setSpawnLocation) {
-        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                 .lunararc$getBukkitEntity();
         if (bukkitPlayer == null) return null;
         org.bukkit.block.Block bed = bedPos != null
@@ -161,7 +161,7 @@ public class CraftEventFactory {
             net.minecraft.server.level.ServerLevel world, net.minecraft.core.BlockPos pos,
             net.minecraft.server.level.ServerPlayer player) {
         org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.create(world, pos);
-        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                 .lunararc$getBukkitEntity();
 
         org.bukkit.event.block.BlockBreakEvent event = new org.bukkit.event.block.BlockBreakEvent(block, bukkitPlayer);
@@ -176,7 +176,7 @@ public class CraftEventFactory {
         org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.create(world, pos);
 
         org.bukkit.entity.Player bukkitPlayer = player != null
-                ? (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+                ? (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                         .lunararc$getBukkitEntity()
                 : null;
         ItemStack item = player != null ? CraftItemStack.asBukkitCopy(player.getItemInHand(hand)) : null;
@@ -202,7 +202,7 @@ public class CraftEventFactory {
         org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.create(world, pos);
 
         org.bukkit.entity.Player bukkitPlayer = player != null
-                ? (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+                ? (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                         .lunararc$getBukkitEntity()
                 : null;
         ItemStack item = player != null ? CraftItemStack.asBukkitCopy(player.getItemInHand(hand)) : null;
@@ -226,7 +226,7 @@ public class CraftEventFactory {
 
 
     public static org.bukkit.event.entity.EntitySpawnEvent callEntitySpawnEvent(net.minecraft.world.entity.Entity entity) {
-        org.bukkit.entity.Entity bukkitEntity = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+        org.bukkit.entity.Entity bukkitEntity = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         if (bukkitEntity == null) return null;
         var event = new org.bukkit.event.entity.EntitySpawnEvent(bukkitEntity);
         Bukkit.getPluginManager().callEvent(event);
@@ -234,7 +234,7 @@ public class CraftEventFactory {
     }
 
     public static org.bukkit.event.entity.CreatureSpawnEvent callCreatureSpawnEvent(net.minecraft.world.entity.LivingEntity entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason) {
-        org.bukkit.entity.Entity bukkitEntity = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+        org.bukkit.entity.Entity bukkitEntity = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         if (!(bukkitEntity instanceof org.bukkit.entity.LivingEntity living)) return null;
         var event = new org.bukkit.event.entity.CreatureSpawnEvent(living, reason);
         Bukkit.getPluginManager().callEvent(event);
@@ -305,9 +305,9 @@ public class CraftEventFactory {
             net.minecraft.world.entity.player.Player player,
             net.minecraft.world.InteractionHand hand) {
         var event = new org.bukkit.event.entity.PlayerLeashEntityEvent(
-                ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity(),
-                ((io.ampznetwork.lunararc.common.bridge.EntityBridge) leashHolder).lunararc$getBukkitEntity(),
-                (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity(),
+                ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity(),
+                ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) leashHolder).lunararc$getBukkitEntity(),
+                (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity(),
                 org.bukkit.craftbukkit.CraftEquipmentSlot.getHand(hand));
         org.bukkit.Bukkit.getPluginManager().callEvent(event);
         return event;
@@ -322,14 +322,14 @@ public class CraftEventFactory {
             int experience) {
         org.bukkit.entity.LivingEntity breederEntity = breeder == null
                 ? null
-                : (org.bukkit.entity.LivingEntity) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) breeder).lunararc$getBukkitEntity();
+                : (org.bukkit.entity.LivingEntity) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) breeder).lunararc$getBukkitEntity();
         org.bukkit.inventory.ItemStack bredWithStack = bredWith == null || bredWith.isEmpty()
                 ? null
                 : org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(bredWith);
         var event = new org.bukkit.event.entity.EntityBreedEvent(
-                (org.bukkit.entity.LivingEntity) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) child).lunararc$getBukkitEntity(),
-                (org.bukkit.entity.LivingEntity) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) mother).lunararc$getBukkitEntity(),
-                (org.bukkit.entity.LivingEntity) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) father).lunararc$getBukkitEntity(),
+                (org.bukkit.entity.LivingEntity) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) child).lunararc$getBukkitEntity(),
+                (org.bukkit.entity.LivingEntity) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) mother).lunararc$getBukkitEntity(),
+                (org.bukkit.entity.LivingEntity) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) father).lunararc$getBukkitEntity(),
                 breederEntity, bredWithStack, experience);
         Bukkit.getPluginManager().callEvent(event);
         return event;
@@ -362,7 +362,7 @@ public class CraftEventFactory {
         if (bukkitOld == null && bukkitNew == null) {
             throw new IllegalArgumentException("Old and new potion effect are both null");
         }
-        Object bukkit = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+        Object bukkit = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         if (!(bukkit instanceof org.bukkit.entity.LivingEntity living)) {
             throw new IllegalStateException("NMS LivingEntity is not backed by a Bukkit LivingEntity: " + entity);
         }
@@ -387,7 +387,7 @@ public class CraftEventFactory {
 
     public static org.bukkit.event.entity.EntityDeathEvent callEntityDeathEvent(
             net.minecraft.world.entity.LivingEntity entity, net.minecraft.world.damagesource.DamageSource source) {
-        org.bukkit.entity.Entity bukkitEntity = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+        org.bukkit.entity.Entity bukkitEntity = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         if (!(bukkitEntity instanceof org.bukkit.entity.LivingEntity living)) return null;
 
         var event = new org.bukkit.event.entity.EntityDeathEvent(
@@ -430,7 +430,7 @@ public class CraftEventFactory {
 
     public static void handleInventoryCloseEvent(ServerPlayer player, InventoryCloseEvent.Reason reason) {
         if (player.containerMenu == player.inventoryMenu) return;
-        Object bukkit = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
+        Object bukkit = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
         if (!(bukkit instanceof HumanEntity human)) return;
         InventoryCloseEvent event = new InventoryCloseEvent(human.getOpenInventory(), reason);
         Bukkit.getPluginManager().callEvent(event);
@@ -440,7 +440,7 @@ public class CraftEventFactory {
             net.minecraft.server.level.ServerPlayer player, int slot,
             net.minecraft.world.item.ItemStack oldBook,
             net.minecraft.world.item.ItemStack proposedBook) {
-        Object bukkit = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
+        Object bukkit = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
         if (!(bukkit instanceof org.bukkit.entity.Player bp)) return proposedBook;
         org.bukkit.inventory.ItemStack oldBukkit = org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(oldBook);
         org.bukkit.inventory.ItemStack proposedBukkit = org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(proposedBook);
@@ -466,7 +466,7 @@ public class CraftEventFactory {
             net.minecraft.world.item.ItemStack bucketInHand,
             net.minecraft.world.item.ItemStack result,
             net.minecraft.world.InteractionHand hand) {
-        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                 .lunararc$getBukkitEntity();
         if (bukkitPlayer == null) return null;
         org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.at(world, changed);
@@ -491,7 +491,7 @@ public class CraftEventFactory {
             net.minecraft.world.item.ItemStack bucketInHand,
             net.minecraft.world.item.ItemStack result,
             net.minecraft.world.InteractionHand hand) {
-        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player)
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player)
                 .lunararc$getBukkitEntity();
         if (bukkitPlayer == null) return null;
         org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.at(world, changed);
@@ -509,7 +509,7 @@ public class CraftEventFactory {
 
     public static org.bukkit.craftbukkit.inventory.CraftInventoryView createInventoryView(
             ServerPlayer player, AbstractContainerMenu menu, net.kyori.adventure.text.Component title) {
-        Object bukkit = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
+        Object bukkit = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
         if (!(bukkit instanceof org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer)) return null;
         org.bukkit.event.inventory.InventoryType type;
         org.bukkit.craftbukkit.inventory.CraftInventory top = null;
@@ -562,7 +562,7 @@ public class CraftEventFactory {
                                                     org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause,
                                                     int searchRadius,
                                                     int creationRadius) {
-        org.bukkit.entity.Entity bukkitEntity = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+        org.bukkit.entity.Entity bukkitEntity = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         org.bukkit.Location enter = bukkitEntity.getLocation();
         if (bukkitEntity instanceof org.bukkit.entity.Player player) {
             org.bukkit.event.player.PlayerPortalEvent event = new org.bukkit.event.player.PlayerPortalEvent(
@@ -578,22 +578,13 @@ public class CraftEventFactory {
         return new CraftPortalEvent(event);
     }
 
-    /**
-     * Fires {@link org.bukkit.event.entity.EntityExplodeEvent} for an explosion with a source
-     * entity - TNT, a creeper, a ghast fireball, an end crystal.
-     *
-     * <p>This is the hook every land-protection plugin relies on to stop an explosion eating a
-     * claim: they cancel the event outright, or strip the protected blocks out of
-     * {@code blockList()}. The caller is expected to honour both, which
-     * {@code ExplosionMixin} does.</p>
-     */
     public static org.bukkit.event.entity.EntityExplodeEvent callEntityExplodeEvent(
             net.minecraft.world.entity.Entity entity,
             java.util.List<Block> blocks,
             float yield,
             net.minecraft.world.level.Explosion.BlockInteraction effect) {
         org.bukkit.entity.Entity bukkitEntity =
-                ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+                ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         org.bukkit.event.entity.EntityExplodeEvent event = new org.bukkit.event.entity.EntityExplodeEvent(
                 bukkitEntity, bukkitEntity.getLocation(), blocks, yield,
                 org.bukkit.craftbukkit.CraftExplosionResult.toBukkit(effect));
@@ -601,11 +592,6 @@ public class CraftEventFactory {
         return event;
     }
 
-    /**
-     * Fires {@link org.bukkit.event.block.BlockExplodeEvent} for a sourceless explosion - a bed or
-     * respawn anchor detonating in the wrong dimension, or a plugin-created explosion with no
-     * entity behind it. Same contract as the entity variant.
-     */
     public static org.bukkit.event.block.BlockExplodeEvent callBlockExplodeEvent(
             Block block,
             org.bukkit.block.BlockState state,
@@ -619,21 +605,12 @@ public class CraftEventFactory {
         return event;
     }
 
-    /**
-     * Fires {@link org.bukkit.event.block.BlockIgniteEvent} for a block set alight by another
-     * block.
-     *
-     * <p>The cause is read off the igniting block rather than passed in, as CraftBukkit does, so
-     * lava reports LAVA and a dispenser reports FLINT_AND_STEEL; anything else, fire included, is
-     * SPREAD. Plugins branch on that cause, so deriving it here keeps every call site honest
-     * without each one having to work it out.</p>
-     */
     public static org.bukkit.event.block.BlockIgniteEvent callBlockIgniteEvent(
             net.minecraft.world.level.Level level,
             net.minecraft.core.BlockPos ignited,
             net.minecraft.core.BlockPos source) {
         org.bukkit.World world =
-                ((io.ampznetwork.lunararc.common.bridge.LevelBridge) level).lunararc$getWorld();
+                ((io.lunararcdevs.lunararc.common.bridge.LevelBridge) level).lunararc$getWorld();
         Block igniter = world.getBlockAt(source.getX(), source.getY(), source.getZ());
 
         org.bukkit.event.block.BlockIgniteEvent.IgniteCause cause = switch (igniter.getType()) {
@@ -649,15 +626,6 @@ public class CraftEventFactory {
         return event;
     }
 
-    /**
-     * Fires {@link org.bukkit.event.entity.EntityChangeBlockEvent}, returning whether the change
-     * may proceed.
-     *
-     * <p>This is the hook for every block a mob alters rather than a player: endermen carrying
-     * blocks away, ravagers tearing through leaves, silverfish infesting stone, sheep cropping
-     * grass, falling sand landing. Returning false rather than the event keeps the call sites
-     * reading the way CraftBukkit's do, since almost all of them only care whether to go ahead.</p>
-     */
     public static boolean callEntityChangeBlockEvent(
             net.minecraft.world.entity.Entity entity,
             net.minecraft.core.BlockPos position,
@@ -671,13 +639,13 @@ public class CraftEventFactory {
             net.minecraft.core.BlockPos position,
             net.minecraft.world.level.block.state.BlockState newState,
             boolean cancelled) {
-        Block block = ((io.ampznetwork.lunararc.common.bridge.LevelBridge) entity.level())
+        Block block = ((io.lunararcdevs.lunararc.common.bridge.LevelBridge) entity.level())
                 .lunararc$getWorld()
                 .getBlockAt(position.getX(), position.getY(), position.getZ());
 
         org.bukkit.event.entity.EntityChangeBlockEvent event =
                 new org.bukkit.event.entity.EntityChangeBlockEvent(
-                        ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity(),
+                        ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity(),
                         block,
                         org.bukkit.craftbukkit.block.data.CraftBlockData.fromData(newState));
         event.setCancelled(cancelled);

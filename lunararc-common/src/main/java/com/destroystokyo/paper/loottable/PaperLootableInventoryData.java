@@ -44,40 +44,34 @@ public class PaperLootableInventoryData {
 
     public <T> boolean shouldReplenish(final T lootTableHolder, final LootTableInterface<T> holderInterface, final net.minecraft.world.entity.player.@Nullable Player player) {
 
-        // No Loot Table associated
         if (!holderInterface.hasLootTable(lootTableHolder)) {
             return false;
         }
 
-        // ALWAYS process the first fill or if the feature is disabled
         if (this.lastFill == -1 || !holderInterface.paperConfig(lootTableHolder).lootables.autoReplenish) {
             return true;
         }
 
-        // Only process refills when a player is set
         if (player == null) {
             return false;
         }
 
-        // Chest is not scheduled for refill
         if (this.nextRefill == -1) {
             return false;
         }
 
         final WorldConfiguration paperConfig = holderInterface.paperConfig(lootTableHolder);
 
-        // Check if max refills has been hit
         if (paperConfig.lootables.maxRefills != -1 && this.numRefills >= paperConfig.lootables.maxRefills) {
             return false;
         }
 
-        // Refill has not been reached
         if (this.nextRefill > System.currentTimeMillis()) {
             return false;
         }
 
 
-        final Player bukkitPlayer = (Player) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
+        final Player bukkitPlayer = (Player) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
         final LootableInventoryReplenishEvent event = new LootableInventoryReplenishEvent(bukkitPlayer, holderInterface.getInventoryForEvent(lootTableHolder));
         event.setCancelled(!this.canPlayerLoot(player.getUUID(), paperConfig));
         return event.callEvent();
@@ -113,7 +107,7 @@ public class PaperLootableInventoryData {
 
         @Override
         public LootableInventory getInventoryForEvent(final RandomizableContainer holder) {
-            return ((io.ampznetwork.lunararc.common.bridge.RandomizableContainerBridge) holder).getLootableInventory();
+            return ((io.lunararcdevs.lunararc.common.bridge.RandomizableContainerBridge) holder).getLootableInventory();
         }
     };
 
@@ -135,7 +129,7 @@ public class PaperLootableInventoryData {
 
         @Override
         public LootableInventory getInventoryForEvent(final ContainerEntity holder) {
-            return ((io.ampznetwork.lunararc.common.bridge.ContainerEntityBridge) holder).getLootableInventory();
+            return ((io.lunararcdevs.lunararc.common.bridge.ContainerEntityBridge) holder).getLootableInventory();
         }
     };
 

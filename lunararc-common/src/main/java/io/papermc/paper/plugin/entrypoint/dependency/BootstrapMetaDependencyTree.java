@@ -19,7 +19,6 @@ public class BootstrapMetaDependencyTree extends MetaDependencyTree {
         if (!(meta instanceof PaperPluginMeta paperPluginMeta)) {
             throw new IllegalStateException("Only paper plugins can have a bootstrapper!");
         }
-        // Build a validated provider's dependencies into the graph
         for (String dependency : paperPluginMeta.getBootstrapDependencies().keySet()) {
             this.graph.putEdge(identifier, dependency);
         }
@@ -31,7 +30,6 @@ public class BootstrapMetaDependencyTree extends MetaDependencyTree {
             throw new IllegalStateException("PluginMeta must be a PaperPluginMeta");
         }
 
-        // Build a validated provider's dependencies into the graph
         for (String dependency : paperPluginMeta.getBootstrapDependencies().keySet()) {
             this.graph.removeEdge(identifier, dependency);
         }

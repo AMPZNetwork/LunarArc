@@ -37,21 +37,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/**
- * Find all simple cycles of a directed graph using the Johnson's algorithm.
- *
- * <p>
- * See:<br>
- * D.B.Johnson, Finding all the elementary circuits of a directed graph, SIAM J. Comput., 4 (1975),
- * pp. 77-84.
- *
- * @param <V> the vertex type.
- *
- * @author Nikolay Ognyanov
- */
 public class JohnsonSimpleCycles<V>
 {
-    // The graph.
     private Graph<V> graph;
 
     // The main state of the algorithm.
@@ -71,25 +58,12 @@ public class JohnsonSimpleCycles<V>
     private ArrayDeque<V> path = null;
     private Set<V> pathSet = null;
 
-    /**
-     * Create a simple cycle finder for the specified graph.
-     *
-     * @param graph - the DirectedGraph in which to find cycles.
-     *
-     * @throws IllegalArgumentException if the graph argument is <code>
-     * null</code>.
-     */
     public JohnsonSimpleCycles(Graph<V> graph)
     {
         Preconditions.checkState(graph.isDirected(), "Graph must be directed");
         this.graph = graph;
     }
 
-    /**
-     * Find the simple cycles of the graph.
-     *
-     * @return The list of all simple cycles. Possibly empty but never <code>null</code>.
-     */
     public List<List<V>> findAndRemoveSimpleCycles()
     {
         List<List<V>> result = new ArrayList<>();
@@ -97,11 +71,6 @@ public class JohnsonSimpleCycles<V>
         return result;
     }
 
-    /**
-     * Find the simple cycles of the graph.
-     *
-     * @param consumer Consumer that will be called with each cycle found.
-     */
     public void findSimpleCycles(Consumer<List<V>> consumer, BiConsumer<V, V> vertexSuccessorConsumer) // Paper
     {
         if (graph == null) {
@@ -134,17 +103,10 @@ public class JohnsonSimpleCycles<V>
 
     private Pair<Graph<V>, Integer> findMinSCSG(int startIndex)
     {
-        /*
-         * Per Johnson : "adjacency structure of strong component $K$ with least vertex in subgraph
-         * of $G$ induced by $(s, s + 1, n)$". Or in contemporary terms: the strongly connected
-         * component of the subgraph induced by $(v_1, \dotso ,v_n)$ which contains the minimum
-         * (among those SCCs) vertex index. We return that index together with the graph.
-         */
         initMinSCGState();
 
         List<Set<V>> foundSCCs = findSCCS(startIndex);
 
-        // find the SCC with the minimum index
         int minIndexFound = Integer.MAX_VALUE;
         Set<V> minSCC = null;
         for (Set<V> scc : foundSCCs) {
@@ -160,7 +122,6 @@ public class JohnsonSimpleCycles<V>
             return null;
         }
 
-        // build a graph for the SCC found
         MutableGraph<V> dependencyGraph = GraphBuilder.directed().allowsSelfLoops(true).build();
 
         for (V v : minSCC) {
@@ -178,15 +139,6 @@ public class JohnsonSimpleCycles<V>
 
     private List<Set<V>> findSCCS(int startIndex)
     {
-        // Find SCCs in the subgraph induced
-        // by vertices startIndex and beyond.
-        // A call to StrongConnectivityAlgorithm
-        // would be too expensive because of the
-        // need to materialize the subgraph.
-        // So - do a local search by the Tarjan's
-        // algorithm and pretend that vertices
-        // with an index smaller than startIndex
-        // do not exist.
         for (V v : graph.nodes()) {
             int vI = toI(v);
             if (vI < startIndex) {
@@ -244,9 +196,6 @@ public class JohnsonSimpleCycles<V>
 
     private boolean findCyclesInSCG(int startIndex, int vertexIndex, Graph<V> scg)
     {
-        /*
-         * Find cycles in a strongly connected graph per Johnson.
-         */
         boolean foundCycle = false;
         V vertex = toV(vertexIndex);
         stack.push(vertex);

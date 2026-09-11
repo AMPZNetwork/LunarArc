@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.LivingEntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -23,10 +23,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.Material;
 import org.bukkit.GameMode;
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.bridge.ItemStackBridge;
-import io.ampznetwork.lunararc.common.bridge.ServerPlayerBukkitDataBridge;
-import io.ampznetwork.lunararc.common.bridge.access.LivingEntityAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.ItemStackBridge;
+import io.lunararcdevs.lunararc.common.bridge.ServerPlayerBukkitDataBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.LivingEntityAccessBridge;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -38,15 +38,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.block.Block;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.List;
-import java.util.HashMap;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -66,12 +63,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.MainHand;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.block.Sign;
-import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.EntityCategory;
 import org.bukkit.entity.memory.MemoryKey;
-import io.papermc.paper.entity.Frictional;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.entity.TargetEntityInfo;
 
@@ -125,12 +119,12 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public boolean getAffectsSpawning() {
-        return ((io.ampznetwork.lunararc.common.bridge.PlayerAffectsSpawningBridge) (Object) getHandle()).lunararc$getAffectsSpawning();
+        return ((io.lunararcdevs.lunararc.common.bridge.PlayerAffectsSpawningBridge) (Object) getHandle()).lunararc$getAffectsSpawning();
     }
 
     @Override
     public void setAffectsSpawning(boolean affects) {
-        ((io.ampznetwork.lunararc.common.bridge.PlayerAffectsSpawningBridge) (Object) getHandle()).lunararc$setAffectsSpawning(affects);
+        ((io.lunararcdevs.lunararc.common.bridge.PlayerAffectsSpawningBridge) (Object) getHandle()).lunararc$setAffectsSpawning(affects);
     }
 
 
@@ -173,12 +167,34 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         @SuppressWarnings("deprecation")
         @Override
         public void sendMessage(net.md_5.bungee.api.ChatMessageType position,
+                net.md_5.bungee.api.chat.BaseComponent component) {
+            sendMessage(position, component == null ? new net.md_5.bungee.api.chat.BaseComponent[0]
+                    : new net.md_5.bungee.api.chat.BaseComponent[] { component });
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public void sendMessage(net.md_5.bungee.api.ChatMessageType position,
                 net.md_5.bungee.api.chat.BaseComponent... components) {
             if (position == net.md_5.bungee.api.ChatMessageType.ACTION_BAR) {
                 sendBungeeActionBar(components);
             } else {
                 sendBungeeComponents(components);
             }
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public void sendMessage(net.md_5.bungee.api.ChatMessageType position, @Nullable UUID sender,
+                net.md_5.bungee.api.chat.BaseComponent component) {
+            sendMessage(position, component);
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public void sendMessage(net.md_5.bungee.api.ChatMessageType position, @Nullable UUID sender,
+                net.md_5.bungee.api.chat.BaseComponent... components) {
+            sendMessage(position, components);
         }
     };
 
@@ -189,11 +205,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     private void sendBungeeComponents(net.md_5.bungee.api.chat.BaseComponent... components) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), components);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), components);
     }
 
     private void sendBungeeActionBar(net.md_5.bungee.api.chat.BaseComponent... components) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(getHandle(), components);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(getHandle(), components);
     }
 
     @Override
@@ -280,16 +296,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override
     public boolean isTransferred() {
         return getHandle().connection != null
-                && ((io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
+                && ((io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
                         .lunararc$isTransferred();
     }
 
     @Override
     public @Nullable InetSocketAddress getHAProxyAddress() {
         if (getHandle().connection == null) return null;
-        io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge bridge =
-                (io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) (Object) getHandle().connection;
-        java.net.SocketAddress address = ((io.ampznetwork.lunararc.common.bridge.ConnectionBridge) (Object)
+        io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge bridge =
+                (io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) (Object) getHandle().connection;
+        java.net.SocketAddress address = ((io.lunararcdevs.lunararc.common.bridge.ConnectionBridge) (Object)
                 bridge.lunararc$getConnection()).lunararc$getHAProxyAddress();
         return address instanceof InetSocketAddress inet ? inet : null;
     }
@@ -309,7 +325,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void saveData() {
-        ((io.ampznetwork.lunararc.common.bridge.access.PlayerListAccessBridge) (Object) getHandle().server.getPlayerList()).lunararc$invokeSave(getHandle());
+        ((io.lunararcdevs.lunararc.common.bridge.access.PlayerListAccessBridge) (Object) getHandle().server.getPlayerList()).lunararc$invokeSave(getHandle());
     }
 
     @Override
@@ -337,14 +353,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             failed.completeExceptionally(new IllegalStateException("Player has no active connection"));
             return failed;
         }
-        return ((io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
+        return ((io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
                 .lunararc$retrieveCookie(key);
     }
 
     @Override
     public void storeCookie(@NotNull NamespacedKey key, byte @NotNull [] value) {
         if (getHandle().connection == null) throw new IllegalStateException("Player has no active connection");
-        ((io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
+        ((io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
                 .lunararc$storeCookie(key, value);
     }
 
@@ -365,7 +381,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override
-    public void kick(@Nullable net.kyori.adventure.text.Component message, @NotNull org.bukkit.event.player.PlayerKickEvent.Cause cause) {
+    public void kick(@Nullable net.kyori.adventure.text.Component message, org.bukkit.event.player.PlayerKickEvent.@NotNull Cause cause) {
         if (getHandle().connection == null) return;
         net.kyori.adventure.text.Component reason = message == null
                 ? net.kyori.adventure.text.Component.text("Kicked by server") : message;
@@ -486,7 +502,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     private void unregisterEntity(net.minecraft.world.entity.Entity other) {
         net.minecraft.server.level.ChunkMap chunkMap = getHandle().serverLevel().getChunkSource().chunkMap;
         net.minecraft.server.level.ChunkMap.TrackedEntity tracked =
-                ((io.ampznetwork.lunararc.common.bridge.access.ChunkMapAccessBridge) (Object) chunkMap)
+                ((io.lunararcdevs.lunararc.common.bridge.access.ChunkMapAccessBridge) (Object) chunkMap)
                         .lunararc$getEntityMap().get(other.getId());
         if (tracked != null) {
             tracked.removePlayer(getHandle());
@@ -506,22 +522,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
         net.minecraft.server.level.ChunkMap chunkMap = getHandle().serverLevel().getChunkSource().chunkMap;
         net.minecraft.server.level.ChunkMap.TrackedEntity tracked =
-                ((io.ampznetwork.lunararc.common.bridge.access.ChunkMapAccessBridge) (Object) chunkMap)
+                ((io.lunararcdevs.lunararc.common.bridge.access.ChunkMapAccessBridge) (Object) chunkMap)
                         .lunararc$getEntityMap().get(other.getId());
         if (tracked != null) {
             tracked.updatePlayer(getHandle());
         }
     }
 
-    /**
-     * The player's authlib profile.
-     *
-     * <p>Not part of the Bukkit API - CraftBukkit declares it on CraftPlayer, and plugins reach it
-     * reflectively by exactly this name and signature. Floodgate's SpigotSkinApplier is the one in
-     * front of us: its ClassNames initializer looks up {@code getProfile} on CraftPlayer, asserts
-     * the result is non-null, and died in {@code <clinit>} with "Get profile method cannot be null"
-     * because LunarArc's CraftPlayer never declared it. Same body as CraftBukkit's.</p>
-     */
     public com.mojang.authlib.GameProfile getProfile() {
         return getHandle().getGameProfile();
     }
@@ -545,7 +552,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     private void sendLegacyComponentDirect(String message) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), message);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), message);
     }
 
     @Override
@@ -556,7 +563,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendMessage(net.kyori.adventure.text.Component message) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), message);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), message);
     }
 
     @SuppressWarnings("deprecation")
@@ -577,11 +584,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     private static net.minecraft.network.chat.Component adventureToNms(net.kyori.adventure.text.Component component) {
-        return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(component);
+        return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(component);
     }
 
     private static net.kyori.adventure.text.Component bungeeToAdventure(net.md_5.bungee.api.chat.BaseComponent... components) {
-        return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.bungeeToAdventure(components);
+        return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.bungeeToAdventure(components);
     }
 
     @Override
@@ -592,32 +599,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override
     public void setDisplayName(String name) { this.displayName = name; }
 
-    /**
-     * The legacy {@code §}-coded display name, read as a real {@link Component}.
-     *
-     * <p>This used to be {@code Component.text(getDisplayName())}, which wraps the raw string as
-     * literal text rather than parsing it - so a rank plugin that colors a player's display name
-     * the classic way, {@code setDisplayName("§6[VIP] " + name)}, produced a component whose text
-     * was literally the six characters {@code §}, {@code 6}, {@code [}, ... with no color applied
-     * at all. Every caller that builds a component from a player's display name - chat renderers
-     * most visibly - inherited that. {@link #getDisplayName()} already holds a legacy string;
-     * deserializing it through the same pipeline {@link #sendMessage(String)} uses is what
-     * {@code displayName()} promising a real Component actually requires.</p>
-     */
     @Override
     public @NotNull Component displayName() {
-        return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(getDisplayName());
+        return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(getDisplayName());
     }
 
-    /**
-     * The other half of the same bug: serializing to {@code PlainTextComponentSerializer} threw
-     * every color, bold, and hex value a plugin set through the modern Component-based API away
-     * before it ever reached {@link #getDisplayName()} - so a rank plugin that colors a display
-     * name the modern way, {@code player.displayName(Component.text("[VIP] ").color(GOLD)...)},
-     * lost the color just as completely as the legacy path did, from the other direction. Legacy
-     * serialization keeps it: the same {@code §} codes {@link #displayName()} above already knows
-     * how to read back.
-     */
     @Override
     public void displayName(@Nullable Component displayName) {
         this.displayName = displayName == null ? null
@@ -653,19 +639,19 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
     @Override public Component playerListHeader() { return tabListHeader; }
     @Override public Component playerListFooter() { return tabListFooter; }
-    @Override public @Nullable String getPlayerListHeader() { return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(tabListHeader); }
-    @Override public @Nullable String getPlayerListFooter() { return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(tabListFooter); }
+    @Override public @Nullable String getPlayerListHeader() { return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(tabListHeader); }
+    @Override public @Nullable String getPlayerListFooter() { return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(tabListFooter); }
     @Override public void setPlayerListHeader(String header) {
-        tabListHeader = header == null ? net.kyori.adventure.text.Component.empty() : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(header);
+        tabListHeader = header == null ? net.kyori.adventure.text.Component.empty() : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(header);
         sendTabListPacket();
     }
     @Override public void setPlayerListFooter(String footer) {
-        tabListFooter = footer == null ? net.kyori.adventure.text.Component.empty() : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(footer);
+        tabListFooter = footer == null ? net.kyori.adventure.text.Component.empty() : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(footer);
         sendTabListPacket();
     }
     @Override public void setPlayerListHeaderFooter(String header, String footer) {
-        tabListHeader = header == null ? net.kyori.adventure.text.Component.empty() : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(header);
-        tabListFooter = footer == null ? net.kyori.adventure.text.Component.empty() : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(footer);
+        tabListHeader = header == null ? net.kyori.adventure.text.Component.empty() : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(header);
+        tabListFooter = footer == null ? net.kyori.adventure.text.Component.empty() : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(footer);
         sendTabListPacket();
     }
     @SuppressWarnings("deprecation")
@@ -684,8 +670,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override public String getPlayerListName() {
         net.minecraft.network.chat.Component display = getHandle().getTabListDisplayName();
         return display != null
-                ? io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(
-                        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(display))
+                ? io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(
+                        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(display))
                 : getName();
     }
     @Override public void setPlayerListName(String name) {
@@ -693,13 +679,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             var field = net.minecraft.server.level.ServerPlayer.class.getDeclaredField("tabListDisplayName");
             field.setAccessible(true);
             field.set(getHandle(), name == null ? null
-                    : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(name));
+                    : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(name));
         } catch (Throwable ignored) {}
     }
     @Override public @NotNull Component playerListName() {
         net.minecraft.network.chat.Component display = getHandle().getTabListDisplayName();
         return display == null ? Component.text(getName())
-                : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(display);
+                : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(display);
     }
     @Override public void playerListName(@Nullable Component name) {
         try {
@@ -720,17 +706,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         java.util.Objects.requireNonNull(stack, "stack");
         net.minecraft.world.entity.projectile.FireworkRocketEntity firework = new net.minecraft.world.entity.projectile.FireworkRocketEntity(
                 getHandle().level(), CraftItemStack.asNMSCopy(stack), getHandle());
-        boolean added = ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) getHandle().serverLevel())
+        boolean added = ((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) getHandle().serverLevel())
                 .lunararc$addFreshEntity(firework, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.CUSTOM);
         if (!added) return null;
-        return (Firework) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) firework).lunararc$getBukkitEntity();
+        return (Firework) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) firework).lunararc$getBukkitEntity();
     }
     @Override public Location getCompassTarget() {
         if (compassTarget != null) return compassTarget.clone();
         net.minecraft.core.BlockPos pos = getHandle().serverLevel().getSharedSpawnPos();
         return new Location(getWorld(), pos.getX(), pos.getY(), pos.getZ());
     }
-    @Override public Iterable<? extends BossBar> activeBossBars() { return io.ampznetwork.lunararc.common.server.LunarArcBossBar.activeAdventureFor(this); }
+    @Override public Iterable<? extends BossBar> activeBossBars() { return io.lunararcdevs.lunararc.common.server.LunarArcBossBar.activeAdventureFor(this); }
     @Override public void sendExperienceChange(float progress) {
         getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(progress, getHandle().totalExperience, getHandle().experienceLevel));
     }
@@ -751,7 +737,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                     net.minecraft.core.registries.BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(id)
                             .orElseThrow(() -> new IllegalArgumentException("Unknown map cursor type " + key));
             java.util.Optional<net.minecraft.network.chat.Component> caption = java.util.Optional.ofNullable(cursor.caption())
-                    .map(io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline::fromAdventure);
+                    .map(io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline::fromAdventure);
             decorations.add(new net.minecraft.world.level.saveddata.maps.MapDecoration(
                     type, cursor.getX(), cursor.getY(), cursor.getDirection(), caption));
         }
@@ -841,7 +827,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         for (int i = 0; i < components.length; i++) {
             components[i] = lines[i] == null
                     ? net.minecraft.network.chat.Component.empty()
-                    : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(lines[i]);
+                    : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(lines[i]);
         }
         sendSignChange0(loc, components, dyeColor, hasGlowingText);
     }
@@ -851,13 +837,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (getHandle().connection == null) return;
 
         String corrected = org.bukkit.plugin.messaging.StandardMessenger.validateAndCorrectChannel(channel);
-        io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge bridge =
-                (io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection;
+        io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge bridge =
+                (io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection;
         if (!bridge.lunararc$getPluginChannels().contains(corrected)) return;
 
         net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.parse(corrected);
         getHandle().connection.send(new net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket(
-                new io.ampznetwork.lunararc.common.network.LunarArcRawPayload(id, message)));
+                new io.lunararcdevs.lunararc.common.network.LunarArcRawPayload(id, message)));
     }
     @Override
     public void sendPotionEffectChange(LivingEntity entity, PotionEffect effect) {
@@ -915,7 +901,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             net.kyori.adventure.text.Component line = lines.get(i);
             components[i] = line == null
                     ? net.minecraft.network.chat.Component.empty()
-                    : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(line);
+                    : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(line);
         }
         sendSignChange0(loc, components, dyeColor, hasGlowingText);
     }
@@ -1117,7 +1103,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override
     public String getClientBrandName() {
         if (getHandle().connection == null) return null;
-        return ((io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
+        return ((io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
                 .lunararc$getClientBrand();
     }
     @Override public void sendOpLevel(byte level) {
@@ -1155,8 +1141,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public PlayerProfile getPlayerProfile() {
         com.mojang.authlib.GameProfile handle =
                 getHandle().gameProfile;
-        io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile profile =
-                new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(handle.getId(), handle.getName());
+        io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile profile =
+                new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(handle.getId(), handle.getName());
         java.util.List<com.destroystokyo.paper.profile.ProfileProperty> properties = new java.util.ArrayList<>();
         for (com.mojang.authlib.properties.Property property : handle.getProperties().values()) {
             properties.add(new com.destroystokyo.paper.profile.ProfileProperty(
@@ -1258,13 +1244,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override public String getLocale() {
-        String language = ((io.ampznetwork.lunararc.common.bridge.ServerPlayerClientOptionsBridge) getHandle())
+        String language = ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerClientOptionsBridge) getHandle())
                 .lunararc$getLanguage();
         return language != null ? language : "en_us";
     }
 
     @Override public java.util.Locale locale() {
-        String language = ((io.ampznetwork.lunararc.common.bridge.ServerPlayerClientOptionsBridge) getHandle())
+        String language = ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerClientOptionsBridge) getHandle())
                 .lunararc$getLanguage();
         if (language == null) return java.util.Locale.US;
         java.util.Locale parsed = java.util.Locale.forLanguageTag(language.replace('_', '-'));
@@ -1620,7 +1606,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         getHandle().knockback(strength, x, z);
     }
     @Override public void setShieldBlockingDelay(int delay) {
-        ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$setShieldBlockingDelay(delay);
+        ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$setShieldBlockingDelay(delay);
     }
     @Override public void setArrowCooldown(int ticks) {
         if (ticks < 0) throw new IllegalArgumentException("ticks must be >= 0");
@@ -1630,7 +1616,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (ticks < 0) throw new IllegalArgumentException("ticks must be >= 0");
         getHandle().setNoActionTime(ticks);
     }
-    @Override public void completeUsingActiveItem() { ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$completeUsingItem(); }
+    @Override public void completeUsingActiveItem() { ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$completeUsingItem(); }
     @Override public boolean canUseEquipmentSlot(EquipmentSlot slot) {
         return ((LivingEntityAccessBridge) getHandle()).lunararc$canUseSlot(
                 org.bukkit.craftbukkit.CraftEquipmentSlot.getNMS(slot));
@@ -1696,7 +1682,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
     @Override public void wakeup(boolean setSpawnLocation) {
         if (!getHandle().isSleeping()) throw new IllegalStateException("Cannot wakeup if not sleeping");
-        ((io.ampznetwork.lunararc.common.bridge.ServerPlayerBedBridge) getHandle())
+        ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerBedBridge) getHandle())
                 .lunararc$setNextBedLeaveShouldSetSpawn(setSpawnLocation);
         getHandle().stopSleepInBed(true, true);
     }
@@ -1737,12 +1723,12 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override public EntityEquipment getEquipment() { return inventory; }
     @Override public void setStarvationRate(int rate) {
         if (rate < 0) throw new IllegalArgumentException("rate must be >= 0");
-        ((io.ampznetwork.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$setStarvationRate(rate);
+        ((io.lunararcdevs.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$setStarvationRate(rate);
     }
     @Override public boolean isBlocking() { return getHandle().isBlocking(); }
     @Override public void setSaturatedRegenRate(int rate) {
         if (rate < 0) throw new IllegalArgumentException("rate must be >= 0");
-        ((io.ampznetwork.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$setSaturatedRegenRate(rate);
+        ((io.lunararcdevs.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$setSaturatedRegenRate(rate);
     }
     @Override public float getExhaustion() {
         return getHandle().getFoodData().getExhaustionLevel();
@@ -1780,7 +1766,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             nms.setPos(getHandle().getX(), getHandle().getY() + 0.7D, getHandle().getZ());
             if (left) getHandle().setShoulderEntityLeft(new net.minecraft.nbt.CompoundTag());
             else getHandle().setShoulderEntityRight(new net.minecraft.nbt.CompoundTag());
-            ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) getHandle().serverLevel())
+            ((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) getHandle().serverLevel())
                     .lunararc$addFreshEntity(nms, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.CUSTOM);
             return ((EntityBridge) nms).lunararc$getBukkitEntity();
         } catch (Throwable ignored) { return null; }
@@ -1806,7 +1792,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override public void setShoulderEntityLeft(Entity entity) { getHandle().setShoulderEntityLeft(saveShoulder(entity)); }
     @Override public void setShoulderEntityRight(Entity entity) { getHandle().setShoulderEntityRight(saveShoulder(entity)); }
     @Override public boolean hasDiscoveredRecipe(NamespacedKey recipe) { return recipe != null && lunararcDiscoveredRecipes.contains(recipe); }
-    @Override public int getUnsaturatedRegenRate() { return ((io.ampznetwork.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$getUnsaturatedRegenRate(); }
+    @Override public int getUnsaturatedRegenRate() { return ((io.lunararcdevs.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$getUnsaturatedRegenRate(); }
     @Override public int getSleepTicks() { return getHandle().getSleepTimer(); }
     @Override public boolean undiscoverRecipe(NamespacedKey recipe) { return undiscoverRecipes(java.util.Collections.singleton(recipe)) != 0; }
     @Override public boolean sleep(Location location, boolean force) {
@@ -1819,9 +1805,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         catch (Throwable t) { return false; }
     }
     @Override public boolean isDeeplySleeping() { return getHandle().isSleepingLongEnough(); }
-    @Override public int getStarvationRate() { return ((io.ampznetwork.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$getStarvationRate(); }
+    @Override public int getStarvationRate() { return ((io.lunararcdevs.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$getStarvationRate(); }
     @Override public Set<NamespacedKey> getDiscoveredRecipes() { return java.util.Collections.unmodifiableSet(new java.util.LinkedHashSet<>(lunararcDiscoveredRecipes)); }
-    @Override public int getSaturatedRegenRate() { return ((io.ampznetwork.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$getSaturatedRegenRate(); }
+    @Override public int getSaturatedRegenRate() { return ((io.lunararcdevs.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$getSaturatedRegenRate(); }
     @Override public Location getBedLocation() {
         var pos = getHandle().getSleepingPos().orElseThrow(() -> new IllegalStateException("Not sleeping"));
         return new Location(getWorld(), pos.getX(), pos.getY(), pos.getZ());
@@ -1868,7 +1854,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
     @Override public void setUnsaturatedRegenRate(int rate) {
         if (rate < 0) throw new IllegalArgumentException("rate must be >= 0");
-        ((io.ampznetwork.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$setUnsaturatedRegenRate(rate);
+        ((io.lunararcdevs.lunararc.common.bridge.FoodDataBridge) getHandle().getFoodData()).lunararc$setUnsaturatedRegenRate(rate);
     }
     @Override public boolean dropItem(boolean dropAll) {
         boolean success = getHandle().drop(dropAll);
@@ -1950,7 +1936,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         // slots, with the plugin's InventoryHolder gone. A GUI whose click handler asks
         // "is this my inventory?" then said no, declined to cancel, and the player simply took the
         // item out of the menu: the exact symptom of a GUI that opens and does nothing.
-        InventoryView opened = ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) menu)
+        InventoryView opened = ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) menu)
                 .lunararc$getBukkitView();
         if (opened != null) return opened;
         org.bukkit.event.inventory.InventoryType type = inferInventoryType(menu);
@@ -1984,9 +1970,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (menu instanceof net.minecraft.world.inventory.InventoryMenu inventoryMenu) {
             var recipe = getHandle().serverLevel().getRecipeManager().getRecipeFor(
                     net.minecraft.world.item.crafting.RecipeType.CRAFTING,
-                    ((io.ampznetwork.lunararc.common.bridge.access.InventoryMenuAccessBridge) (Object) inventoryMenu).lunararc$getCraftSlots().asCraftInput(), getHandle().serverLevel()).orElse(null);
+                    ((io.lunararcdevs.lunararc.common.bridge.access.InventoryMenuAccessBridge) (Object) inventoryMenu).lunararc$getCraftSlots().asCraftInput(), getHandle().serverLevel()).orElse(null);
             var top = new org.bukkit.craftbukkit.inventory.CraftInventoryCrafting(
-                    ((io.ampznetwork.lunararc.common.bridge.access.InventoryMenuAccessBridge) (Object) inventoryMenu).lunararc$getCraftSlots(), ((io.ampznetwork.lunararc.common.bridge.access.InventoryMenuAccessBridge) (Object) inventoryMenu).lunararc$getResultSlots(), this, recipe);
+                    ((io.lunararcdevs.lunararc.common.bridge.access.InventoryMenuAccessBridge) (Object) inventoryMenu).lunararc$getCraftSlots(), ((io.lunararcdevs.lunararc.common.bridge.access.InventoryMenuAccessBridge) (Object) inventoryMenu).lunararc$getResultSlots(), this, recipe);
             return makeView(menu, top, org.bukkit.event.inventory.InventoryType.CRAFTING,
                     net.kyori.adventure.text.Component.translatable("container.crafting"));
         }
@@ -2013,7 +1999,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             case 6 -> net.minecraft.world.inventory.MenuType.GENERIC_9x6;
             default -> throw new IllegalArgumentException("Unsupported chest rows: " + rows);
         };
-        int id = ((io.ampznetwork.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle()).lunararc$nextContainerCounter();
+        int id = ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle()).lunararc$nextContainerCounter();
         net.minecraft.world.inventory.AbstractContainerMenu menu = new net.minecraft.world.inventory.ChestMenu(
                 menuType, id, getHandle().getInventory(), adapter, rows);
         InventoryView view = makeView(menu, opened, opened.getType(), adventureTitle);
@@ -2022,13 +2008,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                         getHandle(), menu, view, false);
         if (result.getSecond() == null) return null;
         getHandle().containerMenu = menu;
-        ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setOwner(getHandle());
-        ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setBukkitView(view);
-        ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setCheckReachable(false);
+        ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setOwner(getHandle());
+        ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setBukkitView(view);
+        ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setCheckReachable(false);
         net.kyori.adventure.text.Component finalTitle = result.getFirst() != null ? result.getFirst() : adventureTitle;
         getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundOpenScreenPacket(id, menuType,
-                io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(finalTitle)));
-        ((io.ampznetwork.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle()).lunararc$initMenu(menu);
+                io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(finalTitle)));
+        ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle()).lunararc$initMenu(menu);
         menu.broadcastFullState();
         if (opened instanceof org.bukkit.craftbukkit.inventory.CraftInventory ci) ci.onOpen(this);
         return view;
@@ -2046,9 +2032,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                             getHandle(), civ.getHandle(), view, false);
             if (result.getSecond() == null) return;
             getHandle().containerMenu = civ.getHandle();
-            ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) civ.getHandle()).lunararc$setOwner(getHandle());
-            ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) civ.getHandle()).lunararc$setBukkitView(civ);
-            ((io.ampznetwork.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle()).lunararc$initMenu(civ.getHandle());
+            ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) civ.getHandle()).lunararc$setOwner(getHandle());
+            ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) civ.getHandle()).lunararc$setBukkitView(civ);
+            ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle()).lunararc$initMenu(civ.getHandle());
         } else {
             openInventory(view.getTopInventory());
         }
@@ -2056,7 +2042,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     private void closeHandle(org.bukkit.event.inventory.InventoryCloseEvent.Reason reason, boolean notifyClient) {
         if (getHandle().containerMenu == getHandle().inventoryMenu) return;
         net.minecraft.world.inventory.AbstractContainerMenu menu = getHandle().containerMenu;
-        ((io.ampznetwork.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle())
+        ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerInventoryBridge) getHandle())
                 .lunararc$setNextInventoryCloseReason(reason == null
                         ? org.bukkit.event.inventory.InventoryCloseEvent.Reason.UNKNOWN : reason);
         if (notifyClient) notifyClientClose(menu);
@@ -2074,7 +2060,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         try {
             getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundOpenScreenPacket(
                     menu.containerId, menu.getType(),
-                    io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(override)));
+                    io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(override)));
         } catch (Throwable ignored) {}
     }
     private InventoryView openBlockMenu(Location location, boolean force, Material expected, net.minecraft.world.level.block.Block menuBlock) {
@@ -2090,7 +2076,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         var before = getHandle().containerMenu;
         getHandle().openMenu(provider);
         if (getHandle().containerMenu == before) return null;
-        ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) getHandle().containerMenu).lunararc$setCheckReachable(!force);
+        ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) getHandle().containerMenu).lunararc$setCheckReachable(!force);
         return getOpenInventory();
     }
     @Override public InventoryView openWorkbench(Location location, boolean force) { return openBlockMenu(location, force, Material.CRAFTING_TABLE, net.minecraft.world.level.block.Blocks.CRAFTING_TABLE); }
@@ -2163,17 +2149,6 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             float.class, Float.class, boolean.class, Boolean.class, byte.class, Byte.class,
             short.class, Short.class, char.class, Character.class);
 
-    /**
-     * Whether a reflectively supplied argument fits a declared parameter.
-     *
-     * <p>A primitive parameter is compared against its wrapper. Every argument arriving here has
-     * been through varargs and is therefore boxed, and {@code int.class.isInstance(Integer)} is
-     * false, as is {@code int.class.isAssignableFrom(Integer.class)} - so an {@code int amount}
-     * parameter could never be matched. That is every mutating overload CraftStatistic has:
-     * incrementStatistic, decrementStatistic and setStatistic all take an amount, so all of them
-     * were unreachable and threw "does not expose compatible overload" for calls that were
-     * perfectly ordinary. Only the read-only getStatistic overloads, which take no number, worked.</p>
-     */
     private static boolean statisticArgumentMatches(Class<?> parameter, Object argument) {
         if (argument == null) return !parameter.isPrimitive();
         if (parameter.isPrimitive()) {
@@ -2321,8 +2296,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override public int getProtocolVersion() { return net.minecraft.SharedConstants.getProtocolVersion(); }
 
 
-    @Override public TriState getFrictionState() { return ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$getFrictionState(); }
-    @Override public void setFrictionState(TriState state) { ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$setFrictionState(java.util.Objects.requireNonNull(state, "state")); }
+    @Override public TriState getFrictionState() { return ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$getFrictionState(); }
+    @Override public void setFrictionState(TriState state) { ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$setFrictionState(java.util.Objects.requireNonNull(state, "state")); }
 
 
     @Override public Map<String, Object> serialize() {
@@ -2373,7 +2348,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override public void setRemoveWhenFarAway(boolean remove) {}
     @Override public boolean getRemoveWhenFarAway() { return false; }
     @Override public int getShieldBlockingDelay() {
-        return ((io.ampznetwork.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$getShieldBlockingDelay();
+        return ((io.lunararcdevs.lunararc.common.bridge.LivingEntityBridge) getHandle()).lunararc$getShieldBlockingDelay();
     }
     @Override public void setBeeStingerCooldown(int ticks) {
         if (ticks < 0) throw new IllegalArgumentException("ticks must be >= 0");
@@ -2526,7 +2501,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             net.minecraft.server.level.ServerLevel level = getHandle().server.getLevel(globalPos.dimension());
             if (level == null) return null;
             net.minecraft.core.BlockPos pos = globalPos.pos();
-            return new Location(((io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) getHandle().server)
+            return new Location(((io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) getHandle().server)
                     .lunararc$getCraftServer().getCraftWorld(level), pos.getX(), pos.getY(), pos.getZ());
         }).orElse(null);
     }
@@ -2587,14 +2562,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public Set<String> getListeningPluginChannels() {
         if (getHandle().connection == null) return Collections.emptySet();
         return Collections.unmodifiableSet(
-                ((io.ampznetwork.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
+                ((io.lunararcdevs.lunararc.common.bridge.ServerCommonPacketListenerBridge) getHandle().connection)
                         .lunararc$getPluginChannels());
     }
 
 
     @Override public void sendRawMessage(UUID sender, String message) {
         java.util.Objects.requireNonNull(message, "message");
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), message);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendSystem(getHandle(), message);
     }
     @Override public InetSocketAddress getVirtualHost() { return getAddress(); }
     @Override public boolean beginConversation(Conversation conversation) { return this.conversationTracker.beginConversation(java.util.Objects.requireNonNull(conversation, "conversation")); }
@@ -2698,7 +2673,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         net.minecraft.server.level.ServerLevel level = getHandle().server.getLevel(getHandle().getRespawnDimension());
         if (level == null) return null;
         org.bukkit.craftbukkit.CraftWorld world =
-                ((io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) getHandle().server)
+                ((io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) getHandle().server)
                         .lunararc$getCraftServer().getCraftWorld(level);
         if (world == null) return null;
         return new Location(world, pos.getX(), pos.getY(), pos.getZ(), getHandle().getRespawnAngle(), 0.0F);
@@ -2712,7 +2687,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override
     public void setRespawnLocation(@Nullable Location location, boolean force) {
         if (location == null) {
-            ((io.ampznetwork.lunararc.common.bridge.ServerPlayerSpawnBridge) getHandle())
+            ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerSpawnBridge) getHandle())
                     .lunararc$pushSpawnChangeCause(org.bukkit.event.player.PlayerSpawnChangeEvent.Cause.PLUGIN);
             getHandle().setRespawnPosition(null, null, 0.0F, force, false);
             return;
@@ -2720,7 +2695,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (!(location.getWorld() instanceof org.bukkit.craftbukkit.CraftWorld world)) {
             throw new IllegalArgumentException("Respawn location must reference a LunarArc CraftWorld");
         }
-        ((io.ampznetwork.lunararc.common.bridge.ServerPlayerSpawnBridge) getHandle())
+        ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerSpawnBridge) getHandle())
                 .lunararc$pushSpawnChangeCause(org.bukkit.event.player.PlayerSpawnChangeEvent.Cause.PLUGIN);
         getHandle().setRespawnPosition(
                 world.getHandle().dimension(),
@@ -2839,7 +2814,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendActionBar(@NotNull String message) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(
                 getHandle(), java.util.Objects.requireNonNull(message, "message"));
     }
 
@@ -2851,7 +2826,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendActionBar(net.md_5.bungee.api.chat.BaseComponent... message) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(getHandle(), message);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(getHandle(), message);
     }
 
     /**
@@ -2861,7 +2836,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      */
     @Override
     public void sendActionBar(@NotNull net.kyori.adventure.text.Component message) {
-        io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(getHandle(), message);
+        io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.sendActionBar(getHandle(), message);
     }
 
     @Override
@@ -2871,19 +2846,6 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
     }
 
-    /**
-     * Adventure's title API, which is the one plugins actually use now.
-     *
-     * <p>Bukkit's sendTitle and Bungee's showTitle were implemented; this was not, and it is the
-     * one that matters. Audience.showTitle does not send anything itself - it takes a Title apart
-     * and calls sendTitlePart three times, once for the times and once for each line - and
-     * Audience.sendTitlePart is an empty default method. So every plugin using the modern API
-     * called showTitle, got no error, and nothing appeared on screen. clearTitle is an empty
-     * default in the same way.</p>
-     *
-     * <p>Nothing needs to override showTitle itself: once the part handler sends packets, the
-     * interface default assembles the title correctly on its own.</p>
-     */
     @Override
     public <T> void sendTitlePart(@NotNull net.kyori.adventure.title.TitlePart<T> part, @NotNull T value) {
         java.util.Objects.requireNonNull(part, "part");
@@ -2892,11 +2854,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         if (part == net.kyori.adventure.title.TitlePart.TITLE) {
             getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(
-                    io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline
+                    io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline
                             .fromAdventure((net.kyori.adventure.text.Component) value)));
         } else if (part == net.kyori.adventure.title.TitlePart.SUBTITLE) {
             getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(
-                    io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline
+                    io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline
                             .fromAdventure((net.kyori.adventure.text.Component) value)));
         } else if (part == net.kyori.adventure.title.TitlePart.TIMES) {
             net.kyori.adventure.title.Title.Times times = (net.kyori.adventure.title.Title.Times) value;
@@ -2931,11 +2893,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         setTitleTimes(fadeIn, stay, fadeOut);
         if (title != null) {
             getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(
-                    io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(title)));
+                    io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(title)));
         }
         if (subtitle != null) {
             getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(
-                    io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(subtitle)));
+                    io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(subtitle)));
         }
     }
 
@@ -2956,7 +2918,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void setSubtitle(net.md_5.bungee.api.chat.BaseComponent[] subtitle) {
         if (getHandle().connection == null || subtitle == null) return;
         getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(
-                io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromBungee(subtitle)));
+                io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromBungee(subtitle)));
     }
 
     @Override
@@ -2968,7 +2930,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void showTitle(net.md_5.bungee.api.chat.BaseComponent[] title) {
         if (getHandle().connection == null || title == null) return;
         getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(
-                io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromBungee(title)));
+                io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromBungee(title)));
     }
 
     @Override
@@ -3033,7 +2995,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void setResourcePack(@NotNull UUID id, @NotNull String url, byte @Nullable [] hash,
             @Nullable String prompt, boolean force) {
         pushResourcePack(id, url, hash,
-                prompt == null ? null : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(prompt),
+                prompt == null ? null : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(prompt),
                 force, true);
     }
 
@@ -3041,7 +3003,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void setResourcePack(@NotNull UUID id, @NotNull String url, byte @Nullable [] hash,
             @Nullable net.kyori.adventure.text.Component prompt, boolean force) {
         pushResourcePack(id, url, hash,
-                prompt == null ? null : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(prompt),
+                prompt == null ? null : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(prompt),
                 force, true);
     }
 
@@ -3049,7 +3011,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void addResourcePack(@NotNull UUID id, @NotNull String url, byte @Nullable [] hash,
             @Nullable String prompt, boolean force) {
         pushResourcePack(id, url, hash,
-                prompt == null ? null : io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(prompt),
+                prompt == null ? null : io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromLegacy(prompt),
                 force, false);
     }
 
@@ -3085,7 +3047,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override
-    public @Nullable org.bukkit.event.player.PlayerResourcePackStatusEvent.Status getResourcePackStatus() {
+    public org.bukkit.event.player.PlayerResourcePackStatusEvent.@Nullable Status getResourcePackStatus() {
         return this.resourcePackStatus;
     }
 

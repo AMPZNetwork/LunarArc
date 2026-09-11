@@ -10,7 +10,6 @@ import org.bukkit.BanEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Bukkit ban entry backed directly by Minecraft's IpBanList. */
 public final class CraftIpBanEntry implements BanEntry<InetAddress> {
     private static final Date MINOR_DATE = Date.from(Instant.parse("1899-12-31T04:00:00Z"));
     private final IpBanList list;

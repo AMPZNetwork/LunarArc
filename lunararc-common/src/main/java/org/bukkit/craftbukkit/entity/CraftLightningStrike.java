@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.LightningBoltBridge;
+import io.lunararcdevs.lunararc.common.bridge.LightningBoltBridge;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LightningBolt;
 import org.bukkit.craftbukkit.CraftServer;
@@ -80,7 +80,7 @@ public final class CraftLightningStrike extends CraftEntity implements org.bukki
     }
 
     @Override
-    public @NotNull org.bukkit.entity.LightningStrike.Spigot spigot() {
+    public org.bukkit.entity.LightningStrike.@NotNull Spigot spigot() {
         return new org.bukkit.entity.LightningStrike.Spigot();
     }
 }

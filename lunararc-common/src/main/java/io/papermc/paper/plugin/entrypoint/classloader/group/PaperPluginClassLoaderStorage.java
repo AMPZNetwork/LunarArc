@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * This is used for connecting multiple classloaders.
- */
 public final class PaperPluginClassLoaderStorage implements PaperClassLoaderStorage {
 
     private final GlobalPluginClassLoaderGroup globalGroup = new GlobalPluginClassLoaderGroup();

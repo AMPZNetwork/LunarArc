@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.AbstractHurtingProjectileBridge;
+import io.lunararcdevs.lunararc.common.bridge.AbstractHurtingProjectileBridge;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.craftbukkit.CraftServer;

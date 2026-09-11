@@ -46,8 +46,8 @@ dependencies {
     common(project(path: ':lunararc-common', configuration: 'namedElements')) { transitive = false }
     shadowBundle(project(path: ':lunararc-common', configuration: 'transformProductionForge')) { transitive = false }
 
-    implementation project(':lunararc-api')
-    shadowBundle project(':lunararc-api')
+    implementation libs.lunararc.api
+    shadowBundle libs.lunararc.api
     implementation libs.paper.api
 }
 

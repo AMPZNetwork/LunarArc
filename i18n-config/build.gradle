@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-    api project(':lunararc-api')
+    api libs.lunararc.api
     implementation libs.gson
 }

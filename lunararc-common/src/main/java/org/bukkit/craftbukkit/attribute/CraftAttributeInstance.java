@@ -205,8 +205,6 @@ public class CraftAttributeInstance implements org.bukkit.attribute.AttributeIns
         }
     }
 
-    // The attribute-modifier conversion pair CraftBukkit exposes; plugins editing attributes
-    // directly on NMS entities use it in both directions.
     public static net.minecraft.world.entity.ai.attributes.AttributeModifier convert(
             org.bukkit.attribute.AttributeModifier bukkit) {
         return new net.minecraft.world.entity.ai.attributes.AttributeModifier(

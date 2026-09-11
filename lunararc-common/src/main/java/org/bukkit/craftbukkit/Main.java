@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            Class.forName("io.ampznetwork.lunararc.launcher.Launcher")
+            Class.forName("io.lunararcdevs.lunararc.launcher.Launcher")
                     .getMethod("main", String[].class).invoke(null, (Object) args);
         } catch (java.lang.reflect.InvocationTargetException error) {
             Throwable cause = error.getCause();

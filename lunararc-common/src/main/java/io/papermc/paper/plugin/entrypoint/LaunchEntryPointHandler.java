@@ -11,9 +11,6 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Used by the server to register/load plugin bootstrappers and plugins.
- */
 public class LaunchEntryPointHandler implements EntrypointHandler {
 
     public static final LaunchEntryPointHandler INSTANCE = new LaunchEntryPointHandler();

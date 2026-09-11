@@ -7,7 +7,6 @@ import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Tameable;
 
-/** Concrete Bukkit tameable wrapper backed directly by the loader-owned TamableAnimal. */
 public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creature {
     public CraftTameableAnimal(CraftServer server, TamableAnimal entity) { super(server, entity); }
 

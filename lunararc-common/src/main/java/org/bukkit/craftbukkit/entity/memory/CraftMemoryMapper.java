@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity.memory;
 
-import io.ampznetwork.lunararc.common.LunarArcServerAccess;
+import io.lunararcdevs.lunararc.common.LunarArcServerAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +25,7 @@ public final class CraftMemoryMapper {
             return new Location(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
         }
         if (value instanceof net.minecraft.world.entity.Entity entity) {
-            return ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
+            return ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity();
         }
         if (value instanceof Long || value instanceof UUID || value instanceof Boolean || value instanceof Integer || value instanceof String) return value;
         return value;

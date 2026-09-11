@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.inventory;
 
-import io.ampznetwork.lunararc.common.bridge.AnvilMenuBridge;
-import io.ampznetwork.lunararc.common.bridge.access.AnvilMenuAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.AnvilMenuBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.AnvilMenuAccessBridge;
 import net.minecraft.world.inventory.AnvilMenu;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;

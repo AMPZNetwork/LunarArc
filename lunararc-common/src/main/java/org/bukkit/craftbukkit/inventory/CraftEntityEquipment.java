@@ -92,7 +92,7 @@ public final class CraftEntityEquipment implements EntityEquipment {
         return switch (nms.getType()) {
             case HAND -> mob.handDropChances[nms.getIndex()];
             case HUMANOID_ARMOR -> mob.armorDropChances[nms.getIndex()];
-            case ANIMAL_ARMOR -> ((io.ampznetwork.lunararc.common.bridge.access.MobAccessBridge) mob).lunararc$getBodyArmorDropChance();
+            case ANIMAL_ARMOR -> ((io.lunararcdevs.lunararc.common.bridge.access.MobAccessBridge) mob).lunararc$getBodyArmorDropChance();
         };
     }
 
@@ -104,7 +104,7 @@ public final class CraftEntityEquipment implements EntityEquipment {
         switch (nms.getType()) {
             case HAND -> mob.handDropChances[nms.getIndex()] = chance;
             case HUMANOID_ARMOR -> mob.armorDropChances[nms.getIndex()] = chance;
-            case ANIMAL_ARMOR -> ((io.ampznetwork.lunararc.common.bridge.access.MobAccessBridge) mob).lunararc$setBodyArmorDropChance(chance);
+            case ANIMAL_ARMOR -> ((io.lunararcdevs.lunararc.common.bridge.access.MobAccessBridge) mob).lunararc$setBodyArmorDropChance(chance);
         }
     }
 

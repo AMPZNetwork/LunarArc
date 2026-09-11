@@ -1,6 +1,5 @@
 package io.papermc.paper.plugin.entrypoint.dependency;
 
-import com.google.common.graph.Graph;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import io.papermc.paper.plugin.configuration.PluginMeta;

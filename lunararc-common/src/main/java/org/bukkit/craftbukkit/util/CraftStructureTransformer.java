@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.util;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
 import java.util.Collection;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
@@ -14,7 +14,6 @@ import org.bukkit.util.BlockTransformer;
 import org.bukkit.util.BlockTransformer.TransformationState;
 import org.bukkit.util.EntityTransformer;
 
-/** Concrete Paper structure block/entity transformer bridge for the loader-owned NMS template path. */
 public final class CraftStructureTransformer {
     private static final class CraftTransformationState implements TransformationState {
         private final BlockState original;

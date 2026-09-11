@@ -12,7 +12,6 @@ import org.bukkit.entity.EntityFactory;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.EntityType;
 
-/** Concrete Paper entity-snapshot factory for Minecraft 1.21.1. */
 public final class CraftEntityFactory implements EntityFactory {
     private static final CraftEntityFactory INSTANCE = new CraftEntityFactory();
 

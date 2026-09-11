@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.potion;
 
 import com.google.common.base.Preconditions;
-import io.ampznetwork.lunararc.common.bridge.alchemy.PotionBrewingBridge;
+import io.lunararcdevs.lunararc.common.bridge.alchemy.PotionBrewingBridge;
 import io.papermc.paper.potion.PotionMix;
 import java.util.Collection;
 import java.util.Objects;
@@ -13,7 +13,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
-/** Paper potion-brewer facade over the real loader-owned PotionBrewing. */
 public final class CraftPotionBrewer implements PotionBrewer {
     private final MinecraftServer server;
 

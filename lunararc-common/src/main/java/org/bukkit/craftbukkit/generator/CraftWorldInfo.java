@@ -44,7 +44,7 @@ public final class CraftWorldInfo implements WorldInfo {
 
     @Override public @NotNull String getName() { return this.name; }
     @Override public @NotNull UUID getUID() { return this.uid; }
-    @Override public @NotNull World.Environment getEnvironment() { return this.environment; }
+    @Override public World.@NotNull Environment getEnvironment() { return this.environment; }
     @Override public long getSeed() { return this.seed; }
     @Override public int getMinHeight() { return this.minHeight; }
     @Override public int getMaxHeight() { return this.maxHeight; }

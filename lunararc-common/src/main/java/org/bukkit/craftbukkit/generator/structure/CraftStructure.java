@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Concrete wrapper around a live dynamic Minecraft structure registry entry. */
 public final class CraftStructure extends Structure {
     private final NamespacedKey key;
     private final net.minecraft.world.level.levelgen.structure.Structure handle;

@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
-import io.ampznetwork.lunararc.common.bridge.BossEventBridge;
+import io.lunararcdevs.lunararc.common.bridge.BossEventBridge;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
@@ -76,7 +76,7 @@ public final class BossBarImplementationImpl implements BossBar.Listener, BossBa
     @Override
     public @NotNull Iterable<? extends BossBarViewer> viewers() {
         return this.vanilla == null ? Set.of() : Collections2.transform(this.vanilla.getPlayers(),
-                p -> (BossBarViewer) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) p).lunararc$getBukkitEntity());
+                p -> (BossBarViewer) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) p).lunararc$getBukkitEntity());
     }
 
     private void maybeBroadcast(final Function<BossEvent, ClientboundBossEventPacket> fn) {

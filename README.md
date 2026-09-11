@@ -1,6 +1,6 @@
 ![Logo](.github/lunararclogo.jpg)
 
-[![Downloads count](https://img.shields.io/github/downloads/AMPZNetwork/LunarArc/total?style=for-the-badge)](https://lunararc.ampznetwork.com)  ![License](https://img.shields.io/github/license/AMPZNetwork/LunarArc?style=for-the-badge) ![GitHub forks](https://img.shields.io/github/forks/AMPZNetwork/LunarArc?style=for-the-badge&logo=github)
+[![Downloads count](https://img.shields.io/github/downloads/LunarArcDevs/LunarArc/total?style=for-the-badge)](https://lunararc.lunararcdevs.com)  ![License](https://img.shields.io/github/license/LunarArcDevs/LunarArc?style=for-the-badge) ![GitHub forks](https://img.shields.io/github/forks/LunarArcDevs/LunarArc?style=for-the-badge&logo=github)
 
 
 An experimental hybrid Minecraft server compatibility layer. **Forge/NeoForge/Fabric/Quilt**, while LunarArc layers Bukkit/Spigot/Paper plugin compatibility on top with concrete Craft-style adapters and targeted mixins. Paper is an API/behaviour contract and merge reference, not a second shaded server runtime.
@@ -14,7 +14,7 @@ This integration follows the same general approach used by [ModdedIntegration](h
 
 |        Release        |  Forge  | NeoForge |  Fabric  |  QuiltMC  | Status |                                                                                                                                              Build                                                           
 |:--------------------:|:-------:|:--------:|:--------:|:--------:|:------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Trial Zenith (1.21.1) | 52.1.16 |21.1.250 |  0.19.5  |  0.30.1  | ACTIVE | [![1.21.1 Status](https://img.shields.io/github/actions/workflow/status/AMPZNetwork/LunarArc/gradle.yml?branch=Trial-Zenith&style=for-the-badge)](https://github.com/AMPZNetwork/LunarArc/actions?query=branch%3ATrial-Zenith) |
+| Trial Zenith (1.21.1) | 52.1.16 |21.1.250 |  0.19.5  |  0.30.1  | ACTIVE | [![1.21.1 Status](https://img.shields.io/github/actions/workflow/status/LunarArcDevs/LunarArc/gradle.yml?branch=Trial-Zenith&style=for-the-badge)](https://github.com/LunarArcDevs/LunarArc/actions?query=branch%3ATrial-Zenith) |
 
 ## Installing
 
@@ -26,7 +26,7 @@ Read our document for more information.
 
 ## Support
 
-Discord Server [Inivte Link](discord.ampznetwork.com) 
+Discord Server [Inivte Link](https://discord.gg/)
 
 ## License
 
@@ -45,18 +45,6 @@ applications. YourKit is the creator of <a href="https://www.yourkit.com/java/pr
 <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
 and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
 
-
-## Optional diagnostics
-
-LunarArc tracing and startup/shutdown timing reports are disabled by default. Put the JVM option before `-jar` in your launch script:
-
-```text
-java -Dlunararc.debug=timing -jar lunararc-neoforge.jar nogui
-```
-
-Choose `timing`, `plugin`, `reflect`, `remap`, `classload`, `entity`, `fluid`, `command`, or `interact`. Combine channels with commas, such as `-Dlunararc.debug=timing,plugin`, or use `-Dlunararc.debug=all` for every channel. Restart to apply changes. The old `debugall` flags do not enable diagnostics.
-
-Timing summaries appear in the console. Detailed traces go to `logs/lunararc-debug.log`; plugin diagnostics go to `logs/lunararc-plugin-debug.log`. Ordinary warnings and errors remain visible without debugging. Java-version rejection warnings are reported once per plugin JAR per server run.
 
 ## Credits & Upstream Projects
 

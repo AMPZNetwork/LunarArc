@@ -2,7 +2,6 @@ package io.papermc.paper.plugin.manager;
 
 import io.papermc.paper.plugin.entrypoint.Entrypoint;
 import io.papermc.paper.plugin.entrypoint.LaunchEntryPointHandler;
-import io.papermc.paper.plugin.entrypoint.dependency.GraphDependencyContext;
 import io.papermc.paper.plugin.entrypoint.dependency.MetaDependencyTree;
 import io.papermc.paper.plugin.provider.PluginProvider;
 import io.papermc.paper.plugin.provider.type.paper.PaperPluginParent;

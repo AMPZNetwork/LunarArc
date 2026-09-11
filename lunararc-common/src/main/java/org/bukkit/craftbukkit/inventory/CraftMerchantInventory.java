@@ -1,9 +1,9 @@
 package org.bukkit.craftbukkit.inventory;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.bridge.MerchantBukkitBridge;
-import io.ampznetwork.lunararc.common.bridge.access.MerchantContainerAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.MerchantMenuAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.MerchantBukkitBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.MerchantContainerAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.MerchantMenuAccessBridge;
 import net.minecraft.world.inventory.MerchantMenu;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;

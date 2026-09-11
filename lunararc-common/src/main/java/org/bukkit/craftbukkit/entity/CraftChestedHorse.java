@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.access.AbstractHorseAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.AbstractHorseAccessBridge;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.ChestedHorse;

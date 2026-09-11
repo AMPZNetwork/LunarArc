@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.bridge.ProjectileBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.ProjectileBridge;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.world.phys.Vec3;

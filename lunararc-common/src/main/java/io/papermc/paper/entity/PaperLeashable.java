@@ -1,6 +1,6 @@
 package io.papermc.paper.entity;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 
 public interface PaperLeashable extends Leashable {

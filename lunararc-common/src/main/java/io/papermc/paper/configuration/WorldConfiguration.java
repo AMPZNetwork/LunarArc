@@ -9,7 +9,7 @@ public final class WorldConfiguration {
     public final Anticheat anticheat = new Anticheat();
 
     public static WorldConfiguration forLevel(net.minecraft.world.level.Level level) {
-        return ((io.ampznetwork.lunararc.common.bridge.LevelBridge) level).lunararc$getPaperConfiguration();
+        return ((io.lunararcdevs.lunararc.common.bridge.LevelBridge) level).lunararc$getPaperConfiguration();
     }
 
     public static final class Anticheat {

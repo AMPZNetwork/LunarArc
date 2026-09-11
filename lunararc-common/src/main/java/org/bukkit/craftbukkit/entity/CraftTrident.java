@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.ThrownTridentBridge;
+import io.lunararcdevs.lunararc.common.bridge.ThrownTridentBridge;
 import java.util.Objects;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import org.bukkit.craftbukkit.CraftServer;
@@ -32,8 +32,8 @@ public class CraftTrident extends CraftAbstractArrow implements org.bukkit.entit
         this.arrowAccessForTrident().lunararc$setPickupItemStack(CraftItemStack.asNMSCopy(itemStack));
     }
 
-    private io.ampznetwork.lunararc.common.bridge.access.AbstractArrowAccessBridge arrowAccessForTrident() {
-        return (io.ampznetwork.lunararc.common.bridge.access.AbstractArrowAccessBridge) (Object) this.getHandle();
+    private io.lunararcdevs.lunararc.common.bridge.access.AbstractArrowAccessBridge arrowAccessForTrident() {
+        return (io.lunararcdevs.lunararc.common.bridge.access.AbstractArrowAccessBridge) (Object) this.getHandle();
     }
 
     @Override

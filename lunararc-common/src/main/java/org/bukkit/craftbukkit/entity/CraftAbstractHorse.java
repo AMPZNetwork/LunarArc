@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.AbstractHorseBridge;
-import io.ampznetwork.lunararc.common.bridge.access.AbstractHorseAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.AbstractHorseBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.AbstractHorseAccessBridge;
 import java.util.UUID;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.bukkit.craftbukkit.CraftServer;
@@ -10,7 +10,6 @@ import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Horse;
 import org.bukkit.inventory.AbstractHorseInventory;
 
-/** Bukkit AbstractHorse backed directly by the loader-owned NMS horse. */
 public abstract class CraftAbstractHorse extends CraftAnimals implements org.bukkit.entity.AbstractHorse {
     protected CraftAbstractHorse(CraftServer server, net.minecraft.world.entity.animal.horse.AbstractHorse entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.animal.horse.AbstractHorse getHandle() { return (net.minecraft.world.entity.animal.horse.AbstractHorse) entity; }

@@ -1,13 +1,8 @@
 package io.papermc.paper.plugin.entrypoint.dependency;
 
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import io.papermc.paper.plugin.configuration.PluginMeta;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public class SimpleMetaDependencyTree extends MetaDependencyTree {
 

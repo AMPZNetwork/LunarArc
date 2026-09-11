@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.structure;
 
-import io.ampznetwork.lunararc.common.bridge.access.StructureTemplateAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.StructureTemplateAccessBridge;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +21,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.bukkit.Location;
 import org.bukkit.RegionAccessor;
-import org.bukkit.World;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -36,7 +35,6 @@ import org.bukkit.structure.Structure;
 import org.bukkit.util.BlockTransformer;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.EntityTransformer;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 

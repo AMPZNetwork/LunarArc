@@ -35,13 +35,6 @@ public final class CraftSpawnCategory {
         };
     }
 
-    /**
-     * CraftBukkit's spelling of {@link #toNms}, plus the spawn-config helpers beside it.
-     *
-     * <p>The config names and the default tick interval are what CraftBukkit's own
-     * spawn-limit handling reads out of bukkit.yml, and plugins that reproduce or override
-     * that behaviour call them by these names.</p>
-     */
     public static MobCategory toNMS(SpawnCategory spawnCategory) {
         return toNms(spawnCategory);
     }

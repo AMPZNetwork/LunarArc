@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Concrete Bukkit view of a live 1.21.1 Minecraft instrument registry entry. */
 public final class CraftMusicInstrument extends MusicInstrument implements org.bukkit.craftbukkit.util.Handleable<Instrument> {
     private final NamespacedKey key;
     private final Instrument handle;

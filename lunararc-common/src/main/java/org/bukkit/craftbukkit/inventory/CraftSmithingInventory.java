@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.inventory;
 
-import io.ampznetwork.lunararc.common.bridge.access.SmithingMenuAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.SmithingMenuAccessBridge;
 import net.minecraft.world.inventory.SmithingMenu;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;

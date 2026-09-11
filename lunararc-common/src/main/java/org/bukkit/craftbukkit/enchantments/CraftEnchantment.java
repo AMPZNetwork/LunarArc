@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
-/** Concrete CraftBukkit view of a live 1.21.1 NMS enchantment. */
 public final class CraftEnchantment extends Enchantment implements org.bukkit.craftbukkit.util.Handleable<net.minecraft.world.item.enchantment.Enchantment> {
     private final NamespacedKey key;
     private final Holder<net.minecraft.world.item.enchantment.Enchantment> handle;

@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.MobBridge;
+import io.lunararcdevs.lunararc.common.bridge.MobBridge;
 import java.util.Objects;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +17,6 @@ import org.bukkit.entity.Mob;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Concrete Bukkit Mob adapter around the real loader-owned NMS Mob. */
 public class CraftMob extends CraftLivingEntity implements Mob {
     private final com.destroystokyo.paper.entity.PaperPathfinder paperPathfinder;
     public CraftMob(CraftServer server, net.minecraft.world.entity.Mob entity) {
@@ -64,7 +63,7 @@ public class CraftMob extends CraftLivingEntity implements Mob {
 
     @Override
     public @Nullable Sound getAmbientSound() {
-        SoundEvent event = ((io.ampznetwork.lunararc.common.bridge.access.MobAccessBridge) getHandle()).lunararc$invokeGetAmbientSound();
+        SoundEvent event = ((io.lunararcdevs.lunararc.common.bridge.access.MobAccessBridge) getHandle()).lunararc$invokeGetAmbientSound();
         if (event == null) return null;
         ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.getKey(event);
         if (id == null) return null;

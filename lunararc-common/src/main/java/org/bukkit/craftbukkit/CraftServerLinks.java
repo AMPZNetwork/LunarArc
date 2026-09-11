@@ -55,7 +55,7 @@ public final class CraftServerLinks implements org.bukkit.ServerLinks {
         Objects.requireNonNull(displayName, "displayName");
         Objects.requireNonNull(url, "url");
         CraftServerLink link = new CraftServerLink(ServerLinks.Entry.custom(
-                io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(displayName), url));
+                io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.fromAdventure(displayName), url));
         add(link);
         return link;
     }
@@ -130,13 +130,13 @@ public final class CraftServerLinks implements org.bukkit.ServerLinks {
 
         @Override
         public net.kyori.adventure.text.Component displayName() {
-            return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(handle.displayName());
+            return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(handle.displayName());
         }
 
         @Override
         @Deprecated
         public String getDisplayName() {
-            return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(displayName());
+            return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(displayName());
         }
 
         @Override

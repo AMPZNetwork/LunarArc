@@ -15,12 +15,6 @@ loom {
     accessWidenerPath = project(':lunararc-common').file('src/main/resources/lunararc.accesswidener')
 }
 
-// shadowCommon has always been populated with lunararc-common's transformProductionQuilt output,
-// but nothing ever consumed it: without a shadowJar feeding remapJar, Loom only remapped this
-// module's own handful of classes and lunararc-common shipped in the named (Mojang) namespace.
-// Quilt Loader runs production servers on intermediary names - see the identical Fabric failure,
-// "@Mixin target net.minecraft.server.commands.EffectCommands was not found" - so the whole of
-// common has to go through remapJar with the platform classes, exactly as lunararc-forge does.
 configurations {
     common
     shadowCommon
@@ -40,7 +34,7 @@ dependencies {
     modImplementation libs.fabric.api
     common(project(path: ':lunararc-common', configuration: 'namedElements')) { transitive false }
     shadowCommon(project(path: ':lunararc-common', configuration: 'transformProductionQuilt')) { transitive false }
-    implementation project(':lunararc-api')
+    implementation libs.lunararc.api
     implementation libs.paper.api
 }
 

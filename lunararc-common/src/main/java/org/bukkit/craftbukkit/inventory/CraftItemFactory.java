@@ -24,7 +24,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -37,13 +36,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Concrete Paper/Bukkit ItemFactory backed by the loader-owned 1.21.1 item
- * registry and LunarArc's concrete CraftItemStack/CraftItemMeta implementation.
- *
- * <p>This class deliberately contains no platform dispatch. Modded item data is
- * retained by CraftItemStack through the real NMS component patch.</p>
- */
 public final class CraftItemFactory implements ItemFactory {
     private static final Color DEFAULT_LEATHER_COLOR = Color.fromRGB(0xA06540);
     private static final CraftItemFactory INSTANCE = new CraftItemFactory();
@@ -55,33 +47,8 @@ public final class CraftItemFactory implements ItemFactory {
         return INSTANCE;
     }
 
-    /**
-     * A fresh, zero-amount NMS stack of {@code material}, carrying the item's own default data
-     * components - the same prototype vanilla itself hands out before any plugin touches it.
-     *
-     * <p>{@code getItemMeta(Material)} used to construct every meta with each Craft*Meta's no-arg
-     * constructor, which leaves every field at Java's own default - {@code null} for tool, food,
-     * attribute modifiers, everything a real item actually carries by default. That meta then went
-     * back through {@link CraftItemMeta#applyToNms}, whose {@code writeOptionalComponents} writes
-     * {@code null} as a removal for a field it never held a value for - see real CraftBukkit's own
-     * equivalent, which guards each of these with {@code if (hasTool())} and simply does not touch
-     * the component otherwise. Ours had no value to guard on, because nothing had ever read the
-     * item's real default into it, so it always took the removal branch. The result was invisible
-     * on the item itself - the display name, lore, everything Bukkit's API surfaces looked correct
-     * - because what disappeared was never Bukkit-visible in the first place: a pickaxe's TOOL
-     * component (what it can mine and how fast) and a sword's ATTRIBUTE_MODIFIERS (its attack
-     * damage) are both stack-level data components with no ItemMeta getter/setter most plugins
-     * ever call. Any {@code /give}, and any plugin building an ItemStack from a bare Material,
-     * produced a tool that could not mine and a weapon with no attack bonus - vanilla or modded
-     * alike, since neither path is material-specific.</p>
-     *
-     * <p>Every Craft*Meta subclass already has an {@code (ItemStack)} constructor that reads a
-     * stack's real components - it exists for exactly this, deserializing an existing item. Handing
-     * it this prototype, instead of building blank and relying on {@code applyToNms} to fill in
-     * what was never captured, is what makes the round trip real: the meta now holds the item's
-     * actual defaults, and {@code writeOptionalComponents} writes them back rather than removing
-     * them.</p>
-     */
+    // Built from the item's own default data components (not a blank meta), so metas derived
+    // from it (below) keep defaults like TOOL/ATTRIBUTE_MODIFIERS instead of writing them out.
     private static net.minecraft.world.item.ItemStack prototypeStack(Material material) {
         Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(
                 ResourceLocation.parse(material.getKey().toString()));

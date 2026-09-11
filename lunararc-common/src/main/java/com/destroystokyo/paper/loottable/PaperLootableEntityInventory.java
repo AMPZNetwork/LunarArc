@@ -16,11 +16,11 @@ public interface PaperLootableEntityInventory extends LootableEntityInventory, P
 
     @Override
     default PaperLootableInventoryData lootableDataForAPI() {
-        return ((io.ampznetwork.lunararc.common.bridge.ContainerEntityBridge) this.getHandle()).lootableData();
+        return ((io.lunararcdevs.lunararc.common.bridge.ContainerEntityBridge) this.getHandle()).lootableData();
     }
 
     /* LootableEntityInventory */
     default Entity getEntity() {
-        return ((io.ampznetwork.lunararc.common.bridge.EntityBridge) (net.minecraft.world.entity.Entity) this.getHandle()).lunararc$getBukkitEntity();
+        return ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) (net.minecraft.world.entity.Entity) this.getHandle()).lunararc$getBukkitEntity();
     }
 }

@@ -1,7 +1,7 @@
 package com.destroystokyo.paper.entity;
 
-import io.ampznetwork.lunararc.common.bridge.access.PathFinderAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.PathNavigationAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.PathFinderAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.PathNavigationAccessBridge;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +9,6 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.NodeEvaluator;
 import net.minecraft.world.level.pathfinder.Path;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -29,7 +28,7 @@ public final class PaperPathfinder implements Pathfinder {
     }
 
     @Override public @NotNull Mob getEntity() {
-        org.bukkit.entity.Entity bukkit = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) (Object) entity).lunararc$getBukkitEntity();
+        org.bukkit.entity.Entity bukkit = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) (Object) entity).lunararc$getBukkitEntity();
         if (!(bukkit instanceof Mob mob)) throw new IllegalStateException("NMS Mob is not backed by Bukkit Mob");
         return mob;
     }

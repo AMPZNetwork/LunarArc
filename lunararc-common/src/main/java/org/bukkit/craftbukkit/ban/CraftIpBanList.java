@@ -13,7 +13,6 @@ import org.bukkit.BanEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Bukkit IP ban list backed directly by Minecraft's persistent IpBanList. */
 @SuppressWarnings({"rawtypes", "deprecation"})
 public final class CraftIpBanList implements org.bukkit.ban.IpBanList {
     private final IpBanList list;

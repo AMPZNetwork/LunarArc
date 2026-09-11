@@ -20,8 +20,8 @@ public class CraftAbstractArrow extends CraftProjectile implements org.bukkit.en
         super(server, entity);
     }
 
-    private io.ampznetwork.lunararc.common.bridge.access.AbstractArrowAccessBridge arrowAccess() {
-        return (io.ampznetwork.lunararc.common.bridge.access.AbstractArrowAccessBridge) (Object) this.getHandle();
+    private io.lunararcdevs.lunararc.common.bridge.access.AbstractArrowAccessBridge arrowAccess() {
+        return (io.lunararcdevs.lunararc.common.bridge.access.AbstractArrowAccessBridge) (Object) this.getHandle();
     }
 
     @Override

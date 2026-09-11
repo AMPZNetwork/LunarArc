@@ -1,12 +1,11 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.ItemBasedSteeringBridge;
-import io.ampznetwork.lunararc.common.bridge.access.PigAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.ItemBasedSteeringBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.PigAccessBridge;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Pig;
 
-/** Concrete Bukkit Pig backed directly by the loader-owned NMS pig/steering state. */
 public final class CraftPig extends CraftAnimals implements Pig {
     public CraftPig(CraftServer server, net.minecraft.world.entity.animal.Pig entity) {
         super(server, entity);

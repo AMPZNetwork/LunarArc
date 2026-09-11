@@ -14,7 +14,6 @@ import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Team;
 
-/** Bukkit/Paper scoreboard backed directly by Minecraft's 1.21.1 Scoreboard. */
 public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
     final net.minecraft.world.scores.Scoreboard board;
     boolean registeredGlobally;
@@ -47,7 +46,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
     public CraftObjective registerNewObjective(String name, Criteria criteria, String displayName, RenderType renderType) {
         Preconditions.checkArgument(displayName != null, "Display name cannot be null");
         return registerNewObjective(name, criteria,
-                io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(displayName), renderType);
+                io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.legacyToAdventure(displayName), renderType);
     }
 
     // Paper 1.21.1 Adventure overloads.
@@ -76,7 +75,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
                 "Criteria must originate from the Bukkit/Paper registry");
 
         if (!this.registeredGlobally) {
-            org.bukkit.scoreboard.ScoreboardManager manager = io.ampznetwork.lunararc.common.LunarArcServerAccess
+            org.bukkit.scoreboard.ScoreboardManager manager = io.lunararcdevs.lunararc.common.LunarArcServerAccess
                     .getCraftServer().getScoreboardManager();
             if (manager instanceof CraftScoreboardManager craftManager) {
                 craftManager.registerScoreboardForVanilla(this);

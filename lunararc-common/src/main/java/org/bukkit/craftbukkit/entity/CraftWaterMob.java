@@ -4,7 +4,6 @@ import net.minecraft.world.entity.animal.WaterAnimal;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.WaterMob;
 
-/** Concrete Bukkit aquatic-creature wrapper for the loader-owned vanilla WaterAnimal. */
 public class CraftWaterMob extends CraftCreature implements WaterMob {
     public CraftWaterMob(CraftServer server, WaterAnimal entity) {
         super(server, entity);

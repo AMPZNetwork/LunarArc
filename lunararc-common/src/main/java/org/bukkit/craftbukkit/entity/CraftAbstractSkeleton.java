@@ -1,11 +1,10 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.AbstractSkeletonBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.AbstractSkeletonBridge;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.Skeleton;
 
-/** Shared concrete Bukkit skeleton base over the loader-owned AbstractSkeleton. */
 public abstract class CraftAbstractSkeleton extends CraftMonster implements AbstractSkeleton {
     public CraftAbstractSkeleton(CraftServer server, net.minecraft.world.entity.monster.AbstractSkeleton entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.monster.AbstractSkeleton getHandle() { return (net.minecraft.world.entity.monster.AbstractSkeleton) this.entity; }

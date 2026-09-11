@@ -1,8 +1,8 @@
 package org.bukkit.craftbukkit.inventory;
 
 import com.google.common.base.Preconditions;
-import io.ampznetwork.lunararc.common.bridge.trading.MerchantOfferBridge;
-import io.ampznetwork.lunararc.common.bridge.access.MerchantOfferAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.trading.MerchantOfferBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.MerchantOfferAccessBridge;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.component.DataComponentMap;

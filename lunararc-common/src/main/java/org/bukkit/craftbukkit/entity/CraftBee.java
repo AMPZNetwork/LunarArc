@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
-import io.ampznetwork.lunararc.common.bridge.entity.BeeBridge;
-import io.ampznetwork.lunararc.common.bridge.access.BeeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.BeeBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.BeeAccessBridge;
 import net.minecraft.core.BlockPos;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Location;

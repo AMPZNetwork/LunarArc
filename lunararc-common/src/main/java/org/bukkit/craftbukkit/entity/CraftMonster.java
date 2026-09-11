@@ -3,7 +3,6 @@ package org.bukkit.craftbukkit.entity;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Monster;
 
-/** Concrete Bukkit monster wrapper for the loader-owned vanilla Monster. */
 public class CraftMonster extends CraftCreature implements Monster {
     public CraftMonster(CraftServer server, net.minecraft.world.entity.monster.Monster entity) {
         super(server, entity);

@@ -12,16 +12,13 @@ import org.bukkit.potion.PotionType;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * 1.21.1 legacy/internal PotionType data backed by the live potion registry.
- */
 public final class CraftPotionType implements PotionType.InternalPotionData {
     private final NamespacedKey key;
     private final Potion handle;
 
     public CraftPotionType(NamespacedKey key) {
         this.key = Objects.requireNonNull(key, "key");
-        var server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        var server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) throw new IllegalStateException("MinecraftServer has not been attached to LunarArc yet");
         var registry = server.registryAccess().registryOrThrow(Registries.POTION);
         ResourceLocation id = ResourceLocation.parse(key.toString());
@@ -65,7 +62,7 @@ public final class CraftPotionType implements PotionType.InternalPotionData {
     }
 
     private boolean hasSibling(String prefix) {
-        var server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        var server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) return false;
         var registry = server.registryAccess().registryOrThrow(Registries.POTION);
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.key.getNamespace(), prefix + this.key.getKey());

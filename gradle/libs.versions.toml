@@ -4,85 +4,94 @@
 architectury-loom = "1.14.476"
 
 # common
-project-version = "1.0.0-SNAPSHOT"
-build-name = "Trial Zenith"
-minecraft = "1.21.1"
-java-runtime = "21"
-craftbukkit-package = "v1_21_R1"
-
-# platform loaders
-fabric-loader = "0.19.5"
-fabric-api = "0.116.17+1.21.1"
-fabric-installer = "0.11.2"
-forge = "52.1.16"
-neoforge = "21.1.250"
-quilt-loader = "0.30.1"
-quilt-installer = "0.15.1"
-
-# Bukkit / Paper
-bungeecord-chat-api = "1.21-R0.4"
-paper-api = "1.21.1-R0.1-SNAPSHOT"
-# Find latest build at https://papermc.io/downloads/paper
-paper-build = "133"
-spigot-builddata-ref = "533b02cd6ba8dbf8c8607250b02bf2d8c36421e8"
-data-version = "3955"
-
-# mappings / bytecode
-parchment = "2024.11.17"
+jetbrains-annotations = "24.1.0"
 asm = "9.7"
 mixin = "0.8.5"
 mixinextras = "0.4.1"
 
-# shared runtime libraries
-adventure = "4.17.0"
-snakeyaml = "2.2"
-fastutil = "8.5.12"
-joml = "1.10.5"
-slf4j = "2.0.9"
-jetbrains-annotations = "24.1.0"
-commons-lang = "2.6"
+# lunararc
+lunararc-api = "1.0.0"
+project-version = "1.0.0-DEV"
+build-name = "Trial Zenith"
+java-runtime = "21"
 
-# logging / console
+# minecraft loaders dependencies
+minecraft = "1.21.1"
+parchment = "2024.11.17"
+forge = "52.1.16"
+neoforge = "21.1.250"
+fabric-loader = "0.19.5"
+fabric-api = "0.116.17+1.21.1"
+fabric-installer = "0.11.2"
+quilt-loader = "0.30.1"
+quilt-installer = "0.15.1"
+
+# Paper dependencies
+craftbukkit-package = "v1_21_R1"
+bungeecord-chat-api = "1.21-R0.4"
+paper-api = "1.21.1-R0.1-SNAPSHOT"
+# Paper builds: https://papermc.io/downloads/paper
+paper-build = "133"
+spigot-builddata-ref = "533b02cd6ba8dbf8c8607250b02bf2d8c36421e8"
+data-version = "3955"
+snakeyaml = "2.2"
+mysql-connector-j = "9.1.0"
 log4j = "2.24.1"
 jline = "3.27.1"
 terminal-console-appender = "1.3.0"
 
-# database
-mysql-connector-j = "9.1.0"
+# LunarArc runtime libraries
+adventure = "4.17.0"
+fastutil = "8.5.12"
+joml = "1.10.5"
+slf4j = "2.0.9"
+commons-lang = "2.6"
 sqlite = "3.46.0.0"
 
 [libraries]
-neoforge = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge" }
-paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper-api" }
-fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric-api" }
-quilt-loader = { group = "org.quiltmc", name = "quilt-loader", version.ref = "quilt-loader" }
+# common
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+
+# buildSrc
 loom = { module = "dev.architectury:architectury-loom", version.ref = "architectury-loom" }
-minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
-mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
-sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlite" }
 asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
 asm-commons = { group = "org.ow2.asm", name = "asm-commons", version.ref = "asm" }
 asm-tree = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
-gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
+mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+mixinextras-common = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinextras" }
+
+# lunararc
+lunararc-api = { group = "com.github.LunarArcDevs", name = "api", version.ref = "lunararc-api" }
+
+# subProjects (lunararc-common, and others in platforms)
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper-api" }
+bungeecord-chat-api = { group = "net.md-5", name = "bungeecord-chat", version.ref = "bungeecord-chat-api" }
+snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
+mysql-connector-j = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysql-connector-j" }
+sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlite" }
+jline = { group = "org.jline", name = "jline", version.ref = "jline" }
+terminal-console-appender = { group = "net.minecrell", name = "terminalconsoleappender", version.ref = "terminal-console-appender" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j" }
+log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
 adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
 adventure-text-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
 adventure-text-serializer-gson = { group = "net.kyori", name = "adventure-text-serializer-gson", version.ref = "adventure" }
 adventure-text-serializer-legacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
 adventure-text-serializer-plain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure" }
-snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
 fastutil = { group = "it.unimi.dsi", name = "fastutil", version.ref = "fastutil" }
 joml = { module = "org.joml:joml", version.ref = "joml" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-mixinextras-common = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinextras" }
-jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
-log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j" }
-log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
-jline = { group = "org.jline", name = "jline", version.ref = "jline" }
-terminal-console-appender = { group = "net.minecrell", name = "terminalconsoleappender", version.ref = "terminal-console-appender" }
-mysql-connector-j = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysql-connector-j" }
-bungeecord-chat-api = { group = "net.md-5", name = "bungeecord-chat", version.ref = "bungeecord-chat-api" }
-json-simple = { group = "com.googlecode.json-simple", name = "json-simple", version = "1.1.1" }
 commons-lang = { group = "commons-lang", name = "commons-lang", version.ref = "commons-lang" }
+json-simple = { group = "com.googlecode.json-simple", name = "json-simple", version = "1.1.1" }
+
+# platforms (lunararc-forge, lunararc-fabric, lunararc-neoforge, lunararc-quilt)
+neoforge = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge" }
+fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric-api" }
+quilt-loader = { group = "org.quiltmc", name = "quilt-loader", version.ref = "quilt-loader" }
+
+# installer
+gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
 
 [plugins]
 architectury = { id = "architectury-plugin", version = "3.4.164" }

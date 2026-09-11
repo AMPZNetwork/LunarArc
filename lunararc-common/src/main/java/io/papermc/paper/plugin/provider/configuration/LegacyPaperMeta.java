@@ -39,7 +39,6 @@ class LegacyPaperMeta {
                     return null;
                 }
 
-                // First collect all load before elements
                 LegacyConfiguration legacyConfiguration;
                 try {
                     legacyConfiguration = value.require(LegacyConfiguration.class);
@@ -56,7 +55,6 @@ class LegacyPaperMeta {
                 dependencyConfigurationMap.put(PluginDependencyLifeCycle.BOOTSTRAP, new HashMap<>());
                 dependencyConfigurationMap.put(PluginDependencyLifeCycle.SERVER, new HashMap<>());
 
-                // Migrate loadafter
                 for (LegacyLoadConfiguration legacyConfig : legacyConfiguration.loadAfter) {
                     Set<DependencyFlag> dependencyFlags = dependencyConfigurationMap
                         .get(legacyConfig.bootstrap ? PluginDependencyLifeCycle.BOOTSTRAP : PluginDependencyLifeCycle.SERVER)
@@ -65,7 +63,6 @@ class LegacyPaperMeta {
                     dependencyFlags.add(DependencyFlag.LOAD_AFTER);
                 }
 
-                // Migrate loadbefore
                 for (LegacyLoadConfiguration legacyConfig : legacyConfiguration.loadBefore) {
                     Set<DependencyFlag> dependencyFlags = dependencyConfigurationMap
                         .get(legacyConfig.bootstrap ? PluginDependencyLifeCycle.BOOTSTRAP : PluginDependencyLifeCycle.SERVER)
@@ -74,7 +71,6 @@ class LegacyPaperMeta {
                     dependencyFlags.add(DependencyFlag.LOAD_BEFORE);
                 }
 
-                // Migrate dependencies
                 for (LegacyDependencyConfiguration legacyConfig : legacyConfiguration.dependencies) {
                     Set<DependencyFlag> dependencyFlags = dependencyConfigurationMap
                         .get(legacyConfig.bootstrap ? PluginDependencyLifeCycle.BOOTSTRAP : PluginDependencyLifeCycle.SERVER)

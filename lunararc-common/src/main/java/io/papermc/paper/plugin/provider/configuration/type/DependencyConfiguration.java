@@ -21,9 +21,7 @@ public record DependencyConfiguration(
 
     @ConfigSerializable
     public enum LoadOrder {
-        // dependency will now load BEFORE your plugin
         BEFORE,
-        // the dependency will now load AFTER your plugin
         AFTER,
         OMIT
     }

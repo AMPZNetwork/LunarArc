@@ -1,5 +1,5 @@
 package org.bukkit.craftbukkit.entity;
-import io.ampznetwork.lunararc.common.bridge.entity.SlimeBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.SlimeBridge;
 import org.bukkit.craftbukkit.CraftServer;
 public class CraftSlime extends CraftMob implements org.bukkit.entity.Slime, org.bukkit.entity.Enemy {
     public CraftSlime(CraftServer server, net.minecraft.world.entity.monster.Slime entity) { super(server, entity); }

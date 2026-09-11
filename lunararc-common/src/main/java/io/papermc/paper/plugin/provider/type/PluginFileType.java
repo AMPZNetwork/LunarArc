@@ -15,11 +15,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-/**
- * This is where spigot/paper plugins are registered.
- * This will get the jar and find a certain config file, create an object
- * then registering it into a {@link EntrypointHandler} at a certain {@link Entrypoint}.
- */
 public abstract class PluginFileType<T, C extends PluginMeta> {
 
     private static final List<String> CONFIG_TYPES = new ArrayList<>();
@@ -68,11 +63,11 @@ public abstract class PluginFileType<T, C extends PluginMeta> {
 
     public T register(EntrypointHandler entrypointHandler, JarFile file, Path context) throws Exception {
         C config = this.getConfig(file);
-        io.ampznetwork.lunararc.common.config.IncompatibleList.Entry incompatible =
-                io.ampznetwork.lunararc.common.config.IncompatibleList.check(
+        io.lunararcdevs.lunararc.common.config.IncompatibleList.Entry incompatible =
+                io.lunararcdevs.lunararc.common.config.IncompatibleList.check(
                         config.getMainClass(), config.getVersion());
         if (incompatible != null) {
-            throw io.ampznetwork.lunararc.common.config.IncompatibleList.fatalPlugin(
+            io.lunararcdevs.lunararc.common.config.IncompatibleList.reportPlugin(
                     config.getMainClass(), config.getName(), config.getVersion(), incompatible);
         }
         T provider = this.factory.build(file, config, context);

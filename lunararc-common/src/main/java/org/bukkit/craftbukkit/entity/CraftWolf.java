@@ -12,7 +12,6 @@ import org.bukkit.Registry;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Wolf;
 
-/** Concrete Bukkit Wolf backed directly by the loader-owned NMS wolf. */
 public final class CraftWolf extends CraftTameableAnimal implements Wolf {
     public CraftWolf(CraftServer server, net.minecraft.world.entity.animal.Wolf entity) {
         super(server, entity);

@@ -22,7 +22,7 @@ dependencies {
     }
     neoForge libs.neoforge
     implementation project(':lunararc-common')
-    implementation project(':lunararc-api')
+    implementation libs.lunararc.api
     implementation libs.paper.api
 }
 
@@ -126,9 +126,6 @@ processResources {
     inputs.property 'project_name', rootProject.name
     inputs.property 'java_runtime', javaRuntime
 
-    filesMatching('META-INF/mods.toml') {
-        expand version: project.version, project_name: rootProject.name
-    }
     filesMatching('mixins.lunararc.neoforge.json') {
         expand java_compatibility: "JAVA_${javaRuntime}"
     }

@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.FallingBlockBridge;
+import io.lunararcdevs.lunararc.common.bridge.FallingBlockBridge;
 import java.util.Objects;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import org.bukkit.Material;

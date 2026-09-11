@@ -1,6 +1,5 @@
 package com.destroystokyo.paper.entity.ai;
 
-import java.util.EnumSet;
 import org.bukkit.entity.Mob;
 
 /** Bridges a plugin-defined Paper goal directly into the loader-owned NMS GoalSelector. */

@@ -1,11 +1,11 @@
 package org.bukkit.plugin.java;
 
 import org.bukkit.plugin.PluginDescriptionFile;
-import io.ampznetwork.lunararc.common.mod.server.LunarArcServer;
-import io.ampznetwork.lunararc.common.mod.LunarArcRemapper;
-import io.ampznetwork.lunararc.common.mod.PluginMappingNamespace;
-import io.ampznetwork.lunararc.common.server.LunarArcPluginLoader;
-import io.ampznetwork.lunararc.common.server.LunarArcPluginFixManager;
+import io.lunararcdevs.lunararc.common.mod.server.LunarArcServer;
+import io.lunararcdevs.lunararc.common.mod.LunarArcRemapper;
+import io.lunararcdevs.lunararc.common.mod.PluginMappingNamespace;
+import io.lunararcdevs.lunararc.common.server.LunarArcPluginLoader;
+import io.lunararcdevs.lunararc.common.server.LunarArcPluginFixManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +61,10 @@ public final class PluginClassLoader extends URLClassLoader
         // Before any of this plugin's classes load: some plugins need a system property in place
         // ahead of their own class initialization, and the transformed-class cache means a
         // per-class hook cannot be relied on to run.
-        io.ampznetwork.lunararc.common.server.LunarArcPluginFixManager
+        io.lunararcdevs.lunararc.common.server.LunarArcPluginFixManager
                 .applyPluginProperties(description == null ? null : description.getName());
+        io.lunararcdevs.lunararc.common.server.LunarArcModuleOpener.openMinecraftModuleTo(
+                this, description == null ? null : description.getName());
         this.dataFolder = dataFolder;
         this.file = file;
         this.pluginLoader = loader;
@@ -72,14 +74,14 @@ public final class PluginClassLoader extends URLClassLoader
         this.remapper = new LunarArcRemapper(this.remapNms);
         this.transformedCacheRoot = createTransformedCacheRoot(file, this.mappingNamespace);
         this.libraryLoader = wrapPluginLibraryLoader(
-                io.ampznetwork.lunararc.common.server.LunarArcLegacyLibraryResolver.create(description, parent),
+                io.lunararcdevs.lunararc.common.server.LunarArcLegacyLibraryResolver.create(description, parent),
                 "bukkit-libraries");
         this.paperLibraryLoader = wrapPluginLibraryLoader(
-                io.ampznetwork.lunararc.common.server.LunarArcPaperPluginSupport
+                io.lunararcdevs.lunararc.common.server.LunarArcPaperPluginSupport
                         .createLibraryLoader(file, description, dataFolder, parent),
                 "paper-libraries");
         this.joinedPaperDependencies = this.paperPlugin
-                ? io.ampznetwork.lunararc.common.server.LunarArcPaperPluginSupport.joinedDependencies(file)
+                ? io.lunararcdevs.lunararc.common.server.LunarArcPaperPluginSupport.joinedDependencies(file)
                 : java.util.Set.of();
         this.pluginLoader.getClassSpace().register(this, description, this.paperPlugin);
         // Real Paper registers the classic (Spigot) plugin classloader into a group right here in
@@ -198,22 +200,10 @@ public final class PluginClassLoader extends URLClassLoader
         throw new ClassNotFoundException(name);
     }
 
-    /**
-     * Record which of the six sources answered for a class name, on the classload channel.
-     *
-     * <p>This chain asks the plugin jar, then other plugins, then three library loaders, then the
-     * mod loader, then the parent - and on a hybrid server more than one of them can hold the same
-     * library. When two classes of one library come back from two different loaders the result is
-     * a VerifyError that names neither loader and reads like a compiler bug: Essentials shut down
-     * with "Type com/google/gson/JsonArray is not assignable to com/google/gson/JsonElement",
-     * which is only possible if those two classes came from different places. The stack trace
-     * cannot show that. This can: run with -Dlunararc.debug=classload and every resolution says
-     * which source answered and which loader ended up defining the class.</p>
-     */
     private static Class<?> lunararc$traceSource(String name, String source, Class<?> resolved) {
-        if (io.ampznetwork.lunararc.common.LunarArcDebug.CLASSLOAD && resolved != null) {
+        if (io.lunararcdevs.lunararc.common.LunarArcDebug.CLASSLOAD && resolved != null) {
             ClassLoader definer = resolved.getClassLoader();
-            io.ampznetwork.lunararc.common.LunarArcDebug.classload("{}: answered by {}, defined by {}",
+            io.lunararcdevs.lunararc.common.LunarArcDebug.classload("{}: answered by {}, defined by {}",
                     name, source, definer == null ? "the bootstrap loader" : definer.getClass().getName()
                             + "@" + Integer.toHexString(System.identityHashCode(definer)));
         }
@@ -304,7 +294,7 @@ public final class PluginClassLoader extends URLClassLoader
                 }
             }
             digest.update(mappingNamespace.name().getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            digest.update(io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.minecraftVersion()
+            digest.update(io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.minecraftVersion()
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             digest.update("compat-transform-v21-chestshop-frames".getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -315,11 +305,11 @@ public final class PluginClassLoader extends URLClassLoader
             // Folding the LunarArc version in makes that failure impossible - any build that
             // changes the transformer also changes the key. Restarts on an unchanged build still
             // hit the cache, which is what it is for.
-            digest.update(io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.lunarArcVersion()
+            digest.update(io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.lunarArcVersion()
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             ClassLoader owner = PluginClassLoader.class.getClassLoader();
-            String mappingBase = "mappings/" + io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.minecraftVersion() + "/";
+            String mappingBase = "mappings/" + io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.minecraftVersion() + "/";
             for (String resource : new String[]{"paper-reobf.tiny", "plugin-remap.tsv"}) {
                 try (InputStream mapping = owner.getResourceAsStream(mappingBase + resource)) {
                     if (mapping != null) {
@@ -332,48 +322,23 @@ public final class PluginClassLoader extends URLClassLoader
                 }
             }
             String key = HexFormat.of().formatHex(digest.digest());
-            Path root = io.ampznetwork.lunararc.common.LunarArcPaths.transformedPlugins()
+            Path root = io.lunararcdevs.lunararc.common.LunarArcPaths.transformedPlugins()
                     .resolve(key.substring(0, 24));
             Files.createDirectories(root);
             return root;
         } catch (Exception error) {
-            Path fallback = io.ampznetwork.lunararc.common.LunarArcPaths.transformedPlugins()
+            Path fallback = io.lunararcdevs.lunararc.common.LunarArcPaths.transformedPlugins()
                     .resolve(normalize(pluginFile.getName()));
             try { Files.createDirectories(fallback); } catch (IOException ignored) {}
             return fallback;
         }
     }
 
-    /**
-     * Resolve a class the server owns, asking for the name exactly as requested before considering
-     * a mapped alternative.
-     *
-     * <p>The order matters, and getting it backwards is not a missed optimisation but a wrong
-     * answer. By the time a plugin class is linking, its bytecode has already been through
-     * {@link LunarArcRemapper}: every class reference in it is a Mojang name. Mapping again here
-     * treats that Mojang name as though it were still Spigot, and the two namespaces are not a
-     * subset of one another - they collide. {@code net/minecraft/core/Registry} is the sharp
-     * example: Spigot calls Mojang's {@code Registry} {@code IRegistry}, and reuses the name
-     * {@code Registry} for Mojang's {@code IdMap}. So a second mapping pass turned a resolved,
-     * correct {@code Registry} reference into {@code IdMap}, this loader handed back a class whose
-     * name did not match the one asked for, and the JVM rejected it with
-     * {@code NoClassDefFoundError: net/minecraft/core/Registry} - which is exactly how WorldEdit
-     * died in {@code PaperweightAdapter.initializeRegistries}. Every NMS class whose name Spigot
-     * left alone survived the double pass untouched, which is why only the colliding handful ever
-     * showed.</p>
-     *
-     * <p>Reflection does not need the mapping to happen here. {@code Class.forName} and
-     * {@code ClassLoader.loadClass} calls in plugin bytecode are rewritten to
-     * {@link io.ampznetwork.lunararc.common.mod.LunarArcReflectionBridge}, which maps the string
-     * name itself and falls back to the unmapped one. What is left for this method is the legacy
-     * versioned CraftBukkit package, whose names genuinely do not exist on a 1.21.1 server, so
-     * trying the requested name first costs one failed lookup and never picks the wrong class.</p>
-     */
     private Class<?> loadPlatformClass(String name) throws ClassNotFoundException {
         try {
             Class<?> found = getParent().loadClass(name);
-            if (io.ampznetwork.lunararc.common.LunarArcDebug.CLASSLOAD) {
-                io.ampznetwork.lunararc.common.LunarArcDebug.classload("{}: parent resolved as requested", name);
+            if (io.lunararcdevs.lunararc.common.LunarArcDebug.CLASSLOAD) {
+                io.lunararcdevs.lunararc.common.LunarArcDebug.classload("{}: parent resolved as requested", name);
             }
             return found;
         } catch (ClassNotFoundException notUnderRequestedName) {
@@ -382,8 +347,8 @@ public final class PluginClassLoader extends URLClassLoader
                 if (!mapped.equals(name)) {
                     try {
                         Class<?> found = getParent().loadClass(mapped);
-                        if (io.ampznetwork.lunararc.common.LunarArcDebug.CLASSLOAD) {
-                            io.ampznetwork.lunararc.common.LunarArcDebug.classload(
+                        if (io.lunararcdevs.lunararc.common.LunarArcDebug.CLASSLOAD) {
+                            io.lunararcdevs.lunararc.common.LunarArcDebug.classload(
                                     "{}: absent under that name, parent resolved mapped name {}", name, mapped);
                         }
                         return found;
@@ -391,8 +356,8 @@ public final class PluginClassLoader extends URLClassLoader
                     }
                 }
             }
-            if (io.ampznetwork.lunararc.common.LunarArcDebug.CLASSLOAD) {
-                io.ampznetwork.lunararc.common.LunarArcDebug.classload("{}: not on the parent under any name", name);
+            if (io.lunararcdevs.lunararc.common.LunarArcDebug.CLASSLOAD) {
+                io.lunararcdevs.lunararc.common.LunarArcDebug.classload("{}: not on the parent under any name", name);
             }
             throw notUnderRequestedName;
         }
@@ -493,7 +458,7 @@ public final class PluginClassLoader extends URLClassLoader
             try (InputStream input = owner.getResourceAsStream(resourceName)) {
                 if (input == null) return null;
 
-                Path directory = io.ampznetwork.lunararc.common.LunarArcPaths.pluginLibraries().resolve("compat");
+                Path directory = io.lunararcdevs.lunararc.common.LunarArcPaths.pluginLibraries().resolve("compat");
                 Files.createDirectories(directory);
                 Path library = directory.resolve("commons-lang-2.6.jar");
                 if (!Files.isRegularFile(library) || Files.size(library) == 0L) {
@@ -739,7 +704,7 @@ public final class PluginClassLoader extends URLClassLoader
                 file,
                 this,
                 description,
-                io.ampznetwork.lunararc.common.server.LunarArcLogger.getLogger(description.getName())
+                io.lunararcdevs.lunararc.common.server.LunarArcLogger.getLogger(description.getName())
         );
     }
 

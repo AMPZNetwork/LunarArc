@@ -8,7 +8,6 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Animals;
 import org.bukkit.inventory.ItemStack;
 
-/** Concrete Bukkit animal wrapper backed by the real loader-owned vanilla Animal. */
 public class CraftAnimals extends CraftAgeable implements Animals {
     public CraftAnimals(CraftServer server, Animal entity) { super(server, entity); }
 

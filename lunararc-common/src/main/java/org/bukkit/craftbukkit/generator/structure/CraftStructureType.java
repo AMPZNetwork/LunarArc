@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Concrete wrapper around the loader-owned Minecraft StructureType. */
 public final class CraftStructureType extends StructureType {
     private final NamespacedKey key;
     private final net.minecraft.world.level.levelgen.structure.StructureType<?> handle;

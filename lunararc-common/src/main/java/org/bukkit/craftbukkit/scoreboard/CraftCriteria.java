@@ -7,7 +7,6 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.RenderType;
 
-/** Concrete Bukkit criteria backed by Minecraft's ObjectiveCriteria. */
 public final class CraftCriteria implements Criteria {
     static final Map<String, CraftCriteria> DEFAULTS;
     static final CraftCriteria DUMMY;

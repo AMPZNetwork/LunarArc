@@ -45,11 +45,11 @@ public final class CraftMerchantCustom implements Merchant, org.bukkit.craftbukk
     @Override public boolean isTrading() { return merchant.getTradingPlayer() != null; }
     @Override public @Nullable HumanEntity getTrader() {
         Player player = merchant.getTradingPlayer();
-        return player == null ? null : (HumanEntity) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
+        return player == null ? null : (HumanEntity) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
     }
 
     private final class MinecraftMerchant implements net.minecraft.world.item.trading.Merchant,
-            io.ampznetwork.lunararc.common.bridge.MerchantBukkitBridge {
+            io.lunararcdevs.lunararc.common.bridge.MerchantBukkitBridge {
         private final Component title;
         private MerchantOffers offers = new MerchantOffers();
         private Player tradingPlayer;

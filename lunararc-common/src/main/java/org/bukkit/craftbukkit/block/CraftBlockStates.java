@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -19,15 +19,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 
-/**
- * LunarArc-owned CraftBukkit/Paper 1.21.1 block-state factory.
- *
- * <p>Paper's compiled implementation directly reads BlockEntityType.validBlocks,
- * which Paper makes public in its patched Minecraft server. LunarArc keeps the real
- * loader-owned Minecraft class instead. This implementation derives equivalent
- * material mappings through the public BlockEntityType#isValid(BlockState) contract,
- * avoiding a private-field ABI dependency entirely.</p>
- */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class CraftBlockStates {
 
@@ -271,7 +262,7 @@ public final class CraftBlockStates {
 
     @Deprecated
     public static BlockState getBlockState(BlockPos blockPosition, Material material, @Nullable CompoundTag blockEntityTag) {
-        return getBlockState(io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess(), blockPosition, material, blockEntityTag);
+        return getBlockState(io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess(), blockPosition, material, blockEntityTag);
     }
 
     public static BlockState getBlockState(LevelReader world, BlockPos blockPosition, Material material, @Nullable CompoundTag blockEntityTag) {
@@ -289,7 +280,7 @@ public final class CraftBlockStates {
         net.minecraft.world.level.block.state.BlockState blockData,
         @Nullable CompoundTag blockEntityTag
     ) {
-        return getBlockState(io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess(), BlockPos.ZERO, blockData, blockEntityTag);
+        return getBlockState(io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess(), BlockPos.ZERO, blockData, blockEntityTag);
     }
 
     public static BlockState getBlockState(

@@ -38,13 +38,13 @@ public class CraftNMSInventory implements Inventory {
 
     @Override public int getSize() { return handle.getContainerSize(); }
     @Override public int getMaxStackSize() {
-        if (handle instanceof io.ampznetwork.lunararc.common.bridge.SimpleContainerBridge bridge) {
+        if (handle instanceof io.lunararcdevs.lunararc.common.bridge.SimpleContainerBridge bridge) {
             return bridge.lunararc$getMaxStackSize();
         }
         return handle.getMaxStackSize();
     }
     @Override public void setMaxStackSize(int size) {
-        if (handle instanceof io.ampznetwork.lunararc.common.bridge.SimpleContainerBridge bridge) {
+        if (handle instanceof io.lunararcdevs.lunararc.common.bridge.SimpleContainerBridge bridge) {
             bridge.lunararc$setMaxStackSize(size);
             handle.setChanged();
             return;

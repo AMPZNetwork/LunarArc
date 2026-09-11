@@ -12,7 +12,6 @@ import org.bukkit.Registry;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Cat;
 
-/** Concrete Bukkit Cat backed directly by the loader-owned NMS cat. */
 public final class CraftCat extends CraftTameableAnimal implements Cat {
     public CraftCat(CraftServer server, net.minecraft.world.entity.animal.Cat entity) {
         super(server, entity);

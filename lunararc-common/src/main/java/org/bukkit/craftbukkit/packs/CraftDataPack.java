@@ -55,7 +55,6 @@ public final class CraftDataPack implements DataPack {
         return Source.SERVER;
     }
 
-    /** The NMS pack behind this DataPack, and its unmodified registry id, as CraftBukkit exposes them. */
     public net.minecraft.server.packs.repository.Pack getHandle() {
         return this.pack;
     }

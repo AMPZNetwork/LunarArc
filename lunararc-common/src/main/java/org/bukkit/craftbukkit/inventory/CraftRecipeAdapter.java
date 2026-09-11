@@ -1,14 +1,14 @@
 package org.bukkit.craftbukkit.inventory;
 
 import com.google.common.collect.Maps;
-import io.ampznetwork.lunararc.common.bridge.recipe.IngredientBridge;
-import io.ampznetwork.lunararc.common.bridge.recipe.CopyDataComponentsBridge;
-import io.ampznetwork.lunararc.common.bridge.access.AbstractCookingRecipeAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.ShapedRecipeAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.ShapelessRecipeAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.SingleItemRecipeAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.SmithingTransformRecipeAccessBridge;
-import io.ampznetwork.lunararc.common.bridge.access.SmithingTrimRecipeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.recipe.IngredientBridge;
+import io.lunararcdevs.lunararc.common.bridge.recipe.CopyDataComponentsBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.AbstractCookingRecipeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.ShapedRecipeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.ShapelessRecipeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.SingleItemRecipeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.SmithingTransformRecipeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.SmithingTrimRecipeAccessBridge;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -40,14 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-/**
- * Concrete Minecraft 1.21.1 Bukkit <-> NMS recipe adaptation.
- *
- * <p>The active modloader owns RecipeManager and every NMS Recipe instance.
- * LunarArc only wraps/converts those objects for the Paper/Bukkit contract.
- * There is intentionally no platform service, runtime dispatcher or proxy in
- * this path.</p>
- */
 public final class CraftRecipeAdapter {
     private static final char[] SHAPE_SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
 

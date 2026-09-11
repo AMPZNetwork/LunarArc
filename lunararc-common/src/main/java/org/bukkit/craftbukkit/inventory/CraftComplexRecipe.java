@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.inventory;
 
-import io.ampznetwork.lunararc.common.LunarArcServerAccess;
+import io.lunararcdevs.lunararc.common.LunarArcServerAccess;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ComplexRecipe;

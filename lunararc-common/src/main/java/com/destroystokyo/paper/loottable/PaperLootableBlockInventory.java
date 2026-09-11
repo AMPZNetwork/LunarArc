@@ -13,7 +13,7 @@ public interface PaperLootableBlockInventory extends LootableBlockInventory, Pap
     /* PaperLootableInventory */
     @Override
     default PaperLootableInventoryData lootableDataForAPI() {
-        return Objects.requireNonNull(((io.ampznetwork.lunararc.common.bridge.RandomizableContainerBridge) this.getRandomizableContainer()).lootableData(), "Can only manage loot tables on tile entities with lootableData");
+        return Objects.requireNonNull(((io.lunararcdevs.lunararc.common.bridge.RandomizableContainerBridge) this.getRandomizableContainer()).lootableData(), "Can only manage loot tables on tile entities with lootableData");
     }
 
     /* LootableBlockInventory */

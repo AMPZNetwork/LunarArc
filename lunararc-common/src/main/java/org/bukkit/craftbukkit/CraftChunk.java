@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -17,7 +16,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.structure.GeneratedStructure;
@@ -31,19 +29,30 @@ public final class CraftChunk implements Chunk {
     private final CraftWorld world;
     private final int x;
     private final int z;
+    private final LevelChunk knownHandle;
 
     public CraftChunk(CraftWorld world, int x, int z) {
         this.world = Objects.requireNonNull(world, "world");
         this.x = x;
         this.z = z;
+        this.knownHandle = null;
     }
 
     public CraftChunk(LevelChunk chunk, CraftWorld world) {
-        this(world, chunk.getPos().x, chunk.getPos().z);
+        this.world = Objects.requireNonNull(world, "world");
+        this.x = chunk.getPos().x;
+        this.z = chunk.getPos().z;
+        this.knownHandle = chunk;
     }
 
     public LevelChunk getHandle() {
-        return world.getHandle().getChunk(x, z);
+        // A real, live confirmed deadlock: ChunkLoadEvent hands out a CraftChunk built directly
+        // from the chunk currently completing its own load - looking that same chunk back up via
+        // the chunk map from inside its own load-event listener (ClearLaggEnhanced's
+        // GlobalEntityRegistry does exactly this) blocks the server thread waiting on the very
+        // load task it is itself running. We already hold the real object here, so skip the
+        // lookup entirely rather than trying to detect reentrancy after the fact.
+        return knownHandle != null ? knownHandle : world.getHandle().getChunk(x, z);
     }
 
     private LevelChunk getHandleIfLoaded() {
@@ -78,7 +87,7 @@ public final class CraftChunk implements Chunk {
         for (net.minecraft.world.entity.Entity nms : world.getHandle().getAllEntities()) {
             if ((nms.getBlockX() >> 4) != x || (nms.getBlockZ() >> 4) != z) continue;
             try {
-                Entity bukkit = (Entity) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) nms).lunararc$getBukkitEntity();
+                Entity bukkit = (Entity) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) nms).lunararc$getBukkitEntity();
                 if (bukkit != null) result.add(bukkit);
             } catch (Throwable ignored) {}
         }
@@ -173,7 +182,7 @@ public final class CraftChunk implements Chunk {
     @Override
     public @NotNull PersistentDataContainer getPersistentDataContainer() {
         LevelChunk chunk = getHandle();
-        if (!(chunk instanceof io.ampznetwork.lunararc.common.bridge.LevelChunkBridge bridge)) {
+        if (!(chunk instanceof io.lunararcdevs.lunararc.common.bridge.LevelChunkBridge bridge)) {
             throw new IllegalStateException("LevelChunk bridge was not applied");
         }
         return bridge.lunararc$getPersistentDataContainer();

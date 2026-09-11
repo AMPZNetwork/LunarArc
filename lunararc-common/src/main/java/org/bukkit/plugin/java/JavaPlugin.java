@@ -181,7 +181,7 @@ public abstract class JavaPlugin extends PluginBase implements org.bukkit.comman
         if (isEnabled != enabled) {
             isEnabled = enabled;
             if (isEnabled) {
-                if (io.ampznetwork.lunararc.common.config.LunarArcConfig.isQuietConsole()) {
+                if (io.lunararcdevs.lunararc.common.config.LunarArcConfig.isQuietConsole()) {
                     logger.fine("Enabling " + getDescription().getFullName());
                 } else {
                     logger.info("Enabling " + getDescription().getFullName());
@@ -192,7 +192,7 @@ public abstract class JavaPlugin extends PluginBase implements org.bukkit.comman
                     this.allowsLifecycleRegistration = false;
                 }
             } else {
-                if (io.ampznetwork.lunararc.common.config.LunarArcConfig.isQuietConsole()) {
+                if (io.lunararcdevs.lunararc.common.config.LunarArcConfig.isQuietConsole()) {
                     logger.fine("Disabling " + getDescription().getFullName());
                 } else {
                     logger.info("Disabling " + getDescription().getFullName());
@@ -243,7 +243,7 @@ public abstract class JavaPlugin extends PluginBase implements org.bukkit.comman
         this.logger = logger;
         this.configFile = new File(dataFolder, "config.yml");
 
-        this.lifecycleManager = io.ampznetwork.lunararc.common.server.LunarArcLifecycleEventManager.create(
+        this.lifecycleManager = io.lunararcdevs.lunararc.common.server.LunarArcLifecycleEventManager.create(
                 this, () -> this.allowsLifecycleRegistration);
         // Only the classic loader has a JavaPluginLoader behind it. Paper treats getPluginLoader()
         // as a deprecated legacy concept and a paper-plugin.yml plugin has none, so its absence is

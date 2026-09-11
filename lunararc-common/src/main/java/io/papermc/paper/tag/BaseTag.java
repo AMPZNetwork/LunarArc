@@ -16,31 +16,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-/**
- * Paper's BaseTag, owned here for one reason: {@link #ensureSize(String, int)} must not throw on a
- * server whose Material set is larger than vanilla's.
- *
- * <p>Every method below is Paper's 1.21.1 source unchanged. Only ensureSize differs, and only in
- * that it reports a mismatch instead of throwing one.</p>
- *
- * <p>ensureSize is a self-check on Paper's own hardcoded tag definitions: MaterialTags.ARROWS is
- * built as {@code endsWith("ARROW")} and then asserts it found exactly the three vanilla arrows.
- * That assertion holds on Paper because the Material set is vanilla's. It cannot hold here. A mod
- * adding an ice arrow gives us a Material whose name also ends in ARROW, the filter takes it, the
- * count is four, and the assertion throws - from a static initializer, so the whole MaterialTags
- * class fails to initialize and every later touch of it throws NoClassDefFoundError. Essentials
- * calls MaterialTags on startup and died there; nothing was wrong with Essentials, and nothing was
- * wrong with the extra material either.</p>
- *
- * <p>MohistMC/Youer reaches the same conclusion from the other end: their BaseTag has no ensureSize
- * at all and their MaterialTags has every call to it commented out. We cannot delete the method -
- * our MaterialTags is Paper's compiled class and calls it - so it stays, and stops throwing.</p>
- *
- * <p>A count that comes in <em>under</em> the expectation is not the same situation: that means
- * vanilla materials the tag should have found are missing, which would be a fault in this server
- * rather than a mod adding things. It still does not throw, because a plugin should not fail to
- * load over it, but it is logged as a warning rather than as routine.</p>
- */
 public abstract class BaseTag<T extends Keyed, C extends BaseTag<T, C>> implements Tag<T> {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("LunarArc");

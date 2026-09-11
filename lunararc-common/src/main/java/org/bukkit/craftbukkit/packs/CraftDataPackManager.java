@@ -106,7 +106,6 @@ public final class CraftDataPackManager implements DataPackManager {
         return element.isEnabled(craftWorld.getHandle().enabledFeatures());
     }
 
-    /** The NMS pack repository behind this manager, as CraftBukkit exposes it. */
     public net.minecraft.server.packs.repository.PackRepository getHandle() {
         return this.repository;
     }

@@ -36,7 +36,7 @@ ext.lunarArcBuildNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: 'local').trim()
 allprojects {
     apply plugin: 'java'
 
-    group = 'io.ampznetwork.lunararc'
+    group = 'io.lunararcdevs.lunararc'
     version = rootProject.ext.lunarArcEffectiveVersion()
 
     ext {
@@ -67,7 +67,14 @@ allprojects {
         maven { url 'https://maven.neoforged.net/releases' }
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.spongepowered.org/maven' }
-        maven { url 'https://maven.parchmentmc.org' }
+        maven {
+            url 'https://maven.parchmentmc.org'
+            content { includeGroup 'org.parchmentmc.data' }
+        }
+        maven {
+            url 'https://jitpack.io'
+            content { includeGroup 'com.github.LunarArcDevs' }
+        }
     }
 
     java {
@@ -75,15 +82,6 @@ allprojects {
     }
 
     tasks.withType(JavaCompile).configureEach {
-        // javac enables the `removal` lint by default, and this project cannot avoid tripping it:
-        // implementing the Bukkit/Paper API means overriding the members Paper has deprecated for
-        // removal (ItemMeta#getLocalizedName, LivingEntity's TargetBlockInfo overloads,
-        // InventoryView.Property, ...), of which Paper's API carries 300+. Every one of those
-        // warnings is an @Override that has to exist, so the lint cannot surface a real defect
-        // here - it only buried CI's annotation list, which javac was already truncating at its
-        // default 100-warning ceiling. javac still prints its "uses or overrides a deprecated API
-        // that is marked for removal" summary note, and `deprecation` itself was never enabled
-        // (it needs an explicit -Xlint:deprecation), so this gives up no signal the build had.
         options.compilerArgs << '-Xlint:-removal'
     }
 }
@@ -169,7 +167,7 @@ tasks.register('preparePaperCompileReference') {
         rootProject.ext.paperDir.mkdirs()
         def mc = libs.versions.minecraft.get()
         def requestedBuild = Integer.parseInt(libs.versions.paper.build.get())
-        def userAgent = 'LunarArc (https://github.com/AMPZNetwork/LunarArc)'
+        def userAgent = 'LunarArc (https://github.com/LunarArcDevs/LunarArc)'
         File bundler = rootProject.ext.paperBundlerJar
         File preparedServer = rootProject.ext.paperServerJar
 
@@ -321,8 +319,8 @@ tasks.register('verifyFourLoaderPaperParity') {
     group = 'verification'
     description = 'Fails when shared Paper/Bukkit entity-event policy is duplicated back into loader-native adapters.'
     inputs.files(
-        fileTree(rootProject.file('lunararc-forge/src/main/java/io/ampznetwork/lunararc/forge/event')) { include '**/*.java' },
-        fileTree(rootProject.file('lunararc-neoforge/src/main/java/io/ampznetwork/lunararc/neoforge/event')) { include '**/*.java' }
+        fileTree(rootProject.file('lunararc-forge/src/main/java/io/lunararcdevs/lunararc/forge/event')) { include '**/*.java' },
+        fileTree(rootProject.file('lunararc-neoforge/src/main/java/io/lunararcdevs/lunararc/neoforge/event')) { include '**/*.java' }
     )
     doLast {
         List<String> violations = []

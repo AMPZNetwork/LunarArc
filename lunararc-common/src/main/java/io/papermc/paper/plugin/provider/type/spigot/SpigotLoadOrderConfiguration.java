@@ -4,7 +4,6 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.provider.PluginProvider;
 import io.papermc.paper.plugin.provider.configuration.LoadOrderConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,7 +41,6 @@ public class SpigotLoadOrderConfiguration implements LoadOrderConfiguration {
             PluginProvider<?> provider = toLoad.get(loadAfter);
             if (provider != null) {
                 PluginMeta configuration = provider.getMeta();
-                // Does a configuration refer back to this plugin?
                 Set<String> dependencies = new HashSet<>();
                 dependencies.addAll(configuration.getPluginDependencies());
                 dependencies.addAll(configuration.getPluginSoftDependencies());

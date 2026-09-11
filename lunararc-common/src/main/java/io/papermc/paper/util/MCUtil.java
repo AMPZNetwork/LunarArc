@@ -17,7 +17,7 @@ public final class MCUtil {
     }
 
     public static Location toLocation(Level level, BlockPos position) {
-        return new Location(io.ampznetwork.lunararc.common.LunarArcServerAccess.getCraftWorld(level),
+        return new Location(io.lunararcdevs.lunararc.common.LunarArcServerAccess.getCraftWorld(level),
                 position.getX(), position.getY(), position.getZ());
     }
 }

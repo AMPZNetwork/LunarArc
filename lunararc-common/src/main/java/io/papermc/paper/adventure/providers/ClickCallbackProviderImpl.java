@@ -41,7 +41,6 @@ public class ClickCallbackProviderImpl implements ClickCallback.Provider {
                 this.callbacks.values().removeIf(callback -> !callback.valid());
             }
 
-            // Add entries from queue
             StoredCallback callback;
             while ((callback = this.queue.poll()) != null) {
                 this.callbacks.put(callback.id(), callback);

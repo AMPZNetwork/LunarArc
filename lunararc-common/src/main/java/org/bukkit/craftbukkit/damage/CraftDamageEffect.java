@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Concrete Paper DamageEffect backed by the real NMS enum value. */
 public final class CraftDamageEffect implements DamageEffect {
     private final DamageEffects handle;
 
@@ -25,7 +24,6 @@ public final class CraftDamageEffect implements DamageEffect {
         return sound;
     }
 
-    /** CraftBukkit's factory pair: lookup by serialized name, and the NMS-to-Bukkit wrap. */
     public static DamageEffect getById(String id) {
         for (DamageEffects effects : DamageEffects.values()) {
             if (effects.getSerializedName().equalsIgnoreCase(id)) {

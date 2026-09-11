@@ -41,7 +41,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 
-/** Minimal 1.21.1 WorldGenLevel base used only by concrete capture adapters. */
 public class DummyGeneratorAccess implements WorldGenLevel {
     protected DummyGeneratorAccess() {}
 

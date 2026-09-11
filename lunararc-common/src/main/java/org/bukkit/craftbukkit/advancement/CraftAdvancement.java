@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.advancement;
 
-import io.ampznetwork.lunararc.common.LunarArcServerAccess;
+import io.lunararcdevs.lunararc.common.LunarArcServerAccess;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementNode;
 import org.bukkit.NamespacedKey;
@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** Concrete Bukkit/Paper advancement view over the loader-owned NMS AdvancementHolder. */
 public final class CraftAdvancement implements Advancement {
     private final AdvancementHolder handle;
 

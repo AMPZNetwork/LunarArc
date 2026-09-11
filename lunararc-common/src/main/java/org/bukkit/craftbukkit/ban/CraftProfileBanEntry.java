@@ -9,7 +9,6 @@ import org.bukkit.BanEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Bukkit profile ban entry backed directly by Minecraft's UserBanList. */
 public final class CraftProfileBanEntry implements BanEntry<com.destroystokyo.paper.profile.PlayerProfile> {
     private static final Date MINOR_DATE = Date.from(Instant.parse("1899-12-31T04:00:00Z"));
     private final UserBanList list;

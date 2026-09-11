@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.inventory;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public final class CraftMetaSkull extends CraftItemMeta implements SkullMeta {
     @Override public boolean setOwner(@Nullable String owner) {
         if (owner != null && owner.length() > MAX_OWNER_LENGTH) return false;
         if (owner == null) { this.profile = null; return true; }
-        net.minecraft.server.MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        net.minecraft.server.MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         net.minecraft.server.level.ServerPlayer online = server == null ? null : server.getPlayerList().getPlayerByName(owner);
         this.profile = online != null
                 ? new ResolvableProfile(online.getGameProfile())
@@ -61,7 +60,7 @@ public final class CraftMetaSkull extends CraftItemMeta implements SkullMeta {
 
     @Override public boolean setOwningPlayer(@Nullable OfflinePlayer owner) {
         if (owner == null) { this.profile = null; return true; }
-        net.minecraft.server.MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        net.minecraft.server.MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         net.minecraft.server.level.ServerPlayer online = server == null ? null : server.getPlayerList().getPlayer(owner.getUniqueId());
         if (online != null) this.profile = new ResolvableProfile(online.getGameProfile());
         else this.profile = new ResolvableProfile(Optional.ofNullable(owner.getName()), Optional.of(owner.getUniqueId()), new PropertyMap());
@@ -99,8 +98,8 @@ public final class CraftMetaSkull extends CraftItemMeta implements SkullMeta {
     }
 
     private static com.destroystokyo.paper.profile.PlayerProfile toPaperProfile(ResolvableProfile source) {
-        io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile result =
-                new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(source.id().orElse(null), source.name().orElse(null));
+        io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile result =
+                new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(source.id().orElse(null), source.name().orElse(null));
         for (Property p : source.properties().values()) {
             result.setProperty(new com.destroystokyo.paper.profile.ProfileProperty(p.name(), p.value(), p.signature()));
         }

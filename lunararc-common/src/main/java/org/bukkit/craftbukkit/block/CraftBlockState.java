@@ -31,13 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Hybrid-safe CraftBukkit 1.21.1 block-state base.
- *
- * <p>The protected field/method/constructor surface intentionally follows the
- * CraftBukkit ABI used by generated Paper 1.21.1 block-state implementations.
- * The actual level and block data remain the loader-owned Minecraft objects.</p>
- */
 @SuppressWarnings({"deprecation", "removal"})
 public class CraftBlockState implements BlockState {
     // CraftBukkit ABI: generated/specialized Craft states directly access these.

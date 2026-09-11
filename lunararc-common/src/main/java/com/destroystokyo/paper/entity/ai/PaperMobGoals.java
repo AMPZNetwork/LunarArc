@@ -3,7 +3,6 @@ package com.destroystokyo.paper.entity.ai;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;

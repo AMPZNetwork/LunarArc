@@ -2,7 +2,7 @@ package org.bukkit.craftbukkit.entity;
 
 import com.destroystokyo.paper.entity.villager.Reputation;
 import com.destroystokyo.paper.entity.villager.ReputationType;
-import io.ampznetwork.lunararc.common.bridge.entity.VillagerBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.VillagerBridge;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +17,10 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.ZombieVillager;
 
-/** Concrete Bukkit Villager backed by the loader-owned NMS villager. */
 public final class CraftVillager extends CraftAbstractVillager implements Villager {
     public CraftVillager(CraftServer server, net.minecraft.world.entity.npc.Villager entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.npc.Villager getHandle() { return (net.minecraft.world.entity.npc.Villager) this.entity; }
@@ -135,7 +133,7 @@ public final class CraftVillager extends CraftAbstractVillager implements Villag
     public ZombieVillager zombify() {
         if (!(getHandle().level() instanceof net.minecraft.server.level.ServerLevel level)) return null;
         net.minecraft.world.entity.monster.ZombieVillager converted =
-                io.ampznetwork.lunararc.common.mod.util.LunarArcEntityTransforms.convert(
+                io.lunararcdevs.lunararc.common.mod.util.LunarArcEntityTransforms.convert(
                         getHandle(),
                         net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER,
                         false,
@@ -153,7 +151,7 @@ public final class CraftVillager extends CraftAbstractVillager implements Villag
                 level.getCurrentDifficultyAt(converted.blockPosition()),
                 net.minecraft.world.entity.MobSpawnType.CONVERSION,
                 new net.minecraft.world.entity.monster.Zombie.ZombieGroupData(false, true));
-        return (ZombieVillager) ((io.ampznetwork.lunararc.common.bridge.EntityBridge) converted).lunararc$getBukkitEntity();
+        return (ZombieVillager) ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) converted).lunararc$getBukkitEntity();
     }
 
     @Override

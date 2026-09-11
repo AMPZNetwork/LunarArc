@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.bridge.FireworkRocketBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.FireworkRocketBridge;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;

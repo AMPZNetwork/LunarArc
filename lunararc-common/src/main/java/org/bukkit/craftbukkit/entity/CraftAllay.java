@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.entity;
-import io.ampznetwork.lunararc.common.bridge.ServerLevelBridge;
-import io.ampznetwork.lunararc.common.bridge.entity.AllayBridge;
-import io.ampznetwork.lunararc.common.bridge.access.AllayAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.AllayBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.AllayAccessBridge;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;

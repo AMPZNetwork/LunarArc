@@ -84,7 +84,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
     // implementation checking LunarArc's actual GitHub releases. See LunarArcVersionFetcher's
     // javadoc for the full rationale.
     private static final com.destroystokyo.paper.util.VersionFetcher VERSION_FETCHER =
-            new io.ampznetwork.lunararc.common.server.LunarArcVersionFetcher();
+            new io.lunararcdevs.lunararc.common.server.LunarArcVersionFetcher();
 
     @Override
     public com.destroystokyo.paper.util.VersionFetcher getVersionFetcher() {
@@ -153,8 +153,8 @@ public final class CraftMagicNumbers implements UnsafeValues {
             throw new IllegalArgumentException("Scoreboard subject is not backed by LunarArc CraftEntity");
         }
 
-        io.ampznetwork.lunararc.common.bridge.CommandSourceStackBridge bridge = source == null ? null
-                : (io.ampznetwork.lunararc.common.bridge.CommandSourceStackBridge) (Object) source;
+        io.lunararcdevs.lunararc.common.bridge.CommandSourceStackBridge bridge = source == null ? null
+                : (io.lunararcdevs.lunararc.common.bridge.CommandSourceStackBridge) (Object) source;
         boolean previous = bridge != null && bridge.lunararc$bypassSelectorPermissions();
         if (bridge != null && bypassPermissions) bridge.lunararc$setBypassSelectorPermissions(true);
         try {
@@ -242,7 +242,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         Material material = Material.matchMaterial(key.toString());
         if (material == null) {
 
-            material = io.ampznetwork.lunararc.common.server.LunarArcDynamicBukkitEnums.material(key);
+            material = io.lunararcdevs.lunararc.common.server.LunarArcDynamicBukkitEnums.material(key);
         }
         if (material == null) throw new IllegalArgumentException("No Bukkit Material exists for block " + key);
         BLOCK_MATERIAL.put(block, material);
@@ -258,7 +258,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         Material material = Material.matchMaterial(key.toString());
         if (material == null) {
 
-            material = io.ampznetwork.lunararc.common.server.LunarArcDynamicBukkitEnums.material(key);
+            material = io.lunararcdevs.lunararc.common.server.LunarArcDynamicBukkitEnums.material(key);
         }
         if (material == null) throw new IllegalArgumentException("No Bukkit Material exists for item " + key);
         ITEM_MATERIAL.put(item, material);
@@ -333,7 +333,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         net.minecraft.world.item.ItemStack nms =
                 org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(stack);
         try {
-            var parsed = new ItemParser(Commands.createValidationContext(io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess()))
+            var parsed = new ItemParser(Commands.createValidationContext(io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess()))
                     .parse(new StringReader(arguments));
             nms.applyComponents(parsed.components());
         } catch (CommandSyntaxException exception) {
@@ -370,22 +370,6 @@ public final class CraftMagicNumbers implements UnsafeValues {
     private static volatile Commodore commodore;
     private static volatile boolean commodoreUnavailable;
 
-    /**
-     * Applies Paper's own plugin rewriter to {@code bytecode}.
-     *
-     * <p>This is the step that makes a plugin built against an older Bukkit API run unchanged:
-     * Commodore rewrites renamed API constants through {@code FieldRename} (Enchantment,
-     * PotionEffectType, Particle, EntityType, Attribute, Sound, Biome, PatternType, DisplaySlot,
-     * MusicInstrument, LootTables, MapCursor.Type, ItemFlag and friends), reroutes methods whose
-     * signatures changed through {@code MaterialRerouting}, and strips the legacy versioned
-     * CraftBukkit package prefix. Those plugins are compatible with 1.21.1 - they only need the
-     * rewrite Paper would give them - so skipping it turned a loadable plugin into one that
-     * enabled and then died on the first NoSuchFieldError.</p>
-     *
-     * <p>A failure here is never fatal. Commodore is donated Paper code operating on third-party
-     * bytecode; if it throws, the original bytes are used, exactly as CraftBukkit does, so one odd
-     * plugin cannot stop the rest of the server from loading.</p>
-     */
     public static byte[] applyPaperPluginRewrites(PluginDescriptionFile pdf, String path, byte[] bytecode) {
         if (DISABLE_OLD_API_SUPPORT || commodoreUnavailable || pdf == null) return bytecode;
 
@@ -412,7 +396,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         // hybrid NMS remap - the same order CraftBukkit uses, and the order that keeps LunarArc's
         // remapper helping Paper's transform instead of running ahead of it.
         byte[] rewritten = applyPaperPluginRewrites(pdf, path, clazz);
-        return new io.ampznetwork.lunararc.common.mod.LunarArcRemapper(true).transform(rewritten, className);
+        return new io.lunararcdevs.lunararc.common.mod.LunarArcRemapper(true).transform(rewritten, className);
     }
 
     @Override
@@ -423,7 +407,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
             throw new IllegalArgumentException("Advancement already exists: " + key);
         }
 
-        MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) {
             throw new IllegalStateException("MinecraftServer is not attached yet");
         }
@@ -475,7 +459,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
     @Override
     public boolean removeAdvancement(NamespacedKey key) {
         Objects.requireNonNull(key, "key");
-        MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) return false;
         java.io.File file = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.DATAPACK_DIR)
                 .resolve("bukkit/data/" + key.getNamespace() + "/advancements/" + key.getKey() + ".json")
@@ -584,7 +568,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
             if (minor < 13) return !DISABLE_OLD_API_SUPPORT;
             if (minor < 21) return true;
 
-            return io.ampznetwork.lunararc.common.compat.PaperCompatibility.isSupportedApiVersion(apiVersion);
+            return io.lunararcdevs.lunararc.common.compat.PaperCompatibility.isSupportedApiVersion(apiVersion);
         } catch (NumberFormatException exception) {
             return false;
         }
@@ -675,7 +659,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         if (!preserveUUID) compound.remove("UUID");
         net.minecraft.world.entity.Entity nms = net.minecraft.world.entity.EntityType.create(compound, craftWorld.getHandle())
                 .orElseThrow(() -> new IllegalArgumentException("Serialized entity has no valid id"));
-        return ((io.ampznetwork.lunararc.common.bridge.EntityBridge) nms).lunararc$getBukkitEntity();
+        return ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) nms).lunararc$getBukkitEntity();
     }
 
     @Override
@@ -823,7 +807,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
     public io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager<org.bukkit.plugin.Plugin> createPluginLifecycleEventManager(
             org.bukkit.plugin.java.JavaPlugin plugin,
             java.util.function.BooleanSupplier registrationCheck) {
-        return io.ampznetwork.lunararc.common.server.LunarArcLifecycleEventManager.create(plugin, registrationCheck);
+        return io.lunararcdevs.lunararc.common.server.LunarArcLifecycleEventManager.create(plugin, registrationCheck);
     }
 
     @Override
@@ -869,7 +853,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         net.minecraft.tags.TagKey<M> nmsTagKey = net.minecraft.tags.TagKey.create(nmsRegistryKey, tagLocation);
         return nmsRegistry.get().getTag(nmsTagKey)
                 .<io.papermc.paper.registry.tag.Tag<A>>map(named ->
-                        new io.ampznetwork.lunararc.common.server.registry.LunarArcNamedRegistryTag<>(tagKey, named))
+                        new io.lunararcdevs.lunararc.common.server.registry.LunarArcNamedRegistryTag<>(tagKey, named))
                 .orElse(null);
     }
 
@@ -880,7 +864,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
     }
 
     private static MinecraftServer requireServer() {
-        MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) throw new IllegalStateException("MinecraftServer has not been attached to LunarArc yet");
         return server;
     }
@@ -909,31 +893,10 @@ public final class CraftMagicNumbers implements UnsafeValues {
         }
     }
 
-    /**
-     * The Spigot mappings hash for this Minecraft version, under CraftBukkit's own name.
-     *
-     * <p>Plugins that ship a versioned NMS adapter - ProtocolLib, the NBT libraries, anything
-     * built on a per-mappings-revision shim - read this to decide whether their adapter matches
-     * the server before they touch NMS at all. Reporting Spigot's 1.21.1 revision is the correct
-     * answer here for the same reason it is on Paper: the plugin was compiled against Spigot
-     * mappings, LunarArc remaps it Spigot to Mojang on load, and the adapter it picks off this
-     * value is the one that pipeline expects.</p>
-     *
-     * <p>The value is CraftBukkit's own constant for 1.21.1, not something derived here. It is
-     * tied to the Minecraft version, so it changes only when the server moves versions.</p>
-     */
     public String getMappingsVersion() {
         return "7092ff1ff9352ad7e2260dc150e6a3ec";
     }
 
-    /**
-     * The shared Commodore, under CraftBukkit's name.
-     *
-     * <p>CraftBukkit hands this out so plugin loaders can run the same rewriter it does. Built on
-     * first use here, the same instance {@link #applyPaperPluginRewrites} works with, and null if
-     * Commodore could not be constructed at all rather than throwing at the caller. Static where
-     * CraftBukkit has it on the instance, because everything reaching it here is static too.</p>
-     */
     public static Commodore getCommodore() {
         Commodore active = commodore;
         if (active != null || commodoreUnavailable) {
@@ -962,7 +925,6 @@ public final class CraftMagicNumbers implements UnsafeValues {
         }
     }
 
-    /** The registry key backing a Material, as CraftBukkit exposes it. */
     public static net.minecraft.resources.ResourceLocation key(Material mat) {
         return org.bukkit.craftbukkit.util.CraftNamespacedKey.toMinecraft(mat.getKey());
     }

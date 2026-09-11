@@ -15,7 +15,7 @@ public interface PaperLootableInventory extends PaperLootable, LootableInventory
     Level getNMSWorld();
 
     default World getBukkitWorld() {
-        return ((io.ampznetwork.lunararc.common.bridge.LevelBridge) this.getNMSWorld()).lunararc$getWorld();
+        return ((io.lunararcdevs.lunararc.common.bridge.LevelBridge) this.getNMSWorld()).lunararc$getWorld();
     }
 
     /* LootableInventory */

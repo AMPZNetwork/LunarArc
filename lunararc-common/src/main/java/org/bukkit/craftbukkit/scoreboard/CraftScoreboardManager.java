@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.scoreboard;
 
 import com.google.common.base.Preconditions;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,7 +20,6 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.scoreboard.ScoreboardManager;
 
-/** One concrete scoreboard manager bound to the loader-owned MinecraftServer. */
 public final class CraftScoreboardManager implements ScoreboardManager {
     private final CraftScoreboard mainScoreboard;
     private final MinecraftServer server;
@@ -43,7 +41,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {
 
     @Override
     public CraftScoreboard getNewScoreboard() {
-        io.ampznetwork.lunararc.common.util.AsyncCatcher.catchOp("scoreboard creation");
+        io.lunararcdevs.lunararc.common.util.AsyncCatcher.catchOp("scoreboard creation");
         CraftScoreboard scoreboard = new CraftScoreboard(new ServerScoreboard(this.server));
         scoreboard.registeredGlobally = true;
         this.scoreboards.add(scoreboard);
@@ -51,7 +49,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {
     }
 
     public void registerScoreboardForVanilla(CraftScoreboard scoreboard) {
-        io.ampznetwork.lunararc.common.util.AsyncCatcher.catchOp("scoreboard registration");
+        io.lunararcdevs.lunararc.common.util.AsyncCatcher.catchOp("scoreboard registration");
         this.scoreboards.add(java.util.Objects.requireNonNull(scoreboard, "scoreboard"));
     }
 

@@ -1,11 +1,10 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.ZombieBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.ZombieBridge;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Zombie;
 
-/** Concrete Bukkit Zombie backed directly by the loader-owned NMS zombie. */
 public class CraftZombie extends CraftMonster implements Zombie {
     public CraftZombie(CraftServer server, net.minecraft.world.entity.monster.Zombie entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.monster.Zombie getHandle() { return (net.minecraft.world.entity.monster.Zombie) this.entity; }

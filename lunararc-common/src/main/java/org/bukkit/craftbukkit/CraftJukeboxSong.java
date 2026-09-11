@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Bukkit jukebox song backed directly by the dynamic 1.21.1 registry value. */
 public final class CraftJukeboxSong implements JukeboxSong, org.bukkit.craftbukkit.util.Handleable<net.minecraft.world.item.JukeboxSong> {
     private final NamespacedKey key;
     private final net.minecraft.world.item.JukeboxSong handle;

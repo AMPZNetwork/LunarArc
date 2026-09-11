@@ -21,7 +21,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
-/** Concrete Bukkit wrapper for the real 1.21.1 ThrownPotion. */
 public final class CraftThrownPotion extends CraftThrowableProjectile implements ThrownPotion, SplashPotion, LingeringPotion {
     public CraftThrownPotion(CraftServer server, net.minecraft.world.entity.projectile.ThrownPotion entity) {
         super(server, entity);
@@ -72,7 +71,7 @@ public final class CraftThrownPotion extends CraftThrowableProjectile implements
     public void splash() {
         net.minecraft.world.phys.BlockHitResult miss = net.minecraft.world.phys.BlockHitResult.miss(
                 getHandle().position(), net.minecraft.core.Direction.UP, getHandle().blockPosition());
-        ((io.ampznetwork.lunararc.common.bridge.access.ThrownPotionInvokeBridge) (Object) getHandle())
+        ((io.lunararcdevs.lunararc.common.bridge.access.ThrownPotionInvokeBridge) (Object) getHandle())
                 .lunararc$invokeOnHit(miss);
     }
 

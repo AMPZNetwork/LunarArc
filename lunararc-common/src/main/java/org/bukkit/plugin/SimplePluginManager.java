@@ -1,15 +1,12 @@
 package org.bukkit.plugin;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
-import java.util.logging.Level;
 import org.bukkit.Server;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
 import io.papermc.paper.plugin.manager.PaperPluginManagerImpl;
 import org.bukkit.event.Event;

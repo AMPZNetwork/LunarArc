@@ -76,7 +76,7 @@ public class FileProviderSource implements ProviderSource<Path, Path> {
                 UnsupportedClassVersionError versionError = findUnsupportedClassVersionError(throwable);
                 if (versionError == null) throw throwable;
 
-                io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.warnJavaVersionOnce(context, versionError);
+                io.lunararcdevs.lunararc.common.server.LunarArcPluginLoader.warnJavaVersionOnce(context, versionError);
             }
         } finally {
             if (!registered) file.close();

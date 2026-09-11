@@ -18,7 +18,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
 import org.jetbrains.annotations.NotNull;
 
-/** Direct Minecraft 1.21.1-backed PotionEffectType adapter. */
 public final class CraftPotionEffectType extends PotionEffectType implements org.bukkit.craftbukkit.util.Handleable<MobEffect> {
     private final NamespacedKey key;
     private final MobEffect handle;
@@ -160,7 +159,7 @@ public final class CraftPotionEffectType extends PotionEffectType implements org
     }
 
     @Override
-    public @NotNull PotionEffectType.Category getEffectCategory() {
+    public PotionEffectType.@NotNull Category getEffectCategory() {
         return switch (this.handle.getCategory()) {
             case BENEFICIAL -> PotionEffectType.Category.BENEFICIAL;
             case HARMFUL -> PotionEffectType.Category.HARMFUL;

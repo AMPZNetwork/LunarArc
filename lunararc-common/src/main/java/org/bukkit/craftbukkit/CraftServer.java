@@ -28,10 +28,8 @@ import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.structure.StructureManager;
-import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +41,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
-import io.ampznetwork.lunararc.common.server.LunarArcLogger;
+import io.lunararcdevs.lunararc.common.server.LunarArcLogger;
 import io.papermc.paper.configuration.FeatureFlagConfig;
 
 public class CraftServer implements Server {
@@ -186,9 +184,9 @@ public class CraftServer implements Server {
 
         this.consoleSender = new CraftConsoleCommandSender(console);
 
-        io.ampznetwork.lunararc.common.mod.util.log.LunarArcConsole.success(logger, "CraftServer initialized: " + getName() + " version " + getVersion() + " (Bukkit: " + getBukkitVersion() + ")");
+        io.lunararcdevs.lunararc.common.mod.util.log.LunarArcConsole.success(logger, "CraftServer initialized: " + getName() + " version " + getVersion() + " (Bukkit: " + getBukkitVersion() + ")");
 
-        this.simplePluginManager.registerInterface(io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.class);
+        this.simplePluginManager.registerInterface(io.lunararcdevs.lunararc.common.server.LunarArcPluginLoader.class);
         this.datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console);
         this.legacyDataPackManager = new org.bukkit.craftbukkit.packs.CraftDataPackManager(console);
         this.serverTickManager = new CraftServerTickManager(console);
@@ -206,7 +204,7 @@ public class CraftServer implements Server {
             existingVersion.unregister(commandMap);
             commandMap.getKnownCommands().entrySet().removeIf(e -> e.getValue() == existingVersion);
         }
-        commandMap.register("bukkit", new io.ampznetwork.lunararc.common.server.LunarArcVersionCommand("version"));
+        commandMap.register("bukkit", new io.lunararcdevs.lunararc.common.server.LunarArcVersionCommand("version"));
 
         org.bukkit.command.Command existingPlugins = commandMap.getCommand("plugins");
         if (existingPlugins != null) {
@@ -359,45 +357,35 @@ public class CraftServer implements Server {
         return (net.minecraft.server.dedicated.DedicatedServer) console;
     }
 
-    /**
-     * The player list, which is what CraftBukkit's getHandle() returns.
-     *
-     * <p>This used to return the MinecraftServer, and the note here said the defect had not been
-     * hit yet. It has: the donated CraftOfflinePlayer calls {@code server.getHandle().isOp(...)},
-     * {@code .op(...)}, {@code .deop(...)}, {@code .getWhiteList()} and {@code .getPlayerStats(...)},
-     * every one of which resolves against DedicatedPlayerList. Compiled against that descriptor,
-     * the call site cannot bind to a method returning MinecraftServer, so any plugin reading or
-     * setting op, whitelist or offline statistics through OfflinePlayer got a NoSuchMethodError -
-     * and Essentials does all three.
-     *
-     * <p>The call-site audit the old note asked for is done: thirteen internal uses now call
-     * {@link #getServer()}, which returns the DedicatedServer they actually wanted. The cast is
-     * the same assumption getServer() already makes and states - this runtime is server-only, so
-     * the list is always the dedicated subclass.</p>
-     */
     public net.minecraft.server.dedicated.DedicatedPlayerList getHandle() {
         return (net.minecraft.server.dedicated.DedicatedPlayerList) playerList;
     }
 
     @Override
     public @NotNull String getName() {
-        return io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.projectName();
+        // ServerBuildInfo.brandId()/isBrandCompatible() already answer "paper" for the modern
+        // detection path (see LunarArcServerBuildInfo). Older plugins that never migrated off this
+        // legacy string - EssentialsX among them - check it directly instead, so this has to agree
+        // with that answer rather than honestly saying "LunarArc": a real, confirmed mismatch here
+        // is what put Essentials into its unsupported-server warning path on a live boot. LunarArc's
+        // own branding stays visible elsewhere (getVersion(), the startup banner, /version).
+        return "Paper";
     }
 
     @Override
     public @NotNull String getVersion() {
 
-        return io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.projectVersion();
+        return io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.projectVersion();
     }
 
     @Override
     public @NotNull String getMinecraftVersion() {
-        return io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.minecraftVersion();
+        return io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.minecraftVersion();
     }
 
     @Override
     public @NotNull String getBukkitVersion() {
-        return io.ampznetwork.lunararc.common.server.LunarArcVersionInfo.paperApiVersion();
+        return io.lunararcdevs.lunararc.common.server.LunarArcVersionInfo.paperApiVersion();
     }
 
     @Override
@@ -524,7 +512,7 @@ public class CraftServer implements Server {
         }
         File[] files = pluginsFolder.listFiles(f -> f.getName().endsWith(".jar"));
         if (files != null) {
-            io.ampznetwork.lunararc.common.mod.util.log.LunarArcConsole.info(logger,
+            io.lunararcdevs.lunararc.common.mod.util.log.LunarArcConsole.info(logger,
                     "Found " + files.length + " potential plugins. Loading...");
             // Boot-time load, not the runtime PluginManager API: the runtime path refuses
             // paper-plugin.yml plugins (correctly, for real Paper's runtime) and was silently
@@ -534,7 +522,7 @@ public class CraftServer implements Server {
     }
 
     public void enablePlugins(org.bukkit.plugin.PluginLoadOrder type) {
-        io.ampznetwork.lunararc.common.mod.util.log.LunarArcConsole.info(logger, "Enabling Bukkit plugins (Order: " + type + ")...");
+        io.lunararcdevs.lunararc.common.mod.util.log.LunarArcConsole.info(logger, "Enabling Bukkit plugins (Order: " + type + ")...");
 
         if (type == org.bukkit.plugin.PluginLoadOrder.STARTUP) {
             // Where CraftBukkit registers Spigot's own commands, before any plugin can claim the
@@ -561,13 +549,13 @@ public class CraftServer implements Server {
 
     public void clearPluginsForShutdown() {
         simplePluginManager.clearPlugins();
-        io.ampznetwork.lunararc.common.server.LunarArcCommandMap.setDispatcher(null);
-        io.ampznetwork.lunararc.common.server.LunarArcContext.clearServerReferences();
+        io.lunararcdevs.lunararc.common.server.LunarArcCommandMap.setDispatcher(null);
+        io.lunararcdevs.lunararc.common.server.LunarArcContext.clearServerReferences();
     }
 
     public void syncCommands() {
         com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher = console.getCommands().getDispatcher();
-        if (commandMap instanceof io.ampznetwork.lunararc.common.server.LunarArcCommandMap lunarArcMap) {
+        if (commandMap instanceof io.lunararcdevs.lunararc.common.server.LunarArcCommandMap lunarArcMap) {
             lunarArcMap.syncToBrigadier(dispatcher);
         }
         for (net.minecraft.server.level.ServerPlayer player : console.getPlayerList().getPlayers()) {
@@ -823,7 +811,7 @@ public class CraftServer implements Server {
         Objects.requireNonNull(id, "id");
         net.minecraft.server.level.ServerPlayer player = playerList.getPlayer(id);
         if (player == null) return null;
-        org.bukkit.entity.Entity bukkit = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) (Object) player)
+        org.bukkit.entity.Entity bukkit = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) (Object) player)
                 .lunararc$getBukkitEntity();
         if (!(bukkit instanceof Player result)) {
             throw new IllegalStateException("ServerPlayer did not resolve to a Bukkit Player: " + bukkit);
@@ -911,8 +899,8 @@ public class CraftServer implements Server {
             throw new IllegalStateException("Bukkit reload must run on the primary server thread");
         }
 
-        io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge bridge =
-                (io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
+        io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge bridge =
+                (io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
 
         reloadPaperWorldConfigurations();
         disablePlugins();
@@ -938,13 +926,13 @@ public class CraftServer implements Server {
 
         com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher =
                 console.getCommands().getDispatcher();
-        io.ampznetwork.lunararc.common.server.LunarArcPaperCommands registrar =
-                new io.ampznetwork.lunararc.common.server.LunarArcPaperCommands(dispatcher);
-        io.ampznetwork.lunararc.common.server.LunarArcReloadableRegistrarEvent<io.papermc.paper.command.brigadier.Commands> lifecycle =
-                new io.ampznetwork.lunararc.common.server.LunarArcReloadableRegistrarEvent<>(
+        io.lunararcdevs.lunararc.common.server.LunarArcPaperCommands registrar =
+                new io.lunararcdevs.lunararc.common.server.LunarArcPaperCommands(dispatcher);
+        io.lunararcdevs.lunararc.common.server.LunarArcReloadableRegistrarEvent<io.papermc.paper.command.brigadier.Commands> lifecycle =
+                new io.lunararcdevs.lunararc.common.server.LunarArcReloadableRegistrarEvent<>(
                         registrar,
                         io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent.Cause.RELOAD);
-        io.ampznetwork.lunararc.common.server.LunarArcLifecycleEventRunner.fire(
+        io.lunararcdevs.lunararc.common.server.LunarArcLifecycleEventRunner.fire(
                 io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, lifecycle);
 
         syncCommands();
@@ -1239,7 +1227,7 @@ public class CraftServer implements Server {
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NotNull BanList getBanList(@NotNull BanList.Type type) {
+    public @NotNull BanList getBanList(BanList.@NotNull Type type) {
         Objects.requireNonNull(type, "type");
         return switch (type) {
             case IP -> lunararc$ipBanList();
@@ -1266,7 +1254,7 @@ public class CraftServer implements Server {
     }
 
     @Override
-    public @NotNull Warning.WarningState getWarningState() {
+    public Warning.@NotNull WarningState getWarningState() {
         return Warning.WarningState.DEFAULT;
     }
 
@@ -1411,7 +1399,7 @@ public class CraftServer implements Server {
 
     @Override
     public boolean isTickingWorlds() {
-        return ((io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) (Object) console)
+        return ((io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) (Object) console)
                 .lunararc$isTickingWorlds();
     }
 
@@ -1469,12 +1457,12 @@ public class CraftServer implements Server {
 
     @Override
     public double[] getTPS() {
-        return ((io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) (Object) console).lunararc$getTps();
+        return ((io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) (Object) console).lunararc$getTps();
     }
 
     @Override
     public long[] getTickTimes() {
-        return ((io.ampznetwork.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getTickTimesNanos().clone();
+        return ((io.lunararcdevs.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getTickTimesNanos().clone();
     }
 
     @Override
@@ -1492,7 +1480,7 @@ public class CraftServer implements Server {
 
     @Override
     public int getCurrentTick() {
-        return ((io.ampznetwork.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getTickCount();
+        return ((io.lunararcdevs.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getTickCount();
     }
 
     @Override
@@ -1507,7 +1495,7 @@ public class CraftServer implements Server {
             this.logger.log(java.util.logging.Level.WARNING, "Unable to reload commands.yml", ex);
             return false;
         }
-        if (this.commandMap instanceof io.ampznetwork.lunararc.common.server.LunarArcCommandMap lunarArcCommandMap) {
+        if (this.commandMap instanceof io.lunararcdevs.lunararc.common.server.LunarArcCommandMap lunarArcCommandMap) {
             return lunarArcCommandMap.reloadServerAliases(previous, this.getCommandAliases());
         }
         return false;
@@ -1610,13 +1598,13 @@ public class CraftServer implements Server {
     @Override
     public @NotNull com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nullable UUID uuid,
             @Nullable String name) {
-        return new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(uuid, name);
+        return new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(uuid, name);
     }
 
     @Override
     public @NotNull com.destroystokyo.paper.profile.PlayerProfile createProfileExact(@Nullable UUID uuid,
             @Nullable String name) {
-        return new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(uuid, name);
+        return new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(uuid, name);
     }
 
     @Override
@@ -1766,7 +1754,7 @@ public class CraftServer implements Server {
 
     @Override
     public boolean dispatchCommand(@NotNull CommandSender sender, @NotNull String commandLine) {
-        return io.ampznetwork.lunararc.common.server.LunarArcCommandRouter.dispatch(
+        return io.lunararcdevs.lunararc.common.server.LunarArcCommandRouter.dispatch(
                 this, sender, commandLine);
     }
 
@@ -1791,7 +1779,7 @@ public class CraftServer implements Server {
                             new com.mojang.brigadier.StringReader(selector), true).parse();
             List<Entity> result = new ArrayList<>();
             for (net.minecraft.world.entity.Entity entity : parsed.findEntities(source)) {
-                result.add(((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity());
+                result.add(((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity());
             }
             return Collections.unmodifiableList(result);
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException ex) {
@@ -1802,7 +1790,7 @@ public class CraftServer implements Server {
     @Override
     public @Nullable <T extends Keyed> Registry<T> getRegistry(@NotNull Class<T> type) {
         if (type == null) return null;
-        return io.ampznetwork.lunararc.common.server.LunarArcRegistryAccess.INSTANCE.getRegistry(type);
+        return io.lunararcdevs.lunararc.common.server.LunarArcRegistryAccess.INSTANCE.getRegistry(type);
     }
 
     @Override
@@ -1876,7 +1864,7 @@ public class CraftServer implements Server {
             var holders = net.minecraft.core.registries.BuiltInRegistries.GAME_EVENT.getTag(key);
             if (holders.isEmpty()) return null;
             java.util.LinkedHashSet<T> values = new java.util.LinkedHashSet<>();
-            Registry<org.bukkit.GameEvent> gameEvents = io.ampznetwork.lunararc.common.server.LunarArcRegistryAccess.INSTANCE
+            Registry<org.bukkit.GameEvent> gameEvents = io.lunararcdevs.lunararc.common.server.LunarArcRegistryAccess.INSTANCE
                     .getRegistry(org.bukkit.GameEvent.class);
             for (var holder : holders.get()) {
                 var id = net.minecraft.core.registries.BuiltInRegistries.GAME_EVENT.getKey(holder.value());
@@ -1989,7 +1977,7 @@ public class CraftServer implements Server {
             @NotNull BarColor color, @NotNull BarStyle style, @NotNull BarFlag... flags) {
         Objects.requireNonNull(key, "key");
         if (bossBars.containsKey(key)) throw new IllegalArgumentException("Boss bar already exists: " + key);
-        KeyedBossBar bar = io.ampznetwork.lunararc.common.server.LunarArcBossBar.createKeyed(key, title, color, style, flags);
+        KeyedBossBar bar = io.lunararcdevs.lunararc.common.server.LunarArcBossBar.createKeyed(key, title, color, style, flags);
         bossBars.put(key, bar);
         return bar;
     }
@@ -1997,7 +1985,7 @@ public class CraftServer implements Server {
     @Override
     public @NotNull BossBar createBossBar(@Nullable String title, @NotNull BarColor color, @NotNull BarStyle style,
             @NotNull BarFlag... flags) {
-        return io.ampznetwork.lunararc.common.server.LunarArcBossBar.create(title, color, style, flags);
+        return io.lunararcdevs.lunararc.common.server.LunarArcBossBar.create(title, color, style, flags);
     }
 
     @Override
@@ -2062,7 +2050,7 @@ public class CraftServer implements Server {
 
     @Override
     public @NotNull PlayerProfile createPlayerProfile(@Nullable UUID uniqueId, @Nullable String name) {
-        return new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(uniqueId, name);
+        return new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(uniqueId, name);
     }
 
     @Override
@@ -2072,13 +2060,13 @@ public class CraftServer implements Server {
             var profile = console.getProfileCache().get(uniqueId);
             if (profile.isPresent()) name = profile.get().getName();
         } catch (Throwable ignored) {}
-        return new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(uniqueId, name);
+        return new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(uniqueId, name);
     }
 
     @Override
     public @NotNull PlayerProfile createPlayerProfile(@NotNull String name) {
         UUID id = getPlayerUniqueId(name);
-        return new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(id, name);
+        return new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(id, name);
     }
 
     @Override
@@ -2095,7 +2083,7 @@ public class CraftServer implements Server {
     }
 
     @Override
-    public @NotNull ChunkGenerator.ChunkData createChunkData(@NotNull World world) {
+    public ChunkGenerator.@NotNull ChunkData createChunkData(@NotNull World world) {
         Objects.requireNonNull(world, "world");
         return new org.bukkit.craftbukkit.generator.CraftChunkData(
                 world.getMinHeight(), world.getMaxHeight());
@@ -2129,9 +2117,9 @@ public class CraftServer implements Server {
         return Collections.unmodifiableMap(aliases);
     }
 
-    private io.ampznetwork.lunararc.common.bridge.recipe.RecipeManagerBridge recipeManagerBridge() {
+    private io.lunararcdevs.lunararc.common.bridge.recipe.RecipeManagerBridge recipeManagerBridge() {
         Object manager = console.getRecipeManager();
-        if (!(manager instanceof io.ampznetwork.lunararc.common.bridge.recipe.RecipeManagerBridge bridge)) {
+        if (!(manager instanceof io.lunararcdevs.lunararc.common.bridge.recipe.RecipeManagerBridge bridge)) {
             throw new IllegalStateException("RecipeManagerMixin is not active on the loader-owned RecipeManager");
         }
         return bridge;
@@ -2235,7 +2223,7 @@ public class CraftServer implements Server {
     @Override
     public void updateRecipes() {
 
-        if (playerList instanceof io.ampznetwork.lunararc.common.bridge.PlayerListBridge bridge) {
+        if (playerList instanceof io.lunararcdevs.lunararc.common.bridge.PlayerListBridge bridge) {
             bridge.lunararc$reloadRecipeData();
             return;
         }
@@ -2403,13 +2391,13 @@ public class CraftServer implements Server {
         }
 
         final net.minecraft.resources.ResourceKey<net.minecraft.world.level.dimension.LevelStem> stemKey =
-                io.ampznetwork.lunararc.common.server.LunarArcDynamicBukkitEnums.levelStem(creator.environment());
+                io.lunararcdevs.lunararc.common.server.LunarArcDynamicBukkitEnums.levelStem(creator.environment());
         if (stemKey == null) {
             throw new IllegalArgumentException("No loader-owned level stem is registered for Bukkit environment " + creator.environment());
         }
 
-        final io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge serverBridge =
-                (io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
+        final io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge serverBridge =
+                (io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
         final net.minecraft.server.WorldLoader.DataLoadContext context = serverBridge.lunararc$getDataLoadContext();
         final net.minecraft.core.RegistryAccess.Frozen dimensions =
                 console.registries().getLayer(net.minecraft.server.RegistryLayer.DIMENSIONS);
@@ -2424,7 +2412,7 @@ public class CraftServer implements Server {
         try {
             net.minecraft.world.level.storage.LevelStorageSource storage =
                     net.minecraft.world.level.storage.LevelStorageSource.createDefault(getWorldContainer().toPath());
-            session = ((io.ampznetwork.lunararc.common.bridge.storage.LevelStorageSourceBridge) (Object) storage)
+            session = ((io.lunararcdevs.lunararc.common.bridge.storage.LevelStorageSourceBridge) (Object) storage)
                     .lunararc$validateAndCreateAccess(name, stemKey);
         } catch (java.io.IOException | net.minecraft.world.level.validation.ContentValidationException ex) {
             throw new IllegalStateException("Unable to open world storage for " + name, ex);
@@ -2501,7 +2489,7 @@ public class CraftServer implements Server {
                         net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
                                 creator.key().getNamespace(), creator.key().getKey()));
             }
-            if (((io.ampznetwork.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getLevels().containsKey(worldKey)) {
+            if (((io.lunararcdevs.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getLevels().containsKey(worldKey)) {
                 throw new IllegalArgumentException("A world is already registered with key " + worldKey.location());
             }
 
@@ -2595,10 +2583,10 @@ public class CraftServer implements Server {
             try { level.save(null, true, false); }
             catch (Throwable ex) { logger.log(java.util.logging.Level.WARNING, "Failed to save world " + world.getName(), ex); return false; }
         }
-        io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge serverBridge =
-                (io.ampznetwork.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
+        io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge serverBridge =
+                (io.lunararcdevs.lunararc.common.bridge.MinecraftServerBridge) (Object) console;
         serverBridge.lunararc$removeLevel(level);
-        if (((io.ampznetwork.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getLevels().containsKey(level.dimension())) {
+        if (((io.lunararcdevs.lunararc.common.bridge.access.MinecraftServerAccessBridge) (Object) console).lunararc$getLevels().containsKey(level.dimension())) {
             return false;
         }
         worldCache.remove(world.getUID());
@@ -2646,7 +2634,7 @@ public class CraftServer implements Server {
     @Override
     public @NotNull ItemStack createExplorerMap(@NotNull World world, @NotNull Location location,
             @NotNull org.bukkit.generator.structure.StructureType structureType,
-            @NotNull org.bukkit.map.MapCursor.Type mapCursorType, int radius, boolean findUnexplored) {
+            org.bukkit.map.MapCursor.@NotNull Type mapCursorType, int radius, boolean findUnexplored) {
         Objects.requireNonNull(world, "world");
         Objects.requireNonNull(location, "location");
         Objects.requireNonNull(structureType, "structureType");

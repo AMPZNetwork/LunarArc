@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit;
 
 import com.google.common.base.Preconditions;
-import io.ampznetwork.lunararc.common.LunarArcServerAccess;
+import io.lunararcdevs.lunararc.common.LunarArcServerAccess;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -19,24 +19,6 @@ import org.bukkit.entity.EntityType;
 
 import java.util.Optional;
 
-/**
- * The conversion half of CraftBukkit's {@code CraftRegistry}.
- *
- * <p>Every {@code Craft*} type that wraps a registry entry - enchantments, potion types, banner
- * patterns, trim materials, damage types and the rest - delegates its {@code minecraftToBukkit} /
- * {@code bukkitToMinecraft} pair here rather than repeating the lookup. Plugins call those static
- * pairs directly to cross between a Bukkit handle and the NMS object, which is why they have to
- * exist under CraftBukkit's own names and signatures.
- *
- * <p>What is deliberately absent is the other half: real Paper's CraftRegistry is also
- * {@code CraftRegistry<B, M> implements Registry<B>}, the backing implementation of the Bukkit
- * registries themselves, together with the dynamic Registry Modification API (patches 0471, 0913,
- * 0920 and 1014 in PaperMC/Paper-archive ver/1.21.1). LunarArc's Bukkit registries are not built on
- * this class, so adding an instance side here would be a shim with nothing behind it. The methods
- * below are all real lookups against the live registry - nothing is stubbed - and
- * {@link #get(Registry, NamespacedKey, ApiVersion)} simply loses the branch that would have
- * consulted a CraftRegistry instance's own serialization updater.
- */
 public final class CraftRegistry {
     private CraftRegistry() {}
 
@@ -99,12 +81,6 @@ public final class CraftRegistry {
         return value.unwrapKey().map(key -> registry.get(CraftNamespacedKey.fromMinecraft(key.location())));
     }
 
-    /**
-     * Registry lookup that first replays the renames a key went through since {@code apiVersion}.
-     *
-     * <p>Only meaningful for ConfigurationSerializable round-trips, where a key was written by an
-     * older server and has to be read back now.
-     */
     public static <B extends Keyed> B get(Registry<B> bukkit, NamespacedKey namespacedKey, ApiVersion apiVersion) {
         if (bukkit instanceof Registry.SimpleRegistry<?> simple) {
             Class<?> type = simple.getType();

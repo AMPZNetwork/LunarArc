@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/** Concrete Paper BlockType backed directly by a live Minecraft 1.21.1 Block. */
 public final class CraftBlockType<B extends BlockData> implements BlockType.Typed<B> {
     private final NamespacedKey key;
     private final Block handle;
@@ -39,11 +38,11 @@ public final class CraftBlockType<B extends BlockData> implements BlockType.Type
         return id == null ? null : Registry.BLOCK.get(new NamespacedKey(id.getNamespace(), id.getPath()));
     }
 
-    @Override public @NotNull BlockType.Typed<BlockData> typed() { return this.typed(BlockData.class); }
+    @Override public BlockType.@NotNull Typed<BlockData> typed() { return this.typed(BlockData.class); }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <Other extends BlockData> @NotNull BlockType.Typed<Other> typed(@NotNull Class<Other> blockDataType) {
+    public <Other extends BlockData> BlockType.@NotNull Typed<Other> typed(@NotNull Class<Other> blockDataType) {
         Objects.requireNonNull(blockDataType, "blockDataType");
         if (blockDataType.isAssignableFrom(CraftBlockData.class) || blockDataType == BlockData.class) return (BlockType.Typed<Other>) this;
         throw new IllegalArgumentException("Cannot type block type " + this.key + " to blockdata type " + blockDataType.getSimpleName());

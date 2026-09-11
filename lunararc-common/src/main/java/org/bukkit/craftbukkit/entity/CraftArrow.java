@@ -21,7 +21,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 
-/** Bukkit tipped-arrow adapter backed by the real 1.21.1 NMS Arrow potion components. */
 public class CraftArrow extends CraftAbstractArrow implements Arrow {
     private static final int NO_EFFECT_COLOR = -1;
 

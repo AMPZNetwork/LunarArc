@@ -33,7 +33,6 @@ class LoadOrderTree {
     public void add(PluginProvider<?> provider) {
         LoadOrderConfiguration configuration = provider.createConfiguration(this.providerMap);
 
-        // Build a validated provider's load order changes
         String identifier = configuration.getMeta().getName();
         for (String dependency : configuration.getLoadAfter()) {
             if (this.providerMap.containsKey(dependency)) {

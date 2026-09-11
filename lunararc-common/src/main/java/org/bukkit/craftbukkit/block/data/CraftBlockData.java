@@ -27,7 +27,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
@@ -641,12 +640,6 @@ public class CraftBlockData implements BlockData {
         return copy;
     }
 
-    /**
-     * This block state's properties as a plain name-to-value string map, as CraftBukkit exposes it.
-     *
-     * <p>Used where a block's properties have to be written somewhere that has no notion of a
-     * Property - configuration, a schematic format, a debug dump.</p>
-     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public java.util.Map<String, String> toStates() {
         java.util.Map<String, String> states = new java.util.HashMap<>();

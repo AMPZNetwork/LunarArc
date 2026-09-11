@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.bukkit.util.CachedServerIcon;
 
-/** Concrete immutable cached server icon. */
 public final class CraftIconCache implements CachedServerIcon {
     private final byte[] value;
 

@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Bukkit damage type backed by the live dynamic Minecraft damage-type registry. */
 public final class CraftDamageType implements DamageType, org.bukkit.craftbukkit.util.Handleable<net.minecraft.world.damagesource.DamageType> {
     private final NamespacedKey key;
     private final net.minecraft.world.damagesource.DamageType handle;

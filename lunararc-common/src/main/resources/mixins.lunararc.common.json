@@ -1,8 +1,8 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "io.ampznetwork.lunararc.common.mixin",
-  "plugin": "io.ampznetwork.lunararc.common.mixinplugin.LunarArcMixinConfigPlugin",
+  "package": "io.lunararcdevs.lunararc.common.mixin",
+  "plugin": "io.lunararcdevs.lunararc.common.mixinplugin.LunarArcMixinConfigPlugin",
   "compatibilityLevel": "JAVA_21",
   "refmap": "mixins.lunararc.common.refmap.json",
   "mixins": [
@@ -63,6 +63,7 @@
     "core.entity.EntitySelectorCollisionMixin",
     "core.entity.LightningBoltMixin",
     "core.entity.ItemEntityMixin",
+    "core.entity.PrimedTntMixin",
     "core.entity.ProjectileMixin",
     "core.entity.AreaEffectCloudMixin",
     "core.entity.ThrownPotionMixin",

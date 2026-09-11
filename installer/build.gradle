@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation project(':lunararc-api')
+    implementation libs.lunararc.api
     implementation project(':i18n-config')
     implementation libs.gson
     implementation libs.jetbrains.annotations

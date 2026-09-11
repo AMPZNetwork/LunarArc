@@ -184,3 +184,12 @@ accessible field net/minecraft/network/chat/HoverEvent$ItemStackInfo components 
 accessible method net/minecraft/network/chat/contents/TranslatableContents filterAllowedArguments (Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
 # ServerBossEvent.broadcast — private, called from BossBarImplementationImpl
 accessible method net/minecraft/server/level/ServerBossEvent broadcast (Ljava/util/function/Function;)V
+
+# WorldEdit's PaperweightAdapter.doRegen accesses this field directly via compiled
+# bytecode (compiled against real Paper, which publicizes it in its own patches) rather
+# than reflection - Commodore's remap only rewrites the symbolic reference, it can't
+# bypass the JVM's access check against the real field's modifier, so //regen throws
+# IllegalAccessError unless this is genuinely widened here too.
+accessible field net/minecraft/world/level/storage/PrimaryLevelData settings Lnet/minecraft/world/level/LevelSettings;
+# doRegen also reaches MinecraftServer's own executor field directly, same reasoning.
+accessible field net/minecraft/server/MinecraftServer executor Ljava/util/concurrent/Executor;

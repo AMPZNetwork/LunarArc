@@ -34,7 +34,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-/** Concrete population-time RegionAccessor over the real WorldGenLevel/proto chunks. */
 public final class CraftLimitedRegion implements LimitedRegion {
     private final WeakReference<WorldGenLevel> weakAccess;
     private final int centerChunkX;
@@ -187,7 +186,7 @@ public final class CraftLimitedRegion implements LimitedRegion {
         for (var entity : entities) if (entity.isAlive()) getHandle().addFreshEntityWithPassengers(entity);
         for (var entity : outsideEntities) getHandle().addFreshEntityWithPassengers(entity);
     }
-    private org.bukkit.entity.Entity bukkit(net.minecraft.world.entity.Entity entity) { return ((io.ampznetwork.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity(); }
+    private org.bukkit.entity.Entity bukkit(net.minecraft.world.entity.Entity entity) { return ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) entity).lunararc$getBukkitEntity(); }
     @Override public @NotNull List<Entity> getEntities() { loadEntities(); return entities.stream().map(this::bukkit).filter(Objects::nonNull).toList(); }
     @Override public @NotNull List<LivingEntity> getLivingEntities() { return getEntities().stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).toList(); }
     @Override public <T extends Entity> @NotNull Collection<T> getEntitiesByClass(@NotNull Class<T> cls) { return getEntities().stream().filter(cls::isInstance).map(cls::cast).toList(); }
@@ -207,7 +206,7 @@ public final class CraftLimitedRegion implements LimitedRegion {
     @Override public <T extends Entity> @NotNull T createEntity(@NotNull Location location,@NotNull Class<T> clazz){ check(location.getBlockX(),location.getBlockY(),location.getBlockZ()); return createNms(location,clazz,true); }
     @Override public <T extends Entity> @NotNull T spawn(@NotNull Location location,@NotNull Class<T> clazz){ return spawn(location,clazz,true,null); }
     @Override public <T extends Entity> @NotNull T spawn(@NotNull Location location,@NotNull Class<T> clazz,boolean randomize,@Nullable Consumer<? super T> function){ return spawn0(location,clazz,randomize,function); }
-    @Override public <T extends Entity> @NotNull T spawn(@NotNull Location location,@NotNull Class<T> clazz,@Nullable Consumer<? super T> function,@NotNull CreatureSpawnEvent.SpawnReason reason){ return spawn0(location,clazz,true,function); }
+    @Override public <T extends Entity> @NotNull T spawn(@NotNull Location location,@NotNull Class<T> clazz,@Nullable Consumer<? super T> function,CreatureSpawnEvent.@NotNull SpawnReason reason){ return spawn0(location,clazz,true,function); }
     private <T extends Entity> T spawn0(Location location,Class<T> clazz,boolean randomize,Consumer<? super T> function){ T result=createNms(location,clazz,randomize); if(function!=null)function.accept(result); entities.add(((CraftEntity)result).getHandle()); return result; }
     @Override public @NotNull Entity spawnEntity(@NotNull Location location,@NotNull EntityType type){ return spawn(location, Objects.requireNonNull(type.getEntityClass()), true, null); }
     @Override public @NotNull Entity spawnEntity(@NotNull Location location,@NotNull EntityType type,boolean randomize){ return spawn(location, Objects.requireNonNull(type.getEntityClass()), randomize, null); }

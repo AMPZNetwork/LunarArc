@@ -91,8 +91,12 @@ dependencies {
     }
 
     implementation 'org.jline:jline-reader:3.20.0'
-    implementation project(':lunararc-api')
+    implementation libs.lunararc.api
     implementation project(':i18n-config')
+    // LunarArcAgent's Instrumentation instance is needed to open NMS packages to each plugin's own
+    // unnamed module (see LunarArcModuleOpener) - installer carries no dependencies of its own, and
+    // its classes are already bundled into the same final jar this runs from, so this is safe.
+    implementation project(':installer')
 
     implementation 'org.apache.maven.resolver:maven-resolver-api:1.9.18'
     implementation 'org.apache.maven.resolver:maven-resolver-util:1.9.18'
@@ -186,7 +190,7 @@ tasks.register('extractPaperPluginMappings') {
         File target = outputFile.get()
         target.parentFile.mkdirs()
 
-        def userAgent = 'LunarArc (https://github.com/AMPZNetwork/LunarArc)'
+        def userAgent = 'LunarArc (https://github.com/LunarArcDevs/LunarArc)'
         def readUtf8 = { String url ->
             def connection = URI.create(url).toURL().openConnection()
             connection.setRequestProperty('User-Agent', userAgent)
@@ -613,7 +617,7 @@ tasks.register('generateIncompatibleList') {
                 if (!(entry instanceof Map)) {
                     throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] must be an object")
                 }
-                Set<String> allowed = [idKey, 'version', 'reason'] as Set
+                Set<String> allowed = [idKey, 'version', 'reason', 'crash'] as Set
                 def unknown = entry.keySet().findAll { !allowed.contains(it) }
                 if (!unknown.isEmpty()) {
                     throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] has unknown key(s): ${unknown.join(', ')}")
@@ -626,6 +630,16 @@ tasks.register('generateIncompatibleList') {
                 if (entry.containsKey('version') && !version) {
                     throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] '${id}' has a blank version")
                 }
+                // 'crash' is optional per-entry: true/false hard-overrides whether this specific
+                // item blocks startup or only warns, regardless of the operator's global
+                // incompatible.crash setting in lunararc.conf; omitted means "follow that setting".
+                String crash = ''
+                if (entry.containsKey('crash')) {
+                    if (!(entry.crash instanceof Boolean)) {
+                        throw new GradleException("${rootProject.relativePath(source)}: ${rootKey}[${index}] '${id}' has a non-boolean 'crash'")
+                    }
+                    crash = entry.crash.toString()
+                }
                 if (id.contains('\t') || reason.contains('\t') || (version != null && version.contains('\t'))) {
                     throw new GradleException("${rootProject.relativePath(source)}: tabs are not allowed in incompatible fields")
                 }
@@ -633,7 +647,7 @@ tasks.register('generateIncompatibleList') {
                 if (!seen.add(duplicateKey)) {
                     throw new GradleException("${rootProject.relativePath(source)}: duplicate ${idKey} '${id}'${version ? " version '${version}'" : ''}")
                 }
-                rows << "${id}\t${version ?: ''}\t${reason}"
+                rows << "${id}\t${version ?: ''}\t${reason}\t${crash}"
             }
             return rows
         }
@@ -1050,11 +1064,27 @@ tasks.named('compileTestJava', JavaCompile) {
 
 tasks.register('runCompatibilityRegression', JavaExec) {
     dependsOn tasks.named('testClasses'), ':bootstrap:generateVersions'
-    classpath = files(sourceSets.test.output, sourceSets.main.output.classesDirs,
+    // sourceSets.main.output (not just .classesDirs) so LunarArc's own META-INF/services/* files
+    // are actually on this classpath - .classesDirs is only the compiled .class output, never
+    // build/resources/main, so LunarArc's own service registrations (RegistryAccess,
+    // ClassloaderBytecodeModifier, ...) were never visible to ServiceLoader here at all. That gap
+    // was silently masked by the real donor paper-server-*.jar below satisfying the same
+    // ServiceLoader lookups with its own (wrong, or absent-when-excluded) implementations - masking
+    // a real gap is worse than the gap itself, since it hides regressions instead of catching them.
+    //
+    // sourceSets.main.compileClasspath carries that same donor paper-server-*.jar (compileOnly,
+    // needed so preparePaperImplementationSurface and @Overwrite mixins can compile against real
+    // Paper signatures) - filtered out here because it is a whole, real Paper server binary with
+    // its own ServiceLoader-registered RegistryAccess/ClassloaderBytecodeModifier implementations
+    // that never ship in any built hybrid jar. Left on this classpath,
+    // ServiceLoader.load(RegistryAccess.class) resolves to the donor's real PaperRegistryAccess
+    // instead of LunarArcRegistryAccess - a conflict this exact regression suite exists to catch,
+    // that only exists in this dev/test classpath and would never happen in a real boot.
+    classpath = files(sourceSets.test.output, sourceSets.main.output,
             generatedPaperImplementationSurfaceDir, generatedPaperMappingsDir, generatedBuildInfoDir,
             project(':bootstrap').layout.buildDirectory.dir('generated/versions'),
-            sourceSets.main.compileClasspath)
-    mainClass = 'io.ampznetwork.lunararc.PluginCompatibilityRegressionTest'
+            sourceSets.main.compileClasspath.filter { file -> !(file.name ==~ /paper-server-.*\.jar/) })
+    mainClass = 'io.lunararcdevs.lunararc.PluginCompatibilityRegressionTest'
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
     systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
 }
@@ -1069,7 +1099,7 @@ tasks.named('test', Test) {
         dependsOn tasks.named('testClasses'), ':installer:classes', ':bootstrap:generateVersions'
         classpath = files(tasks.named('runCompatibilityRegression', JavaExec).get().classpath,
                 project(':installer').sourceSets.main.output.classesDirs)
-        mainClass = 'io.ampznetwork.lunararc.DebugOptionsRegressionTest'
+        mainClass = 'io.lunararcdevs.lunararc.DebugOptionsRegressionTest'
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
         systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
         if (mode != 'off') systemProperty 'lunararc.debug', mode
@@ -1084,7 +1114,7 @@ tasks.named('test', Test) {
 tasks.register('runPackagedRecipeRegression', JavaExec) {
     dependsOn tasks.named('testClasses'), project(':bootstrap').tasks.named('neoforgeJar')
     classpath = tasks.named('runCompatibilityRegression', JavaExec).get().classpath
-    mainClass = 'io.ampznetwork.lunararc.PackagedRecipeRegressionTest'
+    mainClass = 'io.lunararcdevs.lunararc.PackagedRecipeRegressionTest'
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
     systemProperty 'log4j2.loggerContextFactory', 'org.apache.logging.log4j.simple.SimpleLoggerContextFactory'
     doFirst {

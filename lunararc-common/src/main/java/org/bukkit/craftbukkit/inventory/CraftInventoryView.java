@@ -119,7 +119,7 @@ public class CraftInventoryView implements InventoryView {
     }
 
     @Override
-    public @NotNull InventoryType.SlotType getSlotType(int slot) {
+    public InventoryType.@NotNull SlotType getSlotType(int slot) {
         if (slot < 0 || slot >= handle.slots.size()) return InventoryType.SlotType.OUTSIDE;
         if (slot >= top.getSize()) return InventoryType.SlotType.CONTAINER;
         return switch (type) {

@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.damage;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -19,9 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-/**
- * Concrete Bukkit damage source backed by Minecraft's real 1.21.1 DamageSource.
- */
 public final class CraftDamageSource implements DamageSource {
     private final net.minecraft.world.damagesource.DamageSource handle;
     private final DamageType damageType;

@@ -5,10 +5,6 @@ import net.minecraft.server.MinecraftServer;
 import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.packs.ResourcePack;
 
-/**
- * Concrete Bukkit view of the resource pack configured on the real
- * loader-owned MinecraftServer.
- */
 public final class CraftResourcePack implements ResourcePack {
     private final MinecraftServer.ServerResourcePackInfo handle;
 

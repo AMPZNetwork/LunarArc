@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.inventory;
 
-import io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,10 +37,10 @@ public final class CraftMenuType<V extends InventoryView> implements org.bukkit.
 
     @Override public @NotNull Class<? extends InventoryView> getInventoryViewClass() { return viewClass; }
 
-    @Override public @NotNull org.bukkit.inventory.MenuType.Typed<InventoryView> typed() { return typed(InventoryView.class); }
+    @Override public org.bukkit.inventory.MenuType.@NotNull Typed<InventoryView> typed() { return typed(InventoryView.class); }
 
     @Override
-    public <T extends InventoryView> @NotNull org.bukkit.inventory.MenuType.Typed<T> typed(@NotNull Class<T> viewType) {
+    public <T extends InventoryView> org.bukkit.inventory.MenuType.@NotNull Typed<T> typed(@NotNull Class<T> viewType) {
         if (viewType.isAssignableFrom(viewClass)) {
             @SuppressWarnings("unchecked")
             org.bukkit.inventory.MenuType.Typed<T> typed = (org.bukkit.inventory.MenuType.Typed<T>) this;
@@ -60,9 +59,9 @@ public final class CraftMenuType<V extends InventoryView> implements org.bukkit.
             throw new IllegalArgumentException("The given player must be a CraftPlayer");
         }
         ServerPlayer sp = craftPlayer.getHandle();
-        int containerId = ((io.ampznetwork.lunararc.common.bridge.ServerPlayerInventoryBridge) sp).lunararc$nextContainerCounter();
+        int containerId = ((io.lunararcdevs.lunararc.common.bridge.ServerPlayerInventoryBridge) sp).lunararc$nextContainerCounter();
         AbstractContainerMenu menu = handle.create(containerId, sp.getInventory());
-        ((io.ampznetwork.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setCheckReachable(false);
+        ((io.lunararcdevs.lunararc.common.bridge.AbstractContainerMenuBridge) menu).lunararc$setCheckReachable(false);
         InventoryType type = inferType(menu);
         InventoryView view = new CraftInventoryView(craftPlayer, menu, null, null, type, title);
         @SuppressWarnings("unchecked")

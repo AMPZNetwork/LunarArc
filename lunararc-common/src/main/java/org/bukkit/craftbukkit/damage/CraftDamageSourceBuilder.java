@@ -19,19 +19,19 @@ public final class CraftDamageSourceBuilder implements DamageSource.Builder {
     }
 
     @Override
-    public @NotNull DamageSource.Builder withCausingEntity(@NotNull Entity entity) {
+    public DamageSource.@NotNull Builder withCausingEntity(@NotNull Entity entity) {
         this.causingEntity = Objects.requireNonNull(entity, "Entity cannot be null");
         return this;
     }
 
     @Override
-    public @NotNull DamageSource.Builder withDirectEntity(@NotNull Entity entity) {
+    public DamageSource.@NotNull Builder withDirectEntity(@NotNull Entity entity) {
         this.directEntity = Objects.requireNonNull(entity, "Entity cannot be null");
         return this;
     }
 
     @Override
-    public @NotNull DamageSource.Builder withDamageLocation(@NotNull Location location) {
+    public DamageSource.@NotNull Builder withDamageLocation(@NotNull Location location) {
         this.damageLocation = Objects.requireNonNull(location, "Location cannot be null").clone();
         return this;
     }

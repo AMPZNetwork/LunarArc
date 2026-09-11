@@ -10,29 +10,23 @@ import java.util.List;
 
 public final class TopographicGraphSorter {
 
-    // Topographically sort dependencies
     public static <N> List<N> sortGraph(Graph<N> graph) throws PluginGraphCycleException {
         List<N> sorted = new ArrayList<>();
         Deque<N> roots = new ArrayDeque<>();
         Object2IntMap<N> nonRoots = new Object2IntOpenHashMap<>();
 
         for (N node : graph.nodes()) {
-            // Is a node being referred to by any other nodes?
             int degree = graph.inDegree(node);
             if (degree == 0) {
-                // Is a root
                 roots.add(node);
             } else {
-                // Isn't a root, the number represents how many nodes connect to it.
                 nonRoots.put(node, degree);
             }
         }
 
-        // Pick from nodes that aren't referred to anywhere else
         N next;
         while ((next = roots.poll()) != null) {
             for (N successor : graph.successors(next)) {
-                // Traverse through, moving down a degree
                 int newInDegree = nonRoots.removeInt(successor) - 1;
 
                 if (newInDegree == 0) {

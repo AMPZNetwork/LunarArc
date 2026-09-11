@@ -122,5 +122,5 @@ public final class CraftMetaBookSigned extends CraftItemMeta implements BookMeta
         @Override public void setPages(BaseComponent[]... pages) { setPages(Arrays.asList(pages)); }
         @Override public void addPage(BaseComponent[]... pages) { for (BaseComponent[] p : pages) CraftMetaBookSigned.this.addInternal(p == null ? Component.empty() : GsonComponentSerializer.gson().deserialize(ComponentSerializer.toString(p))); }
     }
-    @Override public @NotNull BookMeta.Spigot spigot() { return this.spigot; }
+    @Override public BookMeta.@NotNull Spigot spigot() { return this.spigot; }
 }

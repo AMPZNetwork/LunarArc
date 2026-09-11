@@ -19,13 +19,6 @@ import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.bukkit.ChatColor;
 
-/**
- * CraftBukkit 1.21.1 legacy/NMS component conversion adapted for LunarArc.
- *
- * <p>The parsing rules intentionally follow CraftBukkit/Paper. JSON conversion
- * uses the live server registry access instead of a vanilla-only registry so
- * loader-owned/modded component references remain authoritative.</p>
- */
 public final class CraftChatMessage {
     private static final Pattern LINK_PATTERN = Pattern.compile(
             "((?:(?:https?):\\/\\/)?(?:[-\\w_\\.]{2,}\\.[a-z]{2,4}.*?(?=[\\.\\?!,;:]?(?:["
@@ -200,7 +193,7 @@ public final class CraftChatMessage {
     }
 
     private static net.minecraft.core.HolderLookup.Provider lookupProvider() {
-        net.minecraft.server.MinecraftServer server = io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer();
+        net.minecraft.server.MinecraftServer server = io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer();
         return server.registryAccess();
     }
 
@@ -259,8 +252,8 @@ public final class CraftChatMessage {
 
     public static String fromComponent(Component component) {
         if (component == null) return "";
-        return io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(
-                io.ampznetwork.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(component));
+        return io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toLegacy(
+                io.lunararcdevs.lunararc.common.messaging.LunarArcComponentPipeline.toAdventure(component));
     }
 
     public static Component fixComponent(MutableComponent component) {

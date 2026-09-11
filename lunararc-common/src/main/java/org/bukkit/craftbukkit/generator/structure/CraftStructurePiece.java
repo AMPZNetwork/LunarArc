@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-/** Concrete Bukkit wrapper around a live Minecraft structure piece. */
 public final class CraftStructurePiece implements StructurePiece {
     private final net.minecraft.world.level.levelgen.structure.StructurePiece handle;
 

@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "io.ampznetwork.lunararc.quilt.mixin",
+  "package": "io.lunararcdevs.lunararc.quilt.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "bukkit.StandardMessengerMixin_Quilt",

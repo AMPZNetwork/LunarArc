@@ -2,13 +2,6 @@ package org.spigotmc;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
-/**
- * Spigot configuration compatibility surface.
- *
- * <p>This class intentionally exposes the long-standing public/static fields
- * used by CraftBukkit/Paper integrations while leaving loader ownership and
- * server behaviour in LunarArc common code.</p>
- */
 public final class SpigotConfig {
     public static final YamlConfiguration config = new YamlConfiguration();
     public static int version = 12;
@@ -24,14 +17,6 @@ public final class SpigotConfig {
     public static double movedWronglyThreshold = 0.0625D;
     public static double movedTooQuicklyMultiplier = 10.0D;
 
-    /**
-     * The commands Spigot contributes to the Bukkit command map, keyed by label.
-     *
-     * <p>Spigot keeps its built-in commands here and CraftBukkit registers the map during the
-     * STARTUP plugin phase. LunarArc had neither, so {@code /restart} did not exist - typing it
-     * reached brigadier, which has no vanilla command by that name, and the operator got silence.
-     * A plugin or a panel that shells out to {@code restart} was equally out of luck.</p>
-     */
     public static final java.util.Map<String, org.bukkit.command.Command> commands =
             new java.util.LinkedHashMap<>();
 

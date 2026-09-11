@@ -3,7 +3,6 @@ package io.papermc.paper.plugin.entrypoint.strategy.modern;
 import com.google.common.collect.Maps;
 import com.google.common.graph.GraphBuilder;
 import io.papermc.paper.plugin.configuration.PluginMeta;
-import io.papermc.paper.plugin.entrypoint.dependency.GraphDependencyContext;
 import io.papermc.paper.plugin.entrypoint.dependency.MetaDependencyTree;
 import io.papermc.paper.plugin.entrypoint.strategy.ProviderConfiguration;
 import io.papermc.paper.plugin.entrypoint.strategy.ProviderLoadingStrategy;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +31,6 @@ public class ModernPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
         Map<String, PluginProvider<?>> providerMapMirror = Maps.transformValues(providerMap, (entry) -> entry.provider);
         List<PluginProvider<T>> validatedProviders = new ArrayList<>();
 
-        // Populate provider map
         for (PluginProvider<T> provider : pluginProviders) {
             PluginMeta providerConfig = provider.getMeta();
             PluginProviderEntry<T> entry = new PluginProviderEntry<>(provider);
@@ -63,7 +60,6 @@ public class ModernPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
             }
         }
 
-        // Populate dependency tree
         for (PluginProvider<?> validated : pluginProviders) {
             dependencyTree.add(validated);
         }
@@ -79,16 +75,13 @@ public class ModernPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
                 validatedProviders.add(provider);
             } else {
                 LOGGER.error("Could not load '%s' in '%s'".formatted(provider.getSource(), provider.getParentSource()), new UnknownDependencyException(missingDependencies, configuration.getName())); // Paper
-                // Because the validator is invalid, remove it from the provider map
                 providerMap.remove(configuration.getName());
-                // Cleanup plugins that failed to load
                 dependencyTree.remove(provider);
                 this.configuration.onGenericError(provider);
             }
         }
 
         LoadOrderTree loadOrderTree = new LoadOrderTree(providerMapMirror, GraphBuilder.directed().build());
-        // Populate load order tree
         for (PluginProvider<?> validated : validatedProviders) {
             loadOrderTree.add(validated);
         }
@@ -104,7 +97,7 @@ public class ModernPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
             if (retrievedProviderEntry == null || retrievedProviderEntry.provided) {
                 // OR if this was already provided (most likely from a plugin that already "provides" that dependency)
                 // This won't matter since the provided plugin is loaded as a dependency, meaning it should have been loaded correctly anyways
-                continue; // Skip provider that doesn't exist....
+                continue;
             }
             retrievedProviderEntry.provided = true;
             PluginProvider<T> retrievedProvider = retrievedProviderEntry.provider;
@@ -123,7 +116,7 @@ public class ModernPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
                     root = root.getCause();
                 }
                 if (root instanceof UnsupportedClassVersionError versionError) {
-                    io.ampznetwork.lunararc.common.server.LunarArcPluginLoader.warnJavaVersionOnce(
+                    io.lunararcdevs.lunararc.common.server.LunarArcPluginLoader.warnJavaVersionOnce(
                             retrievedProvider.getSource(), versionError);
                     continue;
                 }

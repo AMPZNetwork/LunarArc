@@ -1,12 +1,11 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.CreeperBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.CreeperBridge;
 import java.util.Objects;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Creeper;
 import org.bukkit.event.entity.CreeperPowerEvent;
 
-/** Concrete Bukkit Creeper backed by the loader-owned NMS creeper. */
 public final class CraftCreeper extends CraftMonster implements Creeper {
     public CraftCreeper(CraftServer server, net.minecraft.world.entity.monster.Creeper entity) {
         super(server, entity);

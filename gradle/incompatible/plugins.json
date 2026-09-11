@@ -2,11 +2,13 @@
   "plugins": [
     {
       "main": "it.uknowngino.moddedintegration.main.ModdedIntegration",
-      "reason": "LunarArc gives Essentials a name for every modded item natively; this plugin's own items.json edits are redundant."
+      "reason": "LunarArc gives Essentials a name for every modded item natively; this plugin's own items.json edits are redundant.",
+      "crash": true
     },
     {
       "main": "de.miraculixx.veinminer.Veinminer",
-      "reason": "Recommeded to use the mod version for far better compatiblity."
+      "reason": "Recommeded to use the mod version for far better compatiblity.",
+      "crash": false
     }
   ]
 }

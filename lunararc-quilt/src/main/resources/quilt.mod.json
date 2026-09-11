@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
   "quilt_loader": {
-    "group": "io.ampznetwork",
+    "group": "io.lunararcdevs",
     "id": "lunararc",
     "version": "${version}",
     "metadata": {
       "name": "${project_name}",
       "description": "LunarArc Hybrid Server Core",
       "contributors": {
-        "Ampz Network": "Owner"
+        "LunarArcDevs": "Owner"
       },
       "contact": {
         "homepage": "https://lunararc.net",
-        "sources": "https://github.com/AMPZNetwork/LunarArc"
+        "sources": "https://github.com/LunarArcDevs/LunarArc"
       },
       "license": "GPL-3.0-only",
       "icon": "assets/lunararc/icon.png"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {
-      "main": "io.ampznetwork.lunararc.quilt.LunarArcQuilt"
+      "main": "io.lunararcdevs.lunararc.quilt.LunarArcQuilt"
     },
     "mixin": [
       "mixins.lunararc.common.json",
@@ -27,9 +27,16 @@
     ],
     "depends": [
       {
-        "quilt_loader": ">=${quilt_loader}",
-        "minecraft": "${minecraft}",
-        "fabric-api": "*"
+        "id": "quilt_loader",
+        "versions": ">=${quilt_loader}"
+      },
+      {
+        "id": "minecraft",
+        "versions": "${minecraft}"
+      },
+      {
+        "id": "fabric-api",
+        "versions": "*"
       }
     ]
   }

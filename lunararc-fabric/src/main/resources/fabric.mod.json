@@ -5,21 +5,22 @@
   "name": "${project_name}",
   "description": "LunarArc Hybrid Server Core",
   "authors": [
-    "Ampz Network"
+    "LunarArcDevs"
   ],
   "contact": {
     "homepage": "https://lunararc.net",
-    "sources": "https://github.com/AMPZNetwork/LunarArc"
+    "sources": "https://github.com/LunarArcDevs/LunarArc"
   },
   "license": "GPL-3.0-only",
   "icon": "assets/lunararc/icon.png",
   "environment": "*",
+  "accessWidener": "lunararc.accesswidener",
   "entrypoints": {
     "preLaunch": [
-      "io.ampznetwork.lunararc.fabric.LunarArcFabricPreLaunch"
+      "io.lunararcdevs.lunararc.fabric.LunarArcFabricPreLaunch"
     ],
     "main": [
-      "io.ampznetwork.lunararc.fabric.LunarArcFabric"
+      "io.lunararcdevs.lunararc.fabric.LunarArcFabric"
     ]
   },
   "mixins": [

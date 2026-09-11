@@ -1,10 +1,9 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.SkeletonBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.SkeletonBridge;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Skeleton;
 
-/** Concrete Bukkit Skeleton backed directly by the loader-owned NMS skeleton. */
 public final class CraftSkeleton extends CraftAbstractSkeleton implements Skeleton {
     public CraftSkeleton(CraftServer server, net.minecraft.world.entity.monster.Skeleton entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.monster.Skeleton getHandle() { return (net.minecraft.world.entity.monster.Skeleton) this.entity; }

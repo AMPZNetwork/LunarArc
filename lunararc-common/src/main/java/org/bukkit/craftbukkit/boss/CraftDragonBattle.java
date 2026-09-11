@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.boss;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.server.LunarArcBossBar;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.server.LunarArcBossBar;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-/** Concrete Bukkit view of the loader-owned EndDragonFight. */
 public final class CraftDragonBattle implements DragonBattle {
     private final EndDragonFight handle;
 

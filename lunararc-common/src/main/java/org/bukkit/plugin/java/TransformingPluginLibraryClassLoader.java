@@ -1,6 +1,6 @@
 package org.bukkit.plugin.java;
 
-import io.ampznetwork.lunararc.common.mod.LunarArcRemapper;
+import io.lunararcdevs.lunararc.common.mod.LunarArcRemapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,15 +15,6 @@ import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.HexFormat;
 
-/**
- * Concrete compatibility classloader for plugin-declared libraries.
- *
- * <p>Spigot-mapped libraries receive the normal Spigot -> Mojang transform.
- * Mojang-mapped libraries remain Mojang-named, except individual classes that
- * contain a legacy versioned CraftBukkit adapter marker are remapped as mixed
- * legacy adapter classes. This mirrors the plugin-JAR path without globally
- * remapping modern Paper libraries.</p>
- */
 final class TransformingPluginLibraryClassLoader extends URLClassLoader {
     private final LunarArcRemapper remapper;
     private final Path cacheRoot;

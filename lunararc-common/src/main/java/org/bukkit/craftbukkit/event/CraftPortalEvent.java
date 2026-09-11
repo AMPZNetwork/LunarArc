@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 
-/** Internal immutable portal-event result consumed by the NMS bridge. */
 public final class CraftPortalEvent {
     private final Location to;
     private final int searchRadius;

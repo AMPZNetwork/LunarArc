@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.AbstractVillagerBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.AbstractVillagerBridge;
 import java.util.List;
 import net.minecraft.world.item.trading.MerchantOffers;
 import org.bukkit.craftbukkit.CraftServer;
@@ -10,7 +10,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.MerchantRecipe;
 
-/** Concrete Bukkit AbstractVillager/Merchant backed by the real NMS merchant. */
 public class CraftAbstractVillager extends CraftAgeable implements org.bukkit.entity.AbstractVillager {
     public CraftAbstractVillager(CraftServer server, net.minecraft.world.entity.npc.AbstractVillager entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.npc.AbstractVillager getHandle() { return (net.minecraft.world.entity.npc.AbstractVillager) this.entity; }

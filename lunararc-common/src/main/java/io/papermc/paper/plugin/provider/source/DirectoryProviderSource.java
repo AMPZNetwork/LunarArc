@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 
-/**
- * Loads all plugin providers in the given directory.
- */
 public class DirectoryProviderSource implements ProviderSource<Path, List<Path>> {
 
     public static final DirectoryProviderSource INSTANCE = new DirectoryProviderSource();
@@ -30,7 +27,7 @@ public class DirectoryProviderSource implements ProviderSource<Path, List<Path>>
         this.walkFiles(context, path -> {
             try {
                 files.add(FILE_PROVIDER_SOURCE.prepareContext(path));
-            } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+            } catch (io.lunararcdevs.lunararc.common.config.IncompatibleSoftwareException fatal) {
                 throw fatal;
             } catch (IllegalArgumentException ignored) {
                 // Ignore illegal argument exceptions from jar checking
@@ -46,7 +43,7 @@ public class DirectoryProviderSource implements ProviderSource<Path, List<Path>>
         for (Path path : context) {
             try {
                 FILE_PROVIDER_SOURCE.registerProviders(entrypointHandler, path);
-            } catch (io.ampznetwork.lunararc.common.config.IncompatibleSoftwareException fatal) {
+            } catch (io.lunararcdevs.lunararc.common.config.IncompatibleSoftwareException fatal) {
                 throw fatal;
             } catch (IllegalArgumentException ignored) {
                 // Ignore illegal argument exceptions from jar checking

@@ -284,7 +284,6 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
 
-    /** Stop all Bukkit scheduler work and release LunarArc-owned executor threads. */
     public void shutdown() {
         beginShutdown();
         awaitShutdown();
@@ -298,13 +297,6 @@ public class CraftScheduler implements BukkitScheduler {
         }
         tasks.clear();
         asyncExecutor.shutdownNow();
-        // Short grace period only. shutdownNow() has already interrupted these tasks and every
-        // plugin's tasks were cancelled during disablePlugins(), so anything still running is a
-        // task that ignored its interrupt - typically one blocked in uninterruptible socket or
-        // JDBC I/O, which will not finish however long we wait. The threads are daemons and
-        // cannot hold the JVM open, so waiting the old five seconds here (and another five in
-        // the Paper async scheduler) just stalled shutdown. Say which tasks overran instead of
-        // blocking silently on them.
     }
 
     public void awaitShutdown() {
@@ -312,7 +304,6 @@ public class CraftScheduler implements BukkitScheduler {
         activeWorkers.clear();
     }
 
-    /** Shared shutdown grace-period handling for LunarArc's scheduler executors. */
     static void awaitSchedulerShutdown(java.util.concurrent.ExecutorService executor, String name) {
         try {
             if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {

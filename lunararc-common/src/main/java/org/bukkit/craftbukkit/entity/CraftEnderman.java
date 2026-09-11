@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.entity.EndermanBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.EndermanBridge;
 import java.util.Objects;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.Material;
@@ -11,7 +11,6 @@ import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.entity.Enderman;
 import org.bukkit.material.MaterialData;
 
-/** Concrete Bukkit Enderman backed by the loader-owned NMS EnderMan. */
 public final class CraftEnderman extends CraftMonster implements Enderman {
     public CraftEnderman(CraftServer server, net.minecraft.world.entity.monster.EnderMan entity) { super(server, entity); }
     @Override public net.minecraft.world.entity.monster.EnderMan getHandle() { return (net.minecraft.world.entity.monster.EnderMan) this.entity; }

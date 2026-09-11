@@ -14,7 +14,6 @@ import org.bukkit.generator.WorldInfo;
 import java.util.List;
 import java.util.stream.Stream;
 
-/** Bukkit BiomeProvider exposed as a real NMS BiomeSource. */
 public final class CustomWorldChunkManager extends BiomeSource {
     private final WorldInfo worldInfo;
     private final BiomeProvider provider;

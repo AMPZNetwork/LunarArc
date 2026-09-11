@@ -4,7 +4,6 @@ import java.util.Objects;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 
-/** Adapts a Bukkit/Paper supplied java.util.Random to the vanilla RandomSource contract. */
 public final class RandomSourceWrapper implements RandomSource {
     private final java.util.Random random;
 
@@ -24,7 +23,6 @@ public final class RandomSourceWrapper implements RandomSource {
     @Override public double nextGaussian() { return this.random.nextGaussian(); }
 
 
-    /** Adapts an NMS RandomSource back to java.util.Random for Bukkit generators. */
     public static final class RandomWrapper extends java.util.Random {
         private final RandomSource source;
         public RandomWrapper(RandomSource source) { this.source = Objects.requireNonNull(source, "source"); }

@@ -14,17 +14,6 @@ loom {
     accessWidenerPath = project(':lunararc-common').file('src/main/resources/lunararc.accesswidener')
 }
 
-// lunararc-common is compiled against Mojang names, and so are the Paper implementation classes
-// donated into its output. Fabric Loader runs a production server on intermediary names, so
-// nothing named survives contact with it: the mixin config's very first entry died with
-// "@Mixin target net.minecraft.server.commands.EffectCommands was not found", which is the Mojang
-// name of a class the loader only knows as net.minecraft.class_3054.
-//
-// The fix is the same shape lunararc-forge already uses (and the one Architectury's own multi
-// loader layout prescribes): pull the common project's transformProductionFabric output into a
-// shadowJar, then hand that to remapJar so Loom remaps common and platform classes together,
-// named -> intermediary, in one pass. Depending on lunararc-common with a plain `implementation`
-// left its classes outside remapJar entirely, so they shipped in the named namespace.
 configurations {
     common {
         canBeResolved = true
@@ -50,8 +39,8 @@ dependencies {
     modImplementation libs.fabric.api
     common(project(path: ':lunararc-common', configuration: 'namedElements')) { transitive = false }
     shadowBundle(project(path: ':lunararc-common', configuration: 'transformProductionFabric')) { transitive = false }
-    implementation project(':lunararc-api')
-    shadowBundle project(':lunararc-api')
+    implementation libs.lunararc.api
+    shadowBundle libs.lunararc.api
     implementation libs.paper.api
 }
 

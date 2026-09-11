@@ -1,6 +1,6 @@
 package org.bukkit.plugin.java;
 
-import io.ampznetwork.lunararc.common.mod.LunarArcRemapper;
+import io.lunararcdevs.lunararc.common.mod.LunarArcRemapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,6 @@ import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.HexFormat;
 
-/**
- * Concrete remapping wrapper for Paper PluginLoader implementations that return a
- * non-URL ClassLoader.
- *
- * <p>The delegate remains responsible for locating its library resources. LunarArc
- * only intercepts class definition so mapping compatibility matches the plugin JAR.
- * Mojang libraries stay Mojang-named unless an individual class contains a legacy
- * versioned CraftBukkit adapter marker. This keeps Paper's custom loader behavior
- * without adding a dispatch facade.</p>
- */
 final class TransformingDelegatePluginLibraryClassLoader extends ClassLoader implements java.io.Closeable {
     private final ClassLoader delegate;
     private final LunarArcRemapper remapper;

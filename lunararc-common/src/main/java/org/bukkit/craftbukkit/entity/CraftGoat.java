@@ -1,5 +1,5 @@
 package org.bukkit.craftbukkit.entity;
-import io.ampznetwork.lunararc.common.bridge.entity.GoatBridge;
+import io.lunararcdevs.lunararc.common.bridge.entity.GoatBridge;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.schedule.Activity;
 import org.bukkit.craftbukkit.CraftServer;

@@ -1,8 +1,8 @@
 package org.bukkit.craftbukkit;
 
-import io.ampznetwork.lunararc.common.bridge.EntityBridge;
-import io.ampznetwork.lunararc.common.bridge.world.raid.RaidBridge;
-import io.ampznetwork.lunararc.common.server.LunarArcBossBar;
+import io.lunararcdevs.lunararc.common.bridge.EntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.world.raid.RaidBridge;
+import io.lunararcdevs.lunararc.common.server.LunarArcBossBar;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.raid.Raider;
 import org.bukkit.Bukkit;
@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/** Concrete Bukkit view of the loader-owned Minecraft Raid. */
 public final class CraftRaid implements Raid {
     private final net.minecraft.world.entity.raid.Raid handle;
 

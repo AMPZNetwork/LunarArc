@@ -450,28 +450,10 @@ public class CraftItemMeta implements ItemMeta, org.bukkit.inventory.meta.Damage
         Object rawJukebox = rawDataComponents.get("JUKEBOX_PLAYABLE");
         if (rawJukebox instanceof net.minecraft.world.item.JukeboxPlayable jp) jukeboxPlayable = new CraftJukeboxComponent(jp);
     }
-    /**
-     * FOOD, TOOL, JUKEBOX_PLAYABLE and RARITY, written only when this meta actually holds one -
-     * never removed for merely being absent here.
-     *
-     * <p>This used to call {@code setComponent(nms, "TOOL", ... : null)} unconditionally, and
-     * {@code setComponent}'s null case is a removal, not a no-op: {@code nms.remove(TOOL)}. A
-     * data component's removal is an explicit override that suppresses the item's own prototype
-     * default - it is not "leave whatever was already there alone". A meta built without ever
-     * having read a real item's components - which is exactly what {@code getItemMeta(Material)}
-     * used to hand out - has {@code tool == null} for every material, tool or not, so this ran
-     * that removal on every single item passed through {@code applyToNms}: a pickaxe given by
-     * {@code /give} lost the TOOL component that says what it can mine and how fast, a sword lost
-     * ATTRIBUTE_MODIFIERS the same way (handled separately, in {@link #applyAttributeModifiers}).
-     * Neither loss shows up on the item's tooltip or through any ItemMeta getter most plugins call,
-     * which is why it went unnoticed until someone checked whether a given tool actually mined.
-     *
-     * <p>Real CraftBukkit's own equivalent never has this problem, because it guards every one of
-     * these with {@code if (hasTool())} and otherwise does not touch the component at all - proven
-     * by reading it directly rather than assumed. That is the fix here too: write only what this
-     * meta actually holds, and leave the target stack's own component - whatever it already is -
-     * alone otherwise.</p>
-     */
+    // FOOD, TOOL, JUKEBOX_PLAYABLE and RARITY are written only when this meta actually holds
+    // one - setComponent(nms, key, null) removes the component, so writing null unconditionally
+    // would strip a target stack's existing default (e.g. a pickaxe's TOOL) whenever this meta
+    // never read one in.
     private void writeOptionalComponents(ItemStack nms) {
         if (food instanceof CraftFoodComponent c) setComponent(nms, "FOOD", c.getHandle());
         if (tool instanceof CraftToolComponent c) setComponent(nms, "TOOL", c.getHandle());
@@ -848,7 +830,7 @@ public class CraftItemMeta implements ItemMeta, org.bukkit.inventory.meta.Damage
             applyToNms(stack);
             net.minecraft.core.component.DataComponentPatch patch = stack.getComponentsPatch();
             net.minecraft.nbt.Tag nbt = net.minecraft.core.component.DataComponentPatch.CODEC
-                    .encodeStart(io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess()
+                    .encodeStart(io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess()
                             .createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), patch)
                     .getOrThrow();
             return nbt.toString();
@@ -863,7 +845,7 @@ public class CraftItemMeta implements ItemMeta, org.bukkit.inventory.meta.Damage
             ItemStack stack = new ItemStack(net.minecraft.world.item.Items.STONE);
             applyToNms(stack);
             net.minecraft.core.component.DataComponentPatch patch = stack.getComponentsPatch();
-            net.minecraft.core.RegistryAccess registryAccess = io.ampznetwork.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess();
+            net.minecraft.core.RegistryAccess registryAccess = io.lunararcdevs.lunararc.common.LunarArcServerAccess.getMinecraftServer().registryAccess();
             com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag> ops = registryAccess.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
             net.minecraft.core.Registry<net.minecraft.core.component.DataComponentType<?>> componentRegistry =
                     registryAccess.registryOrThrow(net.minecraft.core.registries.Registries.DATA_COMPONENT_TYPE);

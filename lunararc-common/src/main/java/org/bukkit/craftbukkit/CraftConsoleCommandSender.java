@@ -2,7 +2,6 @@ package org.bukkit.craftbukkit;
 
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Server;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
@@ -25,7 +24,7 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
 
     public static org.bukkit.command.CommandSender fromSource(net.minecraft.commands.CommandSourceStack source) {
         if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
-            return ((io.ampznetwork.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
+            return ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) player).lunararc$getBukkitEntity();
         }
         return new CraftConsoleCommandSender(source.getServer());
     }
@@ -55,7 +54,16 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
             return;
         }
 
-        String rendered = ANSI_ENABLED ? translateLegacy(text) : stripLegacy(text);
+        // NeoForge's own log4j2.xml already renders standard section-sign legacy color codes
+        // correctly per-appender: %minecraftFormatting converts them to ANSI for the live
+        // TerminalConsole appender and strips them entirely (via its {strip} option) for the
+        // File/DebugFile appenders. Baking raw ANSI into the message ourselves - as this used
+        // to do for every code, not just hex ones - defeats that: {strip} only recognizes real
+        // section-sign codes, so pre-baked ANSI bytes pass straight through into logs/latest.log
+        // unrendered. Hex colors ("&x...", "&#RRGGBB") are the one thing that converter cannot
+        // render at all, so those still need converting to ANSI here; everything else is left
+        // as real section-sign codes for log4j's own converter to handle appropriately.
+        String rendered = ANSI_ENABLED ? translateHexOnly(text) : stripLegacy(text);
 
 
         synchronized (CONSOLE_LOCK) {
@@ -80,8 +88,9 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
         return true;
     }
 
-    private static String translateLegacy(String text) {
+    private static String translateHexOnly(String text) {
         StringBuilder out = new StringBuilder(text.length() + 32);
+        boolean bakedAnsi = false;
         for (int i = 0; i < text.length(); i++) {
             char ch = text.charAt(i);
             if ((ch == '§' || ch == '&') && i + 1 < text.length()) {
@@ -97,6 +106,7 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
                                 .append((rgb >> 8) & 0xff).append(';')
                                 .append(rgb & 0xff).append('m');
                         i += 13;
+                        bakedAnsi = true;
                         continue;
                     }
                 }
@@ -111,20 +121,25 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
                                 .append((rgb >> 8) & 0xff).append(';')
                                 .append(rgb & 0xff).append('m');
                         i += 7;
+                        bakedAnsi = true;
                         continue;
                     }
                 }
 
-                String ansi = ansiFor(code);
-                if (ansi != null) {
-                    out.append(ansi);
+                // Standard single-character codes are left as real section-sign codes -
+                // NeoForge's log4j2.xml already renders or strips these correctly per-appender
+                // via %minecraftFormatting, and pre-baking ANSI here would defeat that (see
+                // writeConsole). '&' shorthand is normalized to the real marker so that
+                // conversion still recognizes it.
+                if (ansiFor(code) != null) {
+                    out.append('§').append(code);
                     i++;
                     continue;
                 }
             }
             out.append(ch);
         }
-        if (out.length() > 0) {
+        if (bakedAnsi) {
             out.append(ANSI_RESET);
         }
         return out.toString();
@@ -231,7 +246,7 @@ public class CraftConsoleCommandSender extends org.bukkit.craftbukkit.command.Se
 
     @Override
     public @NotNull Server getServer() {
-        return io.ampznetwork.lunararc.common.LunarArcServerAccess.getCraftServer(this.server);
+        return io.lunararcdevs.lunararc.common.LunarArcServerAccess.getCraftServer(this.server);
     }
 
     @Override

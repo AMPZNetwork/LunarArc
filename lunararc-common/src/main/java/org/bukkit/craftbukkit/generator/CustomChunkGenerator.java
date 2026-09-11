@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.generator;
 
 import com.mojang.serialization.MapCodec;
-import io.ampznetwork.lunararc.common.bridge.access.ChunkGeneratorAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.ChunkGeneratorAccessBridge;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -155,7 +155,7 @@ public final class CustomChunkGenerator extends ChunkGenerator {
     public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structures) {
         if (this.generator == null) {
             super.applyBiomeDecoration(level, chunk, structures);
-            io.ampznetwork.lunararc.common.mod.util.LunarArcChunkPopulators.populate(level, chunk);
+            io.lunararcdevs.lunararc.common.mod.util.LunarArcChunkPopulators.populate(level, chunk);
             return;
         }
         int x = chunk.getPos().x, z = chunk.getPos().z;
@@ -164,7 +164,7 @@ public final class CustomChunkGenerator extends ChunkGenerator {
         if (this.generator.shouldGenerateDecorations(this.worldInfo, random(decision), x, z)) {
             super.applyBiomeDecoration(level, chunk, structures);
         }
-        io.ampznetwork.lunararc.common.mod.util.LunarArcChunkPopulators.populate(level, chunk);
+        io.lunararcdevs.lunararc.common.mod.util.LunarArcChunkPopulators.populate(level, chunk);
     }
 
     @Override

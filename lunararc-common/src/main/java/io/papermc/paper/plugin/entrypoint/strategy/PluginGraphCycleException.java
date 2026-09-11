@@ -2,9 +2,6 @@ package io.papermc.paper.plugin.entrypoint.strategy;
 
 import java.util.List;
 
-/**
- * Indicates a dependency cycle within a provider loading sequence.
- */
 public class PluginGraphCycleException extends RuntimeException {
 
     private final List<List<String>> cycles;

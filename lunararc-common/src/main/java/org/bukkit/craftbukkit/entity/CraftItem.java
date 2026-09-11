@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.ItemEntityBridge;
-import io.ampznetwork.lunararc.common.bridge.access.ItemEntityAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.ItemEntityBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.ItemEntityAccessBridge;
 import net.kyori.adventure.util.TriState;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.bukkit.craftbukkit.CraftServer;

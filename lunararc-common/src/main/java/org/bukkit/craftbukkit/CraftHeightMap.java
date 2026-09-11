@@ -3,7 +3,6 @@ package org.bukkit.craftbukkit;
 import java.util.Objects;
 import org.bukkit.HeightMap;
 
-/** Exact Bukkit/NMS height-map conversion for Minecraft/Paper 1.21.1. */
 public final class CraftHeightMap {
     private CraftHeightMap() {}
 

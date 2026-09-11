@@ -201,7 +201,7 @@ class PaperPluginInstanceManager {
             return;
         }
 
-        long enableStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
+        long enableStart = io.lunararcdevs.lunararc.common.server.LunarArcTimings.phaseStart();
         String pluginDisplayName = plugin.getPluginMeta().getDisplayName();
 
         if (plugin.getPluginMeta() instanceof PluginDescriptionFile) {
@@ -247,7 +247,7 @@ class PaperPluginInstanceManager {
 
         HandlerList.bakeAll();
 
-        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordStartup(
+        io.lunararcdevs.lunararc.common.server.LunarArcTimings.recordStartup(
                 "Plugin Enable", pluginDisplayName, enableStart);
     }
 
@@ -259,7 +259,7 @@ class PaperPluginInstanceManager {
             return;
         }
 
-        long disableStart = io.ampznetwork.lunararc.common.server.LunarArcTimings.phaseStart();
+        long disableStart = io.lunararcdevs.lunararc.common.server.LunarArcTimings.phaseStart();
         String pluginName = plugin.getPluginMeta().getDisplayName();
 
         try {
@@ -280,7 +280,7 @@ class PaperPluginInstanceManager {
             // testPermissionSilent, and loading any not-yet-loaded class from the closed loader
             // throws NoClassDefFoundError (WorldEdit's BukkitPlayer, from wrapCommandSender).
             try {
-                if (this.commandMap instanceof io.ampznetwork.lunararc.common.server.LunarArcCommandMap lunarArcMap) {
+                if (this.commandMap instanceof io.lunararcdevs.lunararc.common.server.LunarArcCommandMap lunarArcMap) {
                     lunarArcMap.unregisterPlugin(plugin);
                 }
             } catch (Throwable ex) {
@@ -348,7 +348,7 @@ class PaperPluginInstanceManager {
             this.handlePluginException("Error occurred (in the plugin loader) while removing chunk tickets for " + pluginName + " (Is it up to date?)", ex, plugin); // Paper
         }
 
-        io.ampznetwork.lunararc.common.server.LunarArcTimings.recordShutdown(
+        io.lunararcdevs.lunararc.common.server.LunarArcTimings.recordShutdown(
                 "Plugin Disable", pluginName, disableStart);
     }
 

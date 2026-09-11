@@ -1,11 +1,10 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.AgeableMobBridge;
+import io.lunararcdevs.lunararc.common.bridge.AgeableMobBridge;
 import net.minecraft.world.entity.AgeableMob;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Ageable;
 
-/** Concrete Bukkit ageable wrapper backed by the real loader-owned AgeableMob. */
 public class CraftAgeable extends CraftCreature implements Ageable {
     public CraftAgeable(CraftServer server, AgeableMob entity) { super(server, entity); }
 

@@ -114,5 +114,5 @@ public class CraftMetaBook extends CraftItemMeta implements BookMeta, WritableBo
         @Override public void setPages(BaseComponent[]... pages) { setPages(Arrays.asList(pages)); }
         @Override public void addPage(BaseComponent[]... pages) { for (BaseComponent[] p : pages) CraftMetaBook.this.addInternal(p == null ? "" : TextComponent.toLegacyText(p)); }
     }
-    @Override public @NotNull BookMeta.Spigot spigot() { return this.spigot; }
+    @Override public BookMeta.@NotNull Spigot spigot() { return this.spigot; }
 }

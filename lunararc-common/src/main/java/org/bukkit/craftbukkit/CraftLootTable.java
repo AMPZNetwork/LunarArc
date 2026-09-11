@@ -26,13 +26,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 
-/**
- * Concrete Bukkit wrapper around the live 1.21.1 NMS loot table.
- *
- * <p>Plugin-triggered inventory fills fire Paper's LootGenerateEvent before
- * mutating the supplied Bukkit inventory. World-generated/container loot still
- * belongs to the real NMS loot path and is hooked separately.</p>
- */
 public final class CraftLootTable implements org.bukkit.loot.LootTable {
     private final NamespacedKey key;
     private final net.minecraft.world.level.storage.loot.LootTable handle;

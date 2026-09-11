@@ -5,8 +5,6 @@ import io.papermc.paper.plugin.entrypoint.dependency.DependencyContextHolder;
 import io.papermc.paper.plugin.entrypoint.strategy.ProviderConfiguration;
 import io.papermc.paper.plugin.manager.PaperPluginManagerImpl;
 import io.papermc.paper.plugin.provider.PluginProvider;
-import io.papermc.paper.plugin.provider.ProviderStatus;
-import io.papermc.paper.plugin.provider.ProviderStatusHolder;
 import io.papermc.paper.plugin.provider.type.paper.PaperPluginParent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;

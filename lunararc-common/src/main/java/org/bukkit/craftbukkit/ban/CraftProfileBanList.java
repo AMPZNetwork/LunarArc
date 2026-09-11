@@ -16,7 +16,6 @@ import org.bukkit.profile.PlayerProfile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Bukkit profile/name bans backed directly by Minecraft's persistent UserBanList. */
 @SuppressWarnings({"rawtypes", "deprecation"})
 public final class CraftProfileBanList implements org.bukkit.ban.ProfileBanList {
     private final UserBanList list;
@@ -67,11 +66,11 @@ public final class CraftProfileBanList implements org.bukkit.ban.ProfileBanList 
         try { return profileByUuid(UUID.fromString(target)); } catch (IllegalArgumentException ignored) { return profileByName(target); }
     }
     static GameProfile profileByUuid(UUID uuid) {
-        MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         return server == null || server.getProfileCache() == null ? null : server.getProfileCache().get(uuid).orElse(null);
     }
     static GameProfile profileByName(String name) {
-        MinecraftServer server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        MinecraftServer server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         return server == null || server.getProfileCache() == null ? null : server.getProfileCache().get(name).orElse(null);
     }
 
@@ -93,7 +92,7 @@ public final class CraftProfileBanList implements org.bukkit.ban.ProfileBanList 
         }
     }
     static com.destroystokyo.paper.profile.PlayerProfile toBukkit(GameProfile profile) {
-        io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile result = new io.ampznetwork.lunararc.common.server.LunarArcPlayerProfile(profile.getId(), profile.getName());
+        io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile result = new io.lunararcdevs.lunararc.common.server.LunarArcPlayerProfile(profile.getId(), profile.getName());
         for (Property property : profile.getProperties().values()) {
             result.setProperty(new com.destroystokyo.paper.profile.ProfileProperty(property.name(), property.value(), property.signature()));
         }

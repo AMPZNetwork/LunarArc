@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.generator.structure;
 
-import io.ampznetwork.lunararc.common.bridge.world.StructureStartBridge;
+import io.lunararcdevs.lunararc.common.bridge.world.StructureStartBridge;
 import org.bukkit.generator.structure.GeneratedStructure;
 import org.bukkit.generator.structure.Structure;
 import org.bukkit.generator.structure.StructurePiece;

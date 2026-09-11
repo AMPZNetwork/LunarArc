@@ -1,9 +1,7 @@
 package io.papermc.paper.plugin.entrypoint.strategy;
 
-import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import io.papermc.paper.plugin.configuration.PluginMeta;
-import io.papermc.paper.plugin.entrypoint.dependency.GraphDependencyContext;
 import io.papermc.paper.plugin.entrypoint.dependency.MetaDependencyTree;
 import io.papermc.paper.plugin.provider.PluginProvider;
 import io.papermc.paper.plugin.provider.type.paper.PaperPluginParent;
@@ -46,7 +44,7 @@ public class LegacyPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
             PluginMeta configuration = provider.getMeta();
 
             PluginProvider<T> replacedProvider = providersToLoad.put(configuration.getName(), provider);
-            dependencyTree.addDirectDependency(configuration.getName()); // add to dependency tree
+            dependencyTree.addDirectDependency(configuration.getName());
             if (replacedProvider != null) {
                 LOGGER.severe(String.format(
                     "Ambiguous plugin name `%s' for files `%s' and `%s' in `%s'",
@@ -79,7 +77,7 @@ public class LegacyPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
                     ));
                 } else {
                     String replacedPlugin = pluginsProvided.put(provided, configuration.getName());
-                    dependencyTree.addDirectDependency(provided); // add to dependency tree
+                    dependencyTree.addDirectDependency(provided);
                     if (replacedPlugin != null) {
                         LOGGER.warning(String.format(
                             "`%s' is provided by both `%s' and `%s'",
@@ -146,11 +144,8 @@ public class LegacyPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
                     while (dependencyIterator.hasNext()) {
                         String dependency = dependencyIterator.next();
 
-                        // Dependency loaded
                         if (loadedPlugins.contains(dependency)) {
                             dependencyIterator.remove();
-
-                            // We have a dependency not found
                         } else if (!providersToLoad.containsKey(dependency) && !pluginsProvided.containsKey(dependency)) {
                             // Paper start
                             missingHardDependencies.add(dependency);
@@ -180,7 +175,6 @@ public class LegacyPluginLoadingStrategy<T> implements ProviderLoadingStrategy<T
                     while (softDependencyIterator.hasNext()) {
                         String softDependency = softDependencyIterator.next();
 
-                        // Soft depend is no longer around
                         if (!providersToLoad.containsKey(softDependency) && !pluginsProvided.containsKey(softDependency)) {
                             softDependencyIterator.remove();
                         }

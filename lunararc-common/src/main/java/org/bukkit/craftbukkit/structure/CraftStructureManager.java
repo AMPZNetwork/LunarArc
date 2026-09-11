@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.structure;
 
-import io.ampznetwork.lunararc.common.bridge.access.StructureTemplateManagerAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.StructureTemplateManagerAccessBridge;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

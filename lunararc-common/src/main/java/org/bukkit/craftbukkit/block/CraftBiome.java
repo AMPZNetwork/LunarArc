@@ -1,19 +1,17 @@
 package org.bukkit.craftbukkit.block;
 
-import io.ampznetwork.lunararc.common.server.LunarArcRegistryAccess;
+import io.lunararcdevs.lunararc.common.server.LunarArcRegistryAccess;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.block.Biome;
 
-/** Concrete Bukkit/NMS biome conversion for the live loader-owned registry. */
 public final class CraftBiome {
     private CraftBiome() {}
 
     public static Biome minecraftHolderToBukkit(Holder<net.minecraft.world.level.biome.Biome> holder) {
-        var server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        var server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) throw new IllegalStateException("MinecraftServer has not been attached to LunarArc yet");
         var registry = server.registryAccess().registryOrThrow(Registries.BIOME);
         ResourceLocation id = holder.unwrapKey().map(net.minecraft.resources.ResourceKey::location)
@@ -27,7 +25,7 @@ public final class CraftBiome {
 
     public static Holder<net.minecraft.world.level.biome.Biome> bukkitToMinecraftHolder(Biome biome) {
         if (biome == null) throw new IllegalArgumentException("biome cannot be null");
-        var server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        var server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) throw new IllegalStateException("MinecraftServer has not been attached to LunarArc yet");
         var registry = server.registryAccess().registryOrThrow(Registries.BIOME);
         NamespacedKey key = biome.getKey();
@@ -36,18 +34,9 @@ public final class CraftBiome {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown biome " + key));
     }
 
-    /**
-     * CraftBukkit's Bukkit-facing conversion pair.
-     *
-     * <p>Routed through this file's own registry lookup rather than
-     * {@code CraftRegistry.minecraftToBukkit}, so all four methods here agree on where a biome
-     * comes from. Paper's null and {@code CUSTOM} handling is kept: a biome the Bukkit registry
-     * does not know reads back as {@code CUSTOM} instead of throwing, and {@code CUSTOM} has no
-     * NMS counterpart to convert to.</p>
-     */
     public static Biome minecraftToBukkit(net.minecraft.world.level.biome.Biome minecraft) {
         if (minecraft == null) throw new IllegalArgumentException("minecraft cannot be null");
-        var server = io.ampznetwork.lunararc.common.mod.server.LunarArcServer.minecraftServer();
+        var server = io.lunararcdevs.lunararc.common.mod.server.LunarArcServer.minecraftServer();
         if (server == null) throw new IllegalStateException("MinecraftServer has not been attached to LunarArc yet");
         ResourceLocation id = server.registryAccess().registryOrThrow(Registries.BIOME).getKey(minecraft);
         if (id == null) return Biome.CUSTOM;

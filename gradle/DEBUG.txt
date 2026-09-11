@@ -1,37 +1,13 @@
-LunarArc debug options
+## Optional diagnostics
 
-Debug output and startup/shutdown timing reports are disabled by default.
-Put JVM options before -jar in your launch script, then restart the server.
-Replace the example JAR name with your server JAR's filename.
+LunarArc tracing and startup/shutdown timing reports are disabled by default. Put the JVM option before `-jar` in your launch script:
 
-Timing reports only:
+```text
 java -Dlunararc.debug=timing -jar lunararc-neoforge.jar nogui
+```
 
-Timing and plugin diagnostics:
-java -Dlunararc.debug=timing,plugin -jar lunararc-neoforge.jar nogui
+Choose `timing`, `plugin`, `reflect`, `remap`, `classload`, `entity`, `fluid`, `command`, or `interact`. Combine channels with commas, such as `-Dlunararc.debug=timing,plugin`, or use `-Dlunararc.debug=all` for every channel. Restart to apply changes. The old `debugall` flags do not enable diagnostics.
 
-All debug channels:
-java -Dlunararc.debug=all -jar lunararc-neoforge.jar nogui
+Timing summaries appear in the console. Detailed traces go to `logs/lunararc-debug.log`; plugin diagnostics go to `logs/lunararc-plugin-debug.log`. Ordinary warnings and errors remain visible without debugging. Java-version rejection warnings are reported once per plugin JAR per server run.
 
-Available channels (combine with commas):
-timing    Startup/shutdown phases and individual operation durations.
-plugin    Plugin failure and compatibility diagnostics.
-reflect   Reflective field and method lookups.
-remap     Plugin bytecode remapping diagnostics.
-classload Plugin class loading and resolution.
-entity    Entity integration decisions.
-fluid     Fluid placement and flow tracing.
-command   Command handling traces.
-interact  Player interaction pipeline tracing.
-all       Every channel above.
-
-Output:
-Timing summaries appear in the console.
-Detailed traces: logs/lunararc-debug.log
-Plugin diagnostics: logs/lunararc-plugin-debug.log
-
-Remove -Dlunararc.debug=... and restart to disable diagnostics.
-The old -Ddebugall and -Dlunararc.debugall flags do not enable diagnostics.
-All-channel tracing is verbose; enable it only while investigating a problem.
-Normal warnings and errors remain visible without debug options.
-Java-version rejection warnings appear once per plugin JAR per server run.
+Two more diagnostics run unconditionally, with no debug flag needed: a player command taking 250ms or longer to execute logs a warning naming the command and its elapsed time, and a plugin's `TabCompleter` throwing an exception logs a warning instead of silently dropping suggestions.

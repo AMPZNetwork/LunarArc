@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import io.papermc.paper.world.MoonPhase;
-import io.ampznetwork.lunararc.common.bridge.access.PrimaryLevelDataAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.PrimaryLevelDataAccessBridge;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -100,7 +100,7 @@ public class CraftWorld implements World {
         this.persistentDataContainer = org.bukkit.craftbukkit.persistence.CraftWorldPersistentData.get(world).container();
         // CraftBukkit assigns Level.world as the world is created; plugins read that field
         // reflectively, so it must be set before anyone can observe the level.
-        ((io.ampznetwork.lunararc.common.bridge.LevelBridge) world).lunararc$attachBukkitWorld(this);
+        ((io.lunararcdevs.lunararc.common.bridge.LevelBridge) world).lunararc$attachBukkitWorld(this);
     }
 
     public io.papermc.paper.configuration.WorldConfiguration getPaperConfiguration() {
@@ -118,7 +118,7 @@ public class CraftWorld implements World {
 
     public void applyPaperConfiguration(io.papermc.paper.configuration.WorldConfiguration configuration) {
         this.paperConfiguration = java.util.Objects.requireNonNull(configuration);
-        io.ampznetwork.lunararc.common.server.LunarArcAntiXrayEngine.invalidate(world);
+        io.lunararcdevs.lunararc.common.server.LunarArcAntiXrayEngine.invalidate(world);
     }
 
     private static String defaultWorldName(ServerLevel world) {
@@ -134,7 +134,7 @@ public class CraftWorld implements World {
     private static UUID loadOrCreateWorldUid(ServerLevel world, String bukkitName) {
         java.nio.file.Path folder = null;
         try {
-            folder = ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) (Object) world)
+            folder = ((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) (Object) world)
                     .lunararc$getDimensionFolder();
         } catch (Throwable unavailable) {
             // The mixin that captures it did not apply; the legacy path below still answers.
@@ -142,23 +142,6 @@ public class CraftWorld implements World {
         return loadOrCreateWorldUid(folder, bukkitName, world.dimension().location().toString());
     }
 
-    /**
-     * This world's persistent UUID, kept in {@code uid.dat} inside the world's own folder.
-     *
-     * <p>{@code dimensionFolder} is where the dimension's data actually lives, which is the only
-     * place the file belongs: it is what Arclight uses, and on a hybrid it is the only choice that
-     * gives each dimension its own identity. CraftBukkit puts the file at the level directory root,
-     * which works there because every Bukkit world has a directory to itself - here the server's
-     * overworld, nether and end all share one {@code LevelStorageAccess}, so that rule would hand
-     * all three the same UUID.</p>
-     *
-     * <p>The name-derived folder is still read when the real one has no file yet, and the value is
-     * written through rather than replaced. Plugins persist world UUIDs - EssentialsX homes, warps
-     * and spawns among them - so a world that already had an identity has to keep it. The stray
-     * directory this code used to create is removed once it has given up its file and holds nothing
-     * else: an empty {@code world_nether} beside a save whose nether is in {@code world/DIM-1} reads
-     * like a world that lost its data.</p>
-     */
     public static UUID loadOrCreateWorldUid(java.nio.file.Path dimensionFolder, String bukkitName,
                                             String dimensionFallback) {
         java.nio.file.Path preferred = dimensionFolder == null ? null : dimensionFolder.resolve("uid.dat");
@@ -469,7 +452,7 @@ public class CraftWorld implements World {
     public @NotNull org.bukkit.Chunk[] getLoadedChunks() {
         // Read the loader-owned visible chunk map instead of using a permanent
         // CraftChunk wrapper cache or reconstructing an approximation from players.
-        return ((io.ampznetwork.lunararc.common.bridge.access.ChunkMapAccessBridge)
+        return ((io.lunararcdevs.lunararc.common.bridge.access.ChunkMapAccessBridge)
                 world.getChunkSource().chunkMap).lunararc$getVisibleChunkMap().values().stream()
                 .map(net.minecraft.server.level.ChunkHolder::getPos)
                 .map(pos -> world.getChunkSource().getChunkNow(pos.x, pos.z))
@@ -483,7 +466,7 @@ public class CraftWorld implements World {
         List<Entity> result = new ArrayList<>();
         for (net.minecraft.world.entity.Entity nmsEntity : world.getAllEntities()) {
             try {
-                org.bukkit.entity.Entity bukkitEntity = ((io.ampznetwork.lunararc.common.bridge.EntityBridge) nmsEntity).lunararc$getBukkitEntity();
+                org.bukkit.entity.Entity bukkitEntity = ((io.lunararcdevs.lunararc.common.bridge.EntityBridge) nmsEntity).lunararc$getBukkitEntity();
                 if (bukkitEntity != null) result.add(bukkitEntity);
             } catch (Throwable ignored) {}
         }
@@ -1043,7 +1026,7 @@ public class CraftWorld implements World {
 
     @Override
     public @NotNull Environment getEnvironment() {
-        return io.ampznetwork.lunararc.common.server.LunarArcDynamicBukkitEnums
+        return io.lunararcdevs.lunararc.common.server.LunarArcDynamicBukkitEnums
                 .environment(world.dimension().location());
     }
 
@@ -1208,7 +1191,7 @@ public class CraftWorld implements World {
         // serverViewDistance is private on ChunkMap; read it through the accessor bridge rather
         // than directly, which threw IllegalAccessError on respawn (CraftPlayer#getSendViewDistance).
         return lunararcViewDistance != null ? lunararcViewDistance
-                : ((io.ampznetwork.lunararc.common.bridge.access.ChunkMapAccessBridge)
+                : ((io.lunararcdevs.lunararc.common.bridge.access.ChunkMapAccessBridge)
                         (Object) world.getChunkSource().chunkMap).lunararc$getServerViewDistance();
     }
 
@@ -1225,8 +1208,8 @@ public class CraftWorld implements World {
 
     @Override
     public @NotNull List<org.bukkit.Raid> getRaids() {
-        io.ampznetwork.lunararc.common.bridge.world.raid.RaidsBridge raids =
-                (io.ampznetwork.lunararc.common.bridge.world.raid.RaidsBridge) (Object) world.getRaids();
+        io.lunararcdevs.lunararc.common.bridge.world.raid.RaidsBridge raids =
+                (io.lunararcdevs.lunararc.common.bridge.world.raid.RaidsBridge) (Object) world.getRaids();
         return raids.lunararc$raids().values().stream()
                 .map(org.bukkit.craftbukkit.CraftRaid::new)
                 .map(org.bukkit.Raid.class::cast)
@@ -1235,8 +1218,8 @@ public class CraftWorld implements World {
 
     @Override
     public @Nullable org.bukkit.Raid getRaid(int id) {
-        io.ampznetwork.lunararc.common.bridge.world.raid.RaidsBridge raids =
-                (io.ampznetwork.lunararc.common.bridge.world.raid.RaidsBridge) (Object) world.getRaids();
+        io.lunararcdevs.lunararc.common.bridge.world.raid.RaidsBridge raids =
+                (io.lunararcdevs.lunararc.common.bridge.world.raid.RaidsBridge) (Object) world.getRaids();
         net.minecraft.world.entity.raid.Raid raid = raids.lunararc$raids().get(id);
         return raid == null ? null : new org.bukkit.craftbukkit.CraftRaid(raid);
     }
@@ -1294,7 +1277,7 @@ public class CraftWorld implements World {
     }
 
     @Override
-    public @NotNull org.bukkit.World.Spigot spigot() {
+    public org.bukkit.World.@NotNull Spigot spigot() {
         return new org.bukkit.World.Spigot();
     }
 
@@ -1627,12 +1610,12 @@ public class CraftWorld implements World {
         LUNARARC_GAME_RULE_TYPES = java.util.Collections.unmodifiableMap(types);
     }
 
-    private @Nullable net.minecraft.world.level.GameRules.Key<?> lunararcGameRuleKey(String name) {
+    private net.minecraft.world.level.GameRules.@Nullable Key<?> lunararcGameRuleKey(String name) {
         return LUNARARC_GAME_RULE_KEYS.get(name);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private @Nullable net.minecraft.world.level.GameRules.Value<?> lunararcGameRuleValueObject(String name) {
+    private net.minecraft.world.level.GameRules.@Nullable Value<?> lunararcGameRuleValueObject(String name) {
         net.minecraft.world.level.GameRules.Key key = lunararcGameRuleKey(name);
         return key == null ? null : world.getGameRules().getRule(key);
     }
@@ -1841,7 +1824,7 @@ public class CraftWorld implements World {
 
     @Override
     public @NotNull java.io.File getWorldFolder() {
-        java.nio.file.Path folder = ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) world).lunararc$getDimensionFolder();
+        java.nio.file.Path folder = ((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) world).lunararc$getDimensionFolder();
         if (folder != null) return folder.toFile();
         String dim = world.dimension().location().toString();
         return switch (dim) {
@@ -2049,8 +2032,8 @@ public class CraftWorld implements World {
             org.bukkit.Location location, net.minecraft.world.level.block.state.BlockState state) {
         net.minecraft.world.entity.item.FallingBlockEntity entity = new net.minecraft.world.entity.item.FallingBlockEntity(
                 world, location.getX(), location.getY(), location.getZ(), state);
-        ((io.ampznetwork.lunararc.common.bridge.FallingBlockBridge) entity).lunararc$setTime(1);
-        ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) world).lunararc$addFreshEntity(
+        ((io.lunararcdevs.lunararc.common.bridge.FallingBlockBridge) entity).lunararc$setTime(1);
+        ((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) world).lunararc$addFreshEntity(
                 entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.CUSTOM);
         org.bukkit.entity.Entity bukkit = org.bukkit.craftbukkit.entity.CraftEntity.getEntity(
                 (org.bukkit.craftbukkit.CraftServer) org.bukkit.Bukkit.getServer(), entity);
@@ -2070,14 +2053,14 @@ public class CraftWorld implements World {
         if (handle.level() != world) {
             throw new IllegalArgumentException("Entity was created for a different world");
         }
-        ((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) world).lunararc$addFreshEntityWithPassengers(
+        ((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) world).lunararc$addFreshEntityWithPassengers(
                 handle, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.CUSTOM);
         return entity;
     }
 
     @SuppressWarnings("unchecked")
     private <T extends Entity> @Nullable T spawnInternal(@NotNull Location location, @NotNull EntityType type,
-            @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason,
+            org.bukkit.event.entity.CreatureSpawnEvent.@NotNull SpawnReason reason,
             @Nullable java.util.function.Consumer<? super T> function) {
         net.minecraft.resources.ResourceLocation rl = net.minecraft.resources.ResourceLocation.parse(type.getKey().toString());
         net.minecraft.world.entity.EntityType<?> nmsType = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.get(rl);
@@ -2093,7 +2076,7 @@ public class CraftWorld implements World {
         if (function != null && bukkit != null) {
             function.accept((T) bukkit);
         }
-        if (!((io.ampznetwork.lunararc.common.bridge.ServerLevelBridge) world).lunararc$addFreshEntity(nmsEntity, reason)) {
+        if (!((io.lunararcdevs.lunararc.common.bridge.ServerLevelBridge) world).lunararc$addFreshEntity(nmsEntity, reason)) {
             return null;
         }
         return bukkit != null ? (T) bukkit : null;
@@ -2116,7 +2099,7 @@ public class CraftWorld implements World {
     @SuppressWarnings("unchecked")
     public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> clazz,
             @Nullable java.util.function.Consumer<? super T> function,
-            @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason) {
+            org.bukkit.event.entity.CreatureSpawnEvent.@NotNull SpawnReason reason) {
         java.util.Objects.requireNonNull(reason, "reason");
         for (EntityType type : EntityType.values()) {
             if (type.getEntityClass() != null && clazz.isAssignableFrom(type.getEntityClass())) {
@@ -2166,7 +2149,7 @@ public class CraftWorld implements World {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends org.bukkit.entity.LivingEntity> @NotNull T spawn(@NotNull org.bukkit.Location location,
-            @NotNull Class<T> clazz, @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason,
+            @NotNull Class<T> clazz, org.bukkit.event.entity.CreatureSpawnEvent.@NotNull SpawnReason reason,
             boolean randomizeData, @Nullable java.util.function.Consumer<? super T> function) {
         return spawn(location, clazz, function, reason);
     }
@@ -2534,43 +2517,9 @@ public class CraftWorld implements World {
                 (org.bukkit.craftbukkit.CraftServer) org.bukkit.Bukkit.getServer(), entity);
     }
 
-    /**
-     * A ticket with no timeout, holding a chunk we asked for asynchronously at FULL until the
-     * load finishes.
-     *
-     * <p>Vanilla's {@code getChunkFutureMainThread} registers {@code TicketType.UNKNOWN}, which
-     * expires after a single tick. That is enough for vanilla's own blocking load, where
-     * {@code managedBlock} drains the chunk system before the tick ends, but not for a load we
-     * deliberately let span ticks - the ticket would lapse and the future might never complete.
-     * CraftBukkit holds it with {@code TicketType.PLUGIN}, a CraftBukkit addition to NMS rather
-     * than a vanilla field, so this is the equivalent through vanilla's public factory. Timeout
-     * defaults to zero, meaning it never expires on its own; it is removed explicitly below.</p>
-     */
     private static final net.minecraft.server.level.TicketType<net.minecraft.util.Unit> LUNARARC_ASYNC_CHUNK =
             net.minecraft.server.level.TicketType.create("lunararc_async_chunk", (a, b) -> 0);
 
-    /**
-     * Load a chunk without blocking the server thread.
-     *
-     * <p>This used to call the blocking {@link #getChunkAt(int, int, boolean)} inline, which made
-     * the method synchronous in everything but its return type. Plugins reach for this API
-     * precisely because they have many chunks to pull in and cannot afford to stall the server for
-     * each one - a random-teleport search walks candidate positions in ungenerated terrain until it
-     * finds a safe one, so every attempt became a full worldgen on the server thread with no
-     * ticking in between. Enough attempts back to back and the server stops answering keep-alives,
-     * which the client sees as a timeout.</p>
-     *
-     * <p>Paper answers immediately when the chunk is already resident and otherwise hands the load
-     * to its chunk system, completing the future later. Same shape here on vanilla's own
-     * machinery: {@code getChunkFuture} schedules the work and returns a future that resolves as
-     * the chunk system makes progress across ticks, instead of {@code managedBlock}-ing the server
-     * thread until it is done.</p>
-     *
-     * <p>Everything touching the chunk system runs on the server thread. NeoForge's own chunk
-     * pregenerator notes that acquiring and releasing tickets is not thread safe, and
-     * {@code getChunkFuture} dispatches differently depending on the calling thread; keeping to
-     * one thread avoids both hazards.</p>
-     */
     @Override
     public @NotNull java.util.concurrent.CompletableFuture<org.bukkit.Chunk> getChunkAtAsync(int x, int z, boolean gen,
             boolean urgent) {
@@ -2745,7 +2694,7 @@ public class CraftWorld implements World {
                 net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(world);
         if (bolt == null) throw new IllegalStateException("Unable to create lightning entity");
         bolt.moveTo(location.getX(), location.getY(), location.getZ());
-        ((io.ampznetwork.lunararc.common.bridge.LightningBoltBridge) bolt).lunararc$setEffect(effect);
+        ((io.lunararcdevs.lunararc.common.bridge.LightningBoltBridge) bolt).lunararc$setEffect(effect);
         org.bukkit.craftbukkit.entity.CraftLightningStrike bukkit =
                 new org.bukkit.craftbukkit.entity.CraftLightningStrike(
                         (org.bukkit.craftbukkit.CraftServer) org.bukkit.Bukkit.getServer(), bolt);

@@ -23,7 +23,7 @@ public final class CraftHorse extends CraftAbstractHorse implements Horse {
     @Override public boolean isCarryingChest() { return false; }
     @Override public void setCarryingChest(boolean chest) { if (chest) throw new UnsupportedOperationException("Horses cannot carry chests"); }
     @Override public HorseInventory getInventory() {
-        io.ampznetwork.lunararc.common.bridge.access.AbstractHorseAccessBridge a = (io.ampznetwork.lunararc.common.bridge.access.AbstractHorseAccessBridge)(Object)getHandle();
+        io.lunararcdevs.lunararc.common.bridge.access.AbstractHorseAccessBridge a = (io.lunararcdevs.lunararc.common.bridge.access.AbstractHorseAccessBridge)(Object)getHandle();
         return new CraftInventoryHorse(a.lunararc$getInventory(), a.lunararc$getBodyArmorAccess(), this);
     }
     @Override public String toString() { return "CraftHorse"; }

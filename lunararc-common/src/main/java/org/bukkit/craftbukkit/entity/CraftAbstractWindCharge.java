@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.entity;
 
-import io.ampznetwork.lunararc.common.bridge.access.AbstractWindChargeAccessBridge;
+import io.lunararcdevs.lunararc.common.bridge.access.AbstractWindChargeAccessBridge;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.AbstractWindCharge;
 

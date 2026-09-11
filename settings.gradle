@@ -11,8 +11,7 @@ pluginManagement {
 
 rootProject.name = 'LunarArc'
 
-include 'lunararc-api'
-
+// lunararc-api now lives at github.com/LunarArcDevs/api, pulled in via JitPack.
 include 'lunararc-common'
 
 include 'lunararc-neoforge'
@@ -21,7 +20,5 @@ include 'lunararc-fabric'
 include 'lunararc-quilt'
 
 include 'installer'
-
 include 'i18n-config'
-
 include 'bootstrap'

@@ -8,22 +8,6 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.util.Locale;
 
-/**
- * Spigot's {@code /restart}.
- *
- * <p>LunarArc had no such command at all: {@code SpigotConfig.commands} was missing, so nothing
- * ever registered one, and typing {@code restart} reached brigadier, which has no vanilla command
- * by that name. The operator sees nothing happen. This is the Spigot command, with the same name,
- * permission, description and {@code settings.restart-script} contract, so a wrapper script written
- * for Spigot works here unchanged.</p>
- *
- * <p>One deliberate difference from Spigot: the shutdown is the ordinary graceful one rather than
- * {@code Runtime.halt(0)}. Spigot halts the JVM outright after closing the server, which skips
- * every shutdown hook - including the one it has just registered to launch the restart script. The
- * script survives there only because the halt races the hook. Shutting down normally runs the hooks
- * in order, so the script is started by the same mechanism Paper's own {@code addShutdownHook}
- * relies on, and the plugins, worlds and databases that register hooks get to close properly.</p>
- */
 public class RestartCommand extends Command {
 
     public RestartCommand(String name) {
